@@ -1,117 +1,82 @@
+import { ArrowRight, FileText, MessageCircle, Database, FileSpreadsheet } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Reveal from "../components/Reveal";
 
-/**
- * PLACEHOLDER projects — swap these for real work (title, blurb, tags, year, and
- * ideally a `thumb` image path in /public). The bento spans alternate so the grid
- * never reads as a uniform card wall.
- */
-type Project = {
-  title: string;
-  blurb: string;
-  tags: string[];
-  year: string;
-  span: "wide" | "single";
+/* Honest, concrete input → output transformations — the tangible thing MewStack
+   does, without claiming a delivered portfolio. Light, restrained surfaces:
+   no fake years/tags, no dark card-wall, no mascot watermark. */
+type Shift = {
+  icon: LucideIcon;
+  from: string;
+  to: string;
 };
 
-const PROJECTS: Project[] = [
+const SHIFTS: Shift[] = [
   {
-    title: "Pipeline fiscal automatizado",
-    blurb: "Notas fiscais em PDF viram um painel de impostos atualizado sozinho, todo dia.",
-    tags: ["Python", "ETL", "BI"],
-    year: "2025",
-    span: "wide",
+    icon: FileText,
+    from: "Pasta de PDFs de nota fiscal",
+    to: "Painel de impostos que se atualiza sozinho, todo dia",
   },
   {
-    title: "Bot de atendimento no WhatsApp",
-    blurb: "Triagem e respostas automáticas integradas ao CRM.",
-    tags: ["Automação", "API"],
-    year: "2025",
-    span: "single",
+    icon: MessageCircle,
+    from: "Pedidos soltos no WhatsApp",
+    to: "Tudo organizado direto no seu CRM, sem digitar",
   },
   {
-    title: "Extrator PDF → planilha",
-    blurb: "Documentos não estruturados viram dados limpos e prontos.",
-    tags: ["Data Processing"],
-    year: "2024",
-    span: "single",
+    icon: Database,
+    from: "Export de sistema legado em CSV",
+    to: "Base limpa e estruturada, pronta pra consultar",
   },
   {
-    title: "Painel de vendas em tempo real",
-    blurb: "Várias fontes consolidadas numa decisão única, ao vivo.",
-    tags: ["SQL", "Dashboard", "Realtime"],
-    year: "2024",
-    span: "wide",
+    icon: FileSpreadsheet,
+    from: "Planilhas de comissão espalhadas",
+    to: "Um número consolidado e conferido sozinho",
   },
 ];
 
 export default function Projects() {
   return (
-    <section
-      id="projetos"
-      className="mx-auto max-w-7xl scroll-mt-24 px-5 py-24 sm:px-8 lg:py-32"
-    >
-      <Reveal className="flex flex-wrap items-end justify-between gap-4">
-        <h2 className="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.03em]">
-          Coisas que já tiraram alguém do trabalho manual.
+    <section id="projetos" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-16 sm:px-8 lg:py-24">
+      <Reveal className="max-w-2xl">
+        <p className="eyebrow mb-6">o que muda</p>
+        <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
+          O que entra bagunçado, sai como decisão.
         </h2>
-        <p className="font-display text-sm text-ink-soft mono">// trabalhos selecionados</p>
+        <p className="mt-5 max-w-[48ch] text-ink-soft">
+          O tipo de transformação que a MewStack monta — fonte crua de um lado,
+          rotina rodando sozinha do outro.
+        </p>
       </Reveal>
 
-      <ul className="mt-12 grid gap-4 lg:grid-cols-3">
-        {PROJECTS.map((p, i) => (
-          <Reveal
-            as="li"
-            key={p.title}
-            delay={i * 0.07}
-            className={p.span === "wide" ? "lg:col-span-2" : "lg:col-span-1"}
-          >
-            <article className="group relative flex h-full min-h-72 flex-col justify-between overflow-hidden rounded-3xl bg-night p-7 text-paper">
-              {/* mascot watermark */}
-              <img
-                src="/brand/mascot.svg"
-                alt=""
-                aria-hidden
-                className="pointer-events-none absolute -right-10 -bottom-12 w-52 opacity-[0.07] transition-transform duration-500 ease-[var(--ease-quart)] group-hover:scale-110 group-hover:opacity-[0.12]"
-              />
-              {/* pink glow on hover */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-40"
-                style={{ background: "var(--color-pink)" }}
-              />
-
-              <div className="relative flex items-center justify-between">
-                <span className="rounded-full border border-night-line px-3 py-1 text-xs font-medium text-paper-soft mono">
-                  {p.year}
-                </span>
-                <span className="text-xs font-medium text-paper-soft mono opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  exemplo
-                </span>
-              </div>
-
-              <div className="relative">
-                <h3 className="font-display text-2xl font-semibold tracking-[-0.02em] text-paper sm:text-[1.7rem]">
-                  {p.title}
-                </h3>
-                <p className="mt-2 max-w-[44ch] text-paper-soft">{p.blurb}</p>
-                <ul className="mt-5 flex flex-wrap gap-2">
-                  {p.tags.map((t) => (
-                    <li
-                      key={t}
-                      className="rounded-full bg-night-2 px-3 py-1 text-xs font-medium text-paper mono"
-                    >
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          </Reveal>
-        ))}
+      <ul className="mt-12 grid gap-3 sm:grid-cols-2">
+        {SHIFTS.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <Reveal as="li" key={s.from} delay={i * 0.07}>
+              <article className="card group h-full p-6 transition-[transform,border-color] duration-300 ease-[var(--ease-quart)] hover:-translate-y-0.5 hover:border-pink/30 sm:p-7">
+                <div className="flex items-start gap-4">
+                  <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ink/8 bg-cream text-ink-soft transition-colors duration-300 group-hover:text-pink-deep">
+                    <Icon className="h-4 w-4" strokeWidth={1.8} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[0.95rem] text-ink-soft">{s.from}</p>
+                    <div className="my-2.5 flex items-center gap-2 text-pink-deep">
+                      <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={2} />
+                      <span className="h-px flex-1 bg-cream-line" />
+                    </div>
+                    <p className="font-display text-[1.05rem] font-semibold leading-snug tracking-[-0.01em] text-ink">
+                      {s.to}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+          );
+        })}
       </ul>
 
       <Reveal delay={0.1} className="mt-6 text-sm text-ink-soft">
-        Projetos ilustrativos. Quer ver o seu aqui?{" "}
+        Quer ver a sua rotina aqui?{" "}
         <a href="#contato" className="font-medium text-pink-deep underline underline-offset-4">
           Vamos conversar
         </a>

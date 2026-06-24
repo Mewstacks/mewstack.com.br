@@ -1,10 +1,11 @@
 import { ReactLenis } from "lenis/react";
 import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
+import CodeLab from "./sections/CodeLab";
+import Pillars from "./sections/Pillars";
 import Capabilities from "./sections/Capabilities";
 import Projects from "./sections/Projects";
 import Process from "./sections/Process";
-import Manifesto from "./sections/Manifesto";
 import About from "./sections/About";
 import Contact from "./sections/Contact";
 
@@ -23,10 +24,11 @@ export default function App() {
       <Nav />
       <main id="conteudo">
         <Hero />
+        <Pillars />
+        <CodeLab />
         <Capabilities />
-        <Projects />
         <Process />
-        <Manifesto />
+        <Projects />
         <About />
         <Contact />
       </main>

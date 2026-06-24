@@ -23,14 +23,14 @@ export default function Nav() {
 
   return (
     <header
-      className="fixed inset-x-0 top-0 transition-[background,box-shadow,backdrop-filter] duration-500"
+      className={`fixed inset-x-0 top-0 border-b transition-[background-color,box-shadow,border-color,backdrop-filter] duration-500 ease-[var(--ease-quart)] ${
+        solid
+          ? "border-cream-line bg-cream/80 shadow-[0_8px_30px_-12px_rgba(40,30,40,0.18)] backdrop-blur-xl backdrop-saturate-150"
+          : "border-transparent bg-cream/0 backdrop-blur-[2px]"
+      }`}
       style={{ zIndex: "var(--z-nav)" }}
     >
-      <div
-        className={`mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 sm:px-8 ${
-          solid ? "bg-cream/85 shadow-[0_1px_0_var(--color-cream-line)] backdrop-blur-md" : ""
-        }`}
-      >
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
         <a href="#top" className="flex items-center" aria-label="MewStack, início" onClick={() => setOpen(false)}>
           <Logo variant="horizontal" priority className="h-8 w-auto sm:h-9" alt="MewStack" />
         </a>
@@ -50,10 +50,10 @@ export default function Nav() {
         <div className="flex items-center gap-2">
           <a
             href="#contato"
-            className="group hidden items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-cream transition-transform duration-300 ease-[var(--ease-quart)] hover:-translate-y-0.5 sm:inline-flex"
+            className="btn btn-primary hidden text-sm sm:inline-flex"
           >
-            <span className="live-dot" aria-hidden />
             Falar com a gente
+            <span className="arrow" aria-hidden>→</span>
           </a>
 
           {/* mobile menu toggle */}
@@ -104,10 +104,10 @@ export default function Nav() {
             <a
               href="#contato"
               onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 font-medium text-cream"
+              className="btn btn-primary w-full"
             >
-              <span className="live-dot" aria-hidden />
               Falar com a gente
+              <span className="arrow" aria-hidden>→</span>
             </a>
           </li>
         </ul>

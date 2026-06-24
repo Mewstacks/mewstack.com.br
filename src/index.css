@@ -34,6 +34,15 @@
   --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
+  /* elevation — borders do most of the work; shadows stay whisper-soft */
+  --shadow-soft: 0 1px 2px rgba(40,30,40,0.04), 0 3px 10px -4px rgba(40,30,40,0.07);
+  --shadow-card: 0 1px 2px rgba(40,30,40,0.03), 0 10px 30px -14px rgba(40,30,40,0.13);
+  --shadow-glow: 0 0 0 1px oklch(0.745 0.155 356 / 0.14), 0 12px 34px -16px oklch(0.745 0.155 356 / 0.30);
+
+  /* hairlines — low-opacity borders, the Linear/Supabase tell */
+  --line: oklch(0.268 0 0 / 0.09);
+  --line-strong: oklch(0.268 0 0 / 0.14);
+
   /* z-index scale */
   --z-base: 0;
   --z-wire: 5;
@@ -121,7 +130,187 @@
     );
     background-size: 4px 4px;
   }
+
+  /* fine editorial grid — Linear-style structure, barely there */
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, oklch(0.3 0.02 320 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.3 0.02 320 / 0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* gradient ink for headline accents (light-mode safe) */
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-pink-deep) 0%,
+      oklch(0.62 0.205 356) 55%,
+      var(--color-pink-deep) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* hairline card surface, raised */
+  .card-surface {
+    background: linear-gradient(180deg, var(--color-cream-deep), var(--color-cream));
+    border: 1px solid oklch(0.3 0.02 320 / 0.08);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* two-tone display gradient — Supabase headline pattern, light-safe.
+     first line full ink, second line fades to soft (set on the span) */
+  .text-ink-fade {
+    background-image: linear-gradient(180deg, var(--color-ink) 0%, var(--color-ink-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* FIG-style mono micro-label — ampere BentoGrid tell */
+  .fig {
+    font-family: var(--font-body);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-pink-deep);
+  }
+
+  /* mac-window chrome dot */
+  .win-dot { width: 0.7rem; height: 0.7rem; border-radius: 9999px; }
+
+  /* product console surface — Linear hero mockup, translated to light mode */
+  .console {
+    background: var(--color-cream-deep);
+    border: 1px solid var(--line-strong);
+    border-bottom: 0;
+    border-radius: 1rem 1rem 0 0;
+    box-shadow:
+      0 -2px 60px -20px oklch(0.745 0.155 356 / 0.25),
+      0 40px 80px -40px rgba(40,30,40,0.35),
+      0 0 0 1px oklch(1 0 0 / 0.6) inset;
+    overflow: hidden;
+  }
 }
+
+@layer components {
+  /* small tracked label — Linear/Supabase section opener */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.5rem;
+    height: 1px;
+    background: var(--color-pink);
+  }
+
+  /* buttons — crafted, not generic: tighter geometry, an inset top highlight,
+     a diagonal sheen that sweeps on hover, and an arrow that slides. */
+  .btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.625rem;
+    padding: 0.72rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    transition: transform 0.25s var(--ease-quart),
+      box-shadow 0.25s var(--ease-quart), background-color 0.25s var(--ease-quart),
+      border-color 0.25s var(--ease-quart), color 0.25s var(--ease-quart);
+  }
+  .btn .arrow {
+    display: inline-block;
+    transition: transform 0.25s var(--ease-quart);
+  }
+  .btn:hover .arrow {
+    transform: translateX(3px);
+  }
+  /* diagonal sheen sweep — turns a flat fill into something crafted */
+  .btn-primary::before,
+  .btn-pink::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      oklch(1 0 0 / 0.16) 50%,
+      transparent 70%
+    );
+    transform: translateX(-140%);
+    transition: transform 0.65s var(--ease-quart);
+  }
+  .btn-primary:hover::before,
+  .btn-pink:hover::before {
+    transform: translateX(140%);
+  }
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 0.14),
+      inset 0 0 0 1px oklch(1 0 0 / 0.04);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 1px 2px rgba(40,30,40,0.08), 0 12px 28px -10px rgba(40,30,40,0.34),
+      inset 0 1px 0 oklch(1 0 0 / 0.18);
+  }
+  .btn-pink {
+    background: var(--color-pink);
+    color: oklch(0.22 0.03 356);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 0.28);
+  }
+  .btn-pink:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow), inset 0 1px 0 oklch(1 0 0 / 0.32);
+  }
+  .btn-ghost {
+    border: 1px solid var(--line-strong);
+    color: var(--color-ink);
+    background: oklch(1 0 0 / 0.4);
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-ink);
+    background: oklch(1 0 0 / 0.7);
+  }
+
+  /* hairline card — near-white surface, border-led, whisper shadow */
+  .card {
+    border: 1px solid var(--line);
+    background: oklch(1 0 0 / 0.55);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.3s var(--ease-quart),
+      box-shadow 0.3s var(--ease-quart), border-color 0.3s var(--ease-quart),
+      background-color 0.3s var(--ease-quart);
+  }
+}
+
+/* slow-drifting aurora blobs for soft light-mode atmosphere */
+@keyframes aurora-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(3%, -4%, 0) scale(1.07); }
+  66% { transform: translate3d(-3%, 2%, 0) scale(0.96); }
+}
+.aurora { animation: aurora-drift 22s ease-in-out infinite; will-change: transform; }
 
 @keyframes ping {
   0% { transform: scale(1); opacity: 0.6; }

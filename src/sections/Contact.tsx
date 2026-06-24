@@ -7,8 +7,14 @@ const WHATSAPP = "https://wa.me/5554996202127"; // (54) 99620-2127
 
 export default function Contact() {
   return (
-    <section id="contato" className="scroll-mt-24 bg-night text-paper">
-      <div className="mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
+    <section id="contato" className="relative scroll-mt-24 overflow-clip bg-night text-paper">
+      {/* soft ambient glow, top-right */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-20 right-[-6%] h-[44vh] w-[44vh] rounded-full opacity-20 blur-[120px]"
+        style={{ background: "radial-gradient(circle, var(--color-pink) 0%, transparent 65%)" }}
+      />
+      <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
           <Reveal>
             <p className="mb-5 inline-flex items-center gap-2.5 font-medium text-pink-bright">
@@ -24,19 +30,19 @@ export default function Contact() {
               curta a gente já identifica o que dá pra resolver primeiro.
             </p>
 
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-10 flex flex-wrap gap-3">
               <a
                 href={WHATSAPP}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-pink px-6 py-3 text-base font-semibold text-night transition-transform duration-300 ease-[var(--ease-quart)] hover:-translate-y-0.5"
+                className="btn btn-pink font-semibold"
               >
                 Chamar no WhatsApp
-                <span aria-hidden>→</span>
+                <span className="arrow" aria-hidden>→</span>
               </a>
               <a
                 href={`mailto:${EMAIL}`}
-                className="inline-flex items-center gap-2 rounded-full border border-night-line px-6 py-3 text-base font-medium text-paper transition-colors duration-300 hover:border-paper/50"
+                className="btn border border-night-line text-paper transition-colors duration-300 hover:border-paper/50 hover:bg-white/5"
               >
                 {EMAIL}
               </a>
@@ -44,7 +50,7 @@ export default function Contact() {
                 href={INSTAGRAM}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-night-line px-6 py-3 text-base font-medium text-paper transition-colors duration-300 hover:border-paper/50"
+                className="btn border border-night-line text-paper transition-colors duration-300 hover:border-paper/50 hover:bg-white/5"
               >
                 @meewstack
               </a>

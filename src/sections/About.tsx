@@ -16,19 +16,18 @@ export default function About() {
       className="mx-auto max-w-3xl scroll-mt-24 px-5 py-20 sm:px-8 lg:py-24"
     >
       <Reveal>
-        <p className="mb-6 font-display text-sm text-ink-soft mono">// quem faz</p>
+        <p className="eyebrow mb-6">quem faz</p>
 
         <div className="flex items-center gap-5">
-          <div
-            aria-label="Foto de Germano Argenta Dal Prá"
-            role="img"
-            className="size-16 shrink-0 rounded-full bg-cream-deep bg-cover ring-2 ring-pink sm:size-20"
-            style={{
-              backgroundImage: "url(/brand/founder-card.png)",
-              backgroundSize: "300px 150px",
-              backgroundPosition: "-16px -34px",
-            }}
-          />
+          <div className="size-16 shrink-0 overflow-hidden rounded-full bg-cream-deep ring-2 ring-pink sm:size-20">
+            <img
+              src="/brand/founder.png"
+              alt="Germano Argenta Dal Prá"
+              className="h-full w-full object-cover [object-position:50%_28%]"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
           <div>
             <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">
               Germano Argenta Dal&nbsp;Prá
