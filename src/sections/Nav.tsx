@@ -3,9 +3,9 @@ import Logo from "../components/Logo";
 
 const LINKS = [
   { href: "#servicos", label: "Serviços" },
-  { href: "#projetos", label: "Projetos" },
   { href: "#processo", label: "Processo" },
   { href: "#estudio", label: "Estúdio" },
+  { href: "#exemplos", label: "Exemplos" },
 ];
 
 export default function Nav() {
