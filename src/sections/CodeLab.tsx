@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Loader2, Check, ChevronDown, TerminalSquare } from "lucide-react";
-import Reveal from "../components/Reveal";
+import { useChapter } from "../lib/useChapter";
 
 /* Linear-style "code in the marketing page", taken further: a real-feeling
    VS Code editor the visitor can actually RUN. Pressing ▶ types a terminal
@@ -99,7 +99,10 @@ export default function CodeLab() {
   const [lines, setLines] = useState<string[]>([]);
   const timers = useRef<number[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLElement>(null);
   const theme = THEMES[themeIdx];
+
+  useChapter(root);
 
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
@@ -142,20 +145,20 @@ export default function CodeLab() {
   };
 
   return (
-    <section id="rode" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
-      <Reveal className="max-w-2xl">
-        <p className="eyebrow mb-6">experimente</p>
-        <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
+    <section ref={root} id="rode" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
+      <div className="max-w-2xl">
+        <p data-reveal className="eyebrow mb-6">experimente</p>
+        <h2 data-reveal className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
           Não acredita que roda sozinho? Roda você mesmo.
         </h2>
-        <p className="mt-5 max-w-[48ch] text-ink-soft">
+        <p data-reveal className="mt-5 max-w-[48ch] text-ink-soft">
           Aperta <span className="font-medium text-ink">▶ Executar</span>. É Python de
           verdade, curtinho, o mesmo tipo de rotina que a gente monta pra tirar o
           trabalho repetitivo das suas costas.
         </p>
-      </Reveal>
+      </div>
 
-      <Reveal delay={0.1} className="mt-8">
+      <div data-reveal className="mt-8">
         <div
           className="overflow-hidden rounded-2xl shadow-[0_40px_90px_-50px_rgba(40,30,40,0.55)] ring-1 ring-black/5"
           style={{ background: theme.bg, border: `1px solid ${theme.border}` }}
@@ -305,7 +308,7 @@ export default function CodeLab() {
         <p className="mt-3 text-center text-[0.8rem] text-ink-soft">
           {done ? "Aberto! 🐱 (se o navegador bloqueou o pop-up, é só liberar)" : "Sim, ao executar ele abre nosso Instagram. Pode rodar sem medo. 🐱"}
         </p>
-      </Reveal>
+      </div>
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
 import {
   FileText,
   Sheet,
@@ -7,7 +7,7 @@ import {
   ArrowDownToLine,
   ShieldCheck,
 } from "lucide-react";
-import Reveal from "../components/Reveal";
+import { useChapter } from "../lib/useChapter";
 
 /* ── Showcase: um app de verdade que a MewStack ship — o baixador de NFS-e do
    portal nacional. Concreto > metáfora: filtra por emissão/competência, exporta
@@ -32,40 +32,37 @@ const NOTES: Note[] = [
 ];
 
 export default function Showcase() {
-  const reduce = useReducedMotion();
+  const root = useRef<HTMLElement>(null);
+  useChapter(root);
 
   return (
     <section
+      ref={root}
       id="exemplos"
       className="relative overflow-clip scroll-mt-24 px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24"
     >
       {/* ── soft pink aurora behind the product shot ── */}
       <div
         aria-hidden
+        data-parallax="1.4"
         className="aurora pointer-events-none absolute top-[18%] left-1/2 -z-10 h-[44vh] w-[120vw] max-w-[1000px] -translate-x-1/2 rounded-full opacity-25 blur-[120px]"
         style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, var(--color-pink) 0%, transparent 70%)" }}
       />
 
-      <Reveal className="mx-auto max-w-2xl">
-        <p className="eyebrow mb-6">exemplos</p>
-        <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
+      <div className="mx-auto max-w-2xl">
+        <p data-reveal className="eyebrow mb-6">exemplos</p>
+        <h2 data-reveal className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
           Um exemplo do que a gente coloca pra rodar.
         </h2>
-        <p className="mt-5 max-w-[48ch] text-ink-soft">
+        <p data-reveal className="mt-5 max-w-[48ch] text-ink-soft">
           Tipo este: um robô que baixa suas NFS-e direto do portal nacional,
           filtra por competência e exporta pra Excel ou PDF, sem ninguém abrir
           o site da prefeitura nota por nota.
         </p>
-      </Reveal>
+      </div>
 
       {/* ── NFS-e downloader mockup (Linear-style product shot, light mode) ── */}
-      <motion.div
-        initial={reduce ? false : { opacity: 0, y: 48 }}
-        whileInView={reduce ? {} : { opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="relative mx-auto mt-10 w-full max-w-5xl"
-      >
+      <div data-reveal data-parallax="0.5" className="relative mx-auto mt-10 w-full max-w-5xl">
         <div className="console">
           {/* window chrome */}
           <div className="flex h-10 items-center gap-1.5 border-b border-cream-line bg-cream px-4">
@@ -205,7 +202,7 @@ export default function Showcase() {
             style={{ background: "linear-gradient(to top, var(--color-cream) 8%, transparent 100%)" }}
           />
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -1,4 +1,5 @@
-import Reveal from "../components/Reveal";
+import { useRef } from "react";
+import { useChapter } from "../lib/useChapter";
 
 const STACK = [
   "Python",
@@ -10,15 +11,18 @@ const STACK = [
 ];
 
 export default function About() {
+  const root = useRef<HTMLElement>(null);
+  useChapter(root);
+
   return (
     <section
+      ref={root}
       id="estudio"
       className="mx-auto max-w-3xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
-      <Reveal>
-        <p className="eyebrow mb-6">quem faz</p>
+      <p data-reveal className="eyebrow mb-6">quem faz</p>
 
-        <div className="flex items-center gap-5">
+      <div data-reveal className="flex items-center gap-5">
           <div className="size-16 shrink-0 overflow-hidden rounded-full bg-cream-deep ring-2 ring-pink sm:size-20">
             <img
               src="/brand/founder.png"
@@ -38,23 +42,22 @@ export default function About() {
           </div>
         </div>
 
-        <p className="mt-6 max-w-[58ch] leading-relaxed text-ink-soft">
-          Engenheiro de dados e backend. Construo software, automações e
-          pipelines que transformam dados bagunçados em decisão, do primeiro
-          script ao sistema rodando em produção.
-        </p>
+      <p data-reveal className="mt-6 max-w-[58ch] leading-relaxed text-ink-soft">
+        Engenheiro de dados e backend. Construo software, automações e
+        pipelines que transformam dados bagunçados em decisão, do primeiro
+        script ao sistema rodando em produção.
+      </p>
 
-        <ul className="mt-6 flex flex-wrap gap-2">
-          {STACK.map((t) => (
-            <li
-              key={t}
-              className="rounded-full bg-cream-deep px-3 py-1 text-sm font-medium text-ink mono"
-            >
-              {t}
-            </li>
-          ))}
-        </ul>
-      </Reveal>
+      <ul data-reveal className="mt-6 flex flex-wrap gap-2">
+        {STACK.map((t) => (
+          <li
+            key={t}
+            className="rounded-full bg-cream-deep px-3 py-1 text-sm font-medium text-ink mono"
+          >
+            {t}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
