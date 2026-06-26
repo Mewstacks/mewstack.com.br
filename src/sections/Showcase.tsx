@@ -53,7 +53,7 @@ export default function Showcase() {
         </h2>
         <p className="mt-5 max-w-[48ch] text-ink-soft">
           Tipo este: um robô que baixa suas NFS-e direto do portal nacional,
-          filtra por competência e exporta pra Excel ou PDF — sem ninguém abrir
+          filtra por competência e exporta pra Excel ou PDF, sem ninguém abrir
           o site da prefeitura nota por nota.
         </p>
       </Reveal>

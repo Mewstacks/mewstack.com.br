@@ -150,7 +150,7 @@ export default function CodeLab() {
         </h2>
         <p className="mt-5 max-w-[48ch] text-ink-soft">
           Aperta <span className="font-medium text-ink">▶ Executar</span>. É Python de
-          verdade, curtinho — o mesmo tipo de rotina que a gente monta pra tirar o
+          verdade, curtinho, o mesmo tipo de rotina que a gente monta pra tirar o
           trabalho repetitivo das suas costas.
         </p>
       </Reveal>
@@ -303,7 +303,7 @@ export default function CodeLab() {
         </div>
 
         <p className="mt-3 text-center text-[0.8rem] text-ink-soft">
-          {done ? "Aberto! 🐱 (se o navegador bloqueou o pop-up, é só liberar)" : "Sim — ao executar, ele abre nosso Instagram. Pode rodar sem medo. 🐱"}
+          {done ? "Aberto! 🐱 (se o navegador bloqueou o pop-up, é só liberar)" : "Sim, ao executar ele abre nosso Instagram. Pode rodar sem medo. 🐱"}
         </p>
       </Reveal>
     </section>

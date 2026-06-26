@@ -40,7 +40,7 @@ export default function About() {
 
         <p className="mt-6 max-w-[58ch] leading-relaxed text-ink-soft">
           Engenheiro de dados e back-end. Construo software, automações e
-          pipelines que transformam dados bagunçados em decisão — do primeiro
+          pipelines que transformam dados bagunçados em decisão, do primeiro
           script ao sistema rodando em produção.
         </p>
 

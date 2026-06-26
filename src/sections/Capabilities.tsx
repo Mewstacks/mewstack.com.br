@@ -14,7 +14,7 @@ const SERVICES: Service[] = [
   {
     icon: Boxes,
     title: "Software & Automações",
-    desc: "Sistemas sob medida e robôs que executam suas rotinas — integrados ao que você já usa, sem planilha no meio do caminho.",
+    desc: "Sistemas sob medida e robôs que executam suas rotinas, integrados ao que você já usa, sem planilha no meio do caminho.",
     checks: ["Sistemas sob medida", "Integrações & APIs", "Bots & scripts"],
     span: "md:col-span-7",
   },
@@ -28,7 +28,7 @@ const SERVICES: Service[] = [
   {
     icon: Database,
     title: "Data Processing",
-    desc: "Volume de documento que ninguém dá conta de conferir na mão — lido, validado e organizado no formato que o seu time realmente usa.",
+    desc: "Volume de documento que ninguém dá conta de conferir na mão. A gente lê, valida e organiza no formato que o seu time realmente usa.",
     checks: ["Limpeza & ETL", "Estruturação", "Dashboards", "Dado → decisão"],
     span: "md:col-span-12",
   },
