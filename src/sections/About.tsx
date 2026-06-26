@@ -13,7 +13,7 @@ export default function About() {
   return (
     <section
       id="estudio"
-      className="mx-auto max-w-3xl scroll-mt-24 px-5 py-20 sm:px-8 lg:py-24"
+      className="mx-auto max-w-3xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
       <Reveal>
         <p className="eyebrow mb-6">quem faz</p>

@@ -36,7 +36,7 @@ const SERVICES: Service[] = [
 
 export default function Capabilities() {
   return (
-    <section id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 sm:px-8 lg:py-28">
+    <section id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
       <Reveal className="max-w-2xl">
         <p className="eyebrow mb-6">serviços</p>
         <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]">
@@ -44,7 +44,7 @@ export default function Capabilities() {
         </h2>
       </Reveal>
 
-      <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-12">
+      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-12">
         {SERVICES.map((s, i) => {
           const Icon = s.icon;
           const wide = s.span === "md:col-span-12";

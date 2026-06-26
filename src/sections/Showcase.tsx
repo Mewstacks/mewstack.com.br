@@ -37,7 +37,7 @@ export default function Showcase() {
   return (
     <section
       id="exemplos"
-      className="relative overflow-clip scroll-mt-24 px-5 pt-16 pb-20 sm:px-8 lg:pt-24 lg:pb-28"
+      className="relative overflow-clip scroll-mt-24 px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24"
     >
       {/* ── soft pink aurora behind the product shot ── */}
       <div
@@ -64,7 +64,7 @@ export default function Showcase() {
         whileInView={reduce ? {} : { opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="relative mx-auto mt-12 w-full max-w-5xl"
+        className="relative mx-auto mt-10 w-full max-w-5xl"
       >
         <div className="console">
           {/* window chrome */}

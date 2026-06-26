@@ -14,7 +14,7 @@ export default function Contact() {
         className="pointer-events-none absolute -top-20 right-[-6%] h-[44vh] w-[44vh] rounded-full opacity-20 blur-[120px]"
         style={{ background: "radial-gradient(circle, var(--color-pink) 0%, transparent 65%)" }}
       />
-      <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-28">
+      <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
           <Reveal>
             <p className="mb-5 inline-flex items-center gap-2.5 font-medium text-pink-bright">

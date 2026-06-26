@@ -142,7 +142,7 @@ export default function CodeLab() {
   };
 
   return (
-    <section id="rode" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-16 sm:px-8 lg:py-24">
+    <section id="rode" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
       <Reveal className="max-w-2xl">
         <p className="eyebrow mb-6">experimente</p>
         <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
@@ -155,7 +155,7 @@ export default function CodeLab() {
         </p>
       </Reveal>
 
-      <Reveal delay={0.1} className="mt-10">
+      <Reveal delay={0.1} className="mt-8">
         <div
           className="overflow-hidden rounded-2xl shadow-[0_40px_90px_-50px_rgba(40,30,40,0.55)] ring-1 ring-black/5"
           style={{ background: theme.bg, border: `1px solid ${theme.border}` }}
