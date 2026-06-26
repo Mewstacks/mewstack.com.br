@@ -2,7 +2,7 @@ import Reveal from "../components/Reveal";
 
 const STACK = [
   "Python",
-  "Back-end & APIs",
+  "Backend & APIs",
   "ETL / pipelines",
   "Automação",
   "SQL & bancos",
@@ -39,7 +39,7 @@ export default function About() {
         </div>
 
         <p className="mt-6 max-w-[58ch] leading-relaxed text-ink-soft">
-          Engenheiro de dados e back-end. Construo software, automações e
+          Engenheiro de dados e backend. Construo software, automações e
           pipelines que transformam dados bagunçados em decisão, do primeiro
           script ao sistema rodando em produção.
         </p>
