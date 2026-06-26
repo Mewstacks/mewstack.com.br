@@ -45,6 +45,37 @@ function ScrollChrome() {
   );
 }
 
+/* Routes in-page #hash clicks through Lenis so they scroll smoothly to the right
+   spot (the native jump fights Lenis's smoothing). Sections already carry
+   scroll-mt-24 (the fixed-nav clearance), which Lenis honors — so offset stays 0.
+   Always rendered — anchors must work even under reduced motion (then instant).
+   Keeps keyboard/SR focus moving to the target. */
+const ANCHOR_OFFSET = 0;
+
+function LenisAnchors() {
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (!lenis) return;
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+      const link = (e.target as HTMLElement).closest?.('a[href^="#"]');
+      const href = link?.getAttribute("href");
+      if (!href || href.length < 2) return;
+      const target = document.querySelector<HTMLElement>(href);
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: ANCHOR_OFFSET });
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [lenis]);
+
+  return null;
+}
+
 export default function App() {
   const reduce = reduceMotion();
 
@@ -58,6 +89,7 @@ export default function App() {
         touchMultiplier: 1.5,
       }}
     >
+      <LenisAnchors />
       {!reduce && <ScrollChrome />}
       <a
         href="#conteudo"

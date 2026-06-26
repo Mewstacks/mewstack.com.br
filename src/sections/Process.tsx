@@ -3,10 +3,11 @@ import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
 
-/* ── Process: o capítulo-assinatura. No desktop a seção é fixada (pin) e, à
-   medida que o usuário rola, a timeline é "scrubada": a live wire rosa preenche
-   o trilho e cada nó acende com seu texto, em sequência. No mobile vira uma
-   timeline vertical com reveal em stagger (sem pin). Tudo transform/opacity. */
+/* ── Process: o capítulo-assinatura. A timeline é "scrubada" pelo scroll: a
+   live wire rosa preenche o trilho e cada nó acende com seu texto, em sequência,
+   conforme a seção passa pela tela. Sem pin (mantém os anchors confiáveis e zero
+   scroll-jacking). No mobile vira timeline vertical com reveal em stagger.
+   Tudo transform/opacity. */
 const STEPS = [
   {
     n: "01",
@@ -61,7 +62,7 @@ export default function Process() {
           }),
       });
 
-      // Desktop: pin + scrub the whole timeline.
+      // Desktop: scrub the timeline as the section passes (no pin).
       mm.add(MOTION.desktop, () => {
         gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
         gsap.set(nodes, { scale: 0.55, opacity: 0.3 });
@@ -70,11 +71,9 @@ export default function Process() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
-            start: "top top",
-            end: MOTION.processPin,
+            start: "top 68%",
+            end: "bottom 82%",
             scrub: true,
-            pin: true,
-            anticipatePin: 1,
           },
         });
 
