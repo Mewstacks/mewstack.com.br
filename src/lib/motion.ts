@@ -27,9 +27,6 @@ export const MOTION = {
   heroExitY: -26, // % the hero copy lifts as it leaves
   heroExitScale: 0.9, // scale the hero settles to on exit
 
-  /* process chapter (pinned scrub) */
-  processPin: "+=115%", // how long the timeline section stays pinned
-
   /* breakpoint that separates "full" desktop choreography from "light" mobile */
   desktop: "(min-width: 768px)",
   mobile: "(max-width: 767px)",

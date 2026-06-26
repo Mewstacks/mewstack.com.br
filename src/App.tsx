@@ -46,9 +46,10 @@ function ScrollChrome() {
 }
 
 /* Routes in-page #hash clicks through Lenis so they scroll smoothly to the right
-   spot (the native jump fights Lenis's smoothing). The target position is read
-   live from getBoundingClientRect so it stays correct even past a pinned section
-   (the pin-spacer shifts offsetTop, but not the visual rect). Always rendered —
+   spot (the native jump fights Lenis's smoothing). The target position is summed
+   from offsetTop (layout-based) instead of getBoundingClientRect, so it ignores
+   the exit transforms the chapters apply — a section that's currently lifted/
+   scaled as it leaves still resolves to its true position. Always rendered —
    anchors must work even under reduced motion (then instant). Keeps keyboard/SR
    focus moving to the target. */
 const NAV_CLEARANCE = 96; // px the section sits below the viewport top (fixed nav)
@@ -66,10 +67,13 @@ function LenisAnchors() {
       const target = document.querySelector<HTMLElement>(href);
       if (!target) return;
       e.preventDefault();
-      const y = Math.round(
-        target.getBoundingClientRect().top + window.scrollY - NAV_CLEARANCE,
-      );
-      lenis.scrollTo(y);
+      let y = -NAV_CLEARANCE;
+      let node: HTMLElement | null = target;
+      while (node) {
+        y += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      lenis.scrollTo(Math.max(0, Math.round(y)));
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
     };

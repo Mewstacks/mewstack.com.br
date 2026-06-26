@@ -3,11 +3,12 @@ import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
 
-/* ── Process: o capítulo-assinatura. No desktop a seção é FIXADA (pin) e, à
-   medida que o usuário rola, a timeline é "scrubada": a live wire rosa preenche
-   o trilho e cada nó acende com seu texto, em sequência — a seção assume a tela
-   como uma cena. No mobile vira timeline vertical com reveal em stagger (sem
-   pin). Título por mask reveal. Tudo transform/opacity (+ clip pontual). */
+/* ── Process: o capítulo-assinatura. No desktop a timeline é "scrubada" pelo
+   scroll: a live wire rosa preenche o trilho e cada nó acende com seu texto, em
+   sequência, conforme a seção sobe pela tela. Sem pin — assim, pular pra cá por
+   um anchor cai numa timeline já preenchida (o scrub reflete a posição), em vez
+   de um frame vazio pré-pin. No mobile, timeline vertical com reveal em stagger.
+   Título por mask reveal. Tudo transform/opacity (+ clip pontual). */
 const STEPS = [
   {
     n: "01",
@@ -71,7 +72,9 @@ export default function Process() {
         },
       });
 
-      // Desktop: pin + scrub the whole timeline (the chapter takes the screen).
+      // Desktop: scrub the timeline as the section rises through the screen.
+      // No pin — so jumping here via an anchor lands on a filled timeline (the
+      // scrub reflects scroll position) instead of an empty pre-pin frame.
       mm.add(MOTION.desktop, () => {
         gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
         gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
@@ -80,11 +83,9 @@ export default function Process() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
-            start: "top top",
-            end: MOTION.processPin,
+            start: "top 72%",
+            end: "top 28%",
             scrub: true,
-            pin: true,
-            anticipatePin: 1,
           },
         });
 
@@ -126,7 +127,7 @@ export default function Process() {
     <section
       ref={root}
       id="processo"
-      className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20 md:flex md:min-h-[92vh] md:flex-col md:justify-center"
+      className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
       <div className="max-w-2xl">
         <p data-pro="eyebrow" className="eyebrow mb-6">
