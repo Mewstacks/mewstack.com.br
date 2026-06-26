@@ -79,24 +79,6 @@ export default function Hero() {
           <span className="text-gradient">a gente revela.</span>
         </motion.h1>
 
-        <motion.p
-          {...rise(0.16)}
-          className="mt-6 max-w-[46ch] text-[1.075rem] leading-relaxed text-ink-soft"
-        >
-          Software sob medida e rotinas que rodam sozinhas — do robô que baixa
-          suas notas fiscais ao painel que se atualiza sem você tocar numa
-          planilha.
-        </motion.p>
-
-        <motion.div {...rise(0.24)} className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <a href="#contato" className="btn btn-primary">
-            Começar um projeto
-            <span className="arrow" aria-hidden>→</span>
-          </a>
-          <a href="#rode" className="btn btn-ghost">
-            Ver como funciona
-          </a>
-        </motion.div>
       </div>
 
       {/* ── NFS-e downloader mockup (Linear hero product shot, light mode) ── */}
