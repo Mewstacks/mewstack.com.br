@@ -31,16 +31,23 @@ export default function Hero() {
       mm.add({ isDesktop: MOTION.desktop, isMobile: MOTION.mobile }, (ctx) => {
         const { isMobile } = ctx.conditions as { isDesktop: boolean; isMobile: boolean };
 
-        // Entrance — layered, plays on load.
+        // Entrance — layered, title by mask reveal, plays on load.
         gsap
           .timeline({ defaults: { ease: "power4.out" } })
-          .from(badge, { y: 18, opacity: 0, duration: 0.7 })
-          .from(
+          .from(badge, { y: 20, opacity: 0, duration: 0.7 })
+          .fromTo(
             lines,
-            { y: isMobile ? 32 : 54, opacity: 0, duration: 1, stagger: 0.12 },
+            { clipPath: "inset(0 0 100% 0)", yPercent: 18, opacity: 1 },
+            {
+              clipPath: "inset(0 0 0% 0)",
+              yPercent: 0,
+              duration: 1.15,
+              ease: MOTION.easeTitle,
+              stagger: 0.14,
+            },
             "-=0.25",
           )
-          .from(cue, { y: 14, opacity: 0, duration: 0.7 }, "-=0.35");
+          .from(cue, { y: 14, opacity: 0, duration: 0.7 }, "-=0.4");
 
         // Exit / parallax — desktop only (avoids touch jank).
         if (!isMobile) {
@@ -58,11 +65,12 @@ export default function Hero() {
               autoAlpha: 0,
               ease: "none",
               immediateRender: false,
-              scrollTrigger: { trigger: el, start: "top top", end: "15% top", scrub: true },
+              scrollTrigger: { trigger: el, start: "top top", end: "12% top", scrub: true },
             },
           );
           gsap.to(aurora, {
-            yPercent: 24,
+            yPercent: 38,
+            scale: 1.18,
             ease: "none",
             scrollTrigger: { trigger: el, start: "top top", end: "bottom top", scrub: true },
           });

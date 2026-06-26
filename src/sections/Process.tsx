@@ -3,11 +3,11 @@ import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
 
-/* ── Process: o capítulo-assinatura. A timeline é "scrubada" pelo scroll: a
-   live wire rosa preenche o trilho e cada nó acende com seu texto, em sequência,
-   conforme a seção passa pela tela. Sem pin (mantém os anchors confiáveis e zero
-   scroll-jacking). No mobile vira timeline vertical com reveal em stagger.
-   Tudo transform/opacity. */
+/* ── Process: o capítulo-assinatura. No desktop a seção é FIXADA (pin) e, à
+   medida que o usuário rola, a timeline é "scrubada": a live wire rosa preenche
+   o trilho e cada nó acende com seu texto, em sequência — a seção assume a tela
+   como uma cena. No mobile vira timeline vertical com reveal em stagger (sem
+   pin). Título por mask reveal. Tudo transform/opacity (+ clip pontual). */
 const STEPS = [
   {
     n: "01",
@@ -34,53 +34,64 @@ export default function Process() {
       const el = root.current;
       if (!el) return;
       const q = gsap.utils.selector(el);
-      const head = q("[data-pro='head']");
+      const eyebrow = q("[data-pro='eyebrow']");
+      const title = q("[data-pro='title']");
       const rail = q("[data-pro='rail']");
       const nodes = q("[data-pro='node']");
       const steps = q("[data-pro='step']");
 
       if (reduceMotion()) {
-        gsap.set([...head, ...steps, ...nodes], { opacity: 1, y: 0, scale: 1 });
+        gsap.set([...eyebrow, ...title, ...steps, ...nodes], {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          clipPath: "none",
+        });
         gsap.set(rail, { scaleX: 1 });
         return;
       }
 
       const mm = gsap.matchMedia();
 
-      // Header reveal — both breakpoints.
-      gsap.set(head, { opacity: 0, y: MOTION.revealY });
-      ScrollTrigger.batch(head, {
-        start: "top 80%",
-        onEnter: (batch) =>
-          gsap.to(batch, {
-            opacity: 1,
+      // Header reveal — eyebrow rises, title masks in. Both breakpoints.
+      gsap.set(eyebrow, { opacity: 0, y: MOTION.revealY * 0.5 });
+      gsap.set(title, { clipPath: "inset(0 0 100% 0)", y: MOTION.revealY * 0.5, opacity: 1 });
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 78%",
+        once: true,
+        onEnter: () => {
+          gsap.to(eyebrow, { opacity: 1, y: 0, duration: MOTION.duration, ease: MOTION.ease });
+          gsap.to(title, {
+            clipPath: "inset(0 0 0% 0)",
             y: 0,
-            duration: MOTION.duration,
-            ease: MOTION.ease,
-            stagger: MOTION.stagger,
-            overwrite: true,
-          }),
+            duration: MOTION.duration + 0.2,
+            ease: MOTION.easeTitle,
+          });
+        },
       });
 
-      // Desktop: scrub the timeline as the section passes (no pin).
+      // Desktop: pin + scrub the whole timeline (the chapter takes the screen).
       mm.add(MOTION.desktop, () => {
         gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
-        gsap.set(nodes, { scale: 0.55, opacity: 0.3 });
-        gsap.set(steps, { opacity: 0, y: 32 });
+        gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
+        gsap.set(steps, { opacity: 0, y: 36 });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
-            start: "top 68%",
-            end: "bottom 82%",
+            start: "top top",
+            end: MOTION.processPin,
             scrub: true,
+            pin: true,
+            anticipatePin: 1,
           },
         });
 
         tl.to(rail, { scaleX: 1, ease: "none", duration: 3 }, 0);
         [0, 1, 2].forEach((i) => {
           const at = 0.3 + i * 0.85;
-          tl.to(nodes[i], { scale: 1, opacity: 1, ease: "back.out(1.6)", duration: 0.5 }, at).to(
+          tl.to(nodes[i], { scale: 1, opacity: 1, ease: "back.out(1.7)", duration: 0.5 }, at).to(
             steps[i],
             { opacity: 1, y: 0, ease: "power3.out", duration: 0.6 },
             at,
@@ -115,14 +126,14 @@ export default function Process() {
     <section
       ref={root}
       id="processo"
-      className="mx-auto flex min-h-[60vh] max-w-5xl flex-col justify-center scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
+      className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20 md:flex md:min-h-[92vh] md:flex-col md:justify-center"
     >
       <div className="max-w-2xl">
-        <p data-pro="head" className="eyebrow mb-6">
+        <p data-pro="eyebrow" className="eyebrow mb-6">
           processo
         </p>
         <h2
-          data-pro="head"
+          data-pro="title"
           className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]"
         >
           Da bagunça ao botão que roda sozinho.

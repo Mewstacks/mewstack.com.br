@@ -51,7 +51,7 @@ export default function Showcase() {
 
       <div className="mx-auto max-w-2xl">
         <p data-reveal className="eyebrow mb-6">exemplos</p>
-        <h2 data-reveal className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
+        <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
           Um exemplo do que a gente coloca pra rodar.
         </h2>
         <p data-reveal className="mt-5 max-w-[48ch] text-ink-soft">

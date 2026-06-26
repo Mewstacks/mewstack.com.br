@@ -148,7 +148,7 @@ export default function CodeLab() {
     <section ref={root} id="rode" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
       <div className="max-w-2xl">
         <p data-reveal className="eyebrow mb-6">experimente</p>
-        <h2 data-reveal className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
+        <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
           Não acredita que roda sozinho? Roda você mesmo.
         </h2>
         <p data-reveal className="mt-5 max-w-[48ch] text-ink-soft">

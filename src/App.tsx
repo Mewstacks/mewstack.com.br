@@ -46,11 +46,12 @@ function ScrollChrome() {
 }
 
 /* Routes in-page #hash clicks through Lenis so they scroll smoothly to the right
-   spot (the native jump fights Lenis's smoothing). Sections already carry
-   scroll-mt-24 (the fixed-nav clearance), which Lenis honors — so offset stays 0.
-   Always rendered — anchors must work even under reduced motion (then instant).
-   Keeps keyboard/SR focus moving to the target. */
-const ANCHOR_OFFSET = 0;
+   spot (the native jump fights Lenis's smoothing). The target position is read
+   live from getBoundingClientRect so it stays correct even past a pinned section
+   (the pin-spacer shifts offsetTop, but not the visual rect). Always rendered —
+   anchors must work even under reduced motion (then instant). Keeps keyboard/SR
+   focus moving to the target. */
+const NAV_CLEARANCE = 96; // px the section sits below the viewport top (fixed nav)
 
 function LenisAnchors() {
   const lenis = useLenis();
@@ -65,7 +66,10 @@ function LenisAnchors() {
       const target = document.querySelector<HTMLElement>(href);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: ANCHOR_OFFSET });
+      const y = Math.round(
+        target.getBoundingClientRect().top + window.scrollY - NAV_CLEARANCE,
+      );
+      lenis.scrollTo(y);
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
     };

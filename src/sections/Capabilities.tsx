@@ -43,7 +43,7 @@ export default function Capabilities() {
     <section ref={root} id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
       <div className="max-w-2xl">
         <p data-reveal className="eyebrow mb-6">serviços</p>
-        <h2 data-reveal className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]">
+        <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]">
           Três frentes, um objetivo: te devolver tempo e clareza.
         </h2>
       </div>

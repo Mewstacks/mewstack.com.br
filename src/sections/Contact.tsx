@@ -8,7 +8,7 @@ const WHATSAPP = "https://wa.me/5554996202127"; // (54) 99620-2127
 
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
-  useChapter(root);
+  useChapter(root, { exit: false });
 
   return (
     <section ref={root} id="contato" className="relative scroll-mt-24 overflow-clip bg-night text-paper">
@@ -26,7 +26,7 @@ export default function Contact() {
               <span className="live-dot" aria-hidden />
               Aberto para novos projetos
             </p>
-            <h2 data-reveal className="font-display text-[clamp(2.3rem,5.5vw,4rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-paper">
+            <h2 data-reveal-title className="font-display text-[clamp(2.3rem,5.5vw,4rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-paper">
               Vamos automatizar
               <br />o que te trava?
             </h2>
