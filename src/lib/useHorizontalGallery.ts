@@ -1,0 +1,78 @@
+import { useGSAP } from "@gsap/react";
+import type { RefObject } from "react";
+import { gsap, ScrollTrigger } from "./gsap";
+import { MOTION, reduceMotion } from "./motion";
+
+/**
+ * Turns vertical scroll into horizontal travel across a track (desktop only).
+ *
+ * The section pins to the viewport and the `track` slides from 0 to
+ * `-(scrollWidth - clientWidth)` as the user scrolls, snapping onto each card.
+ * pinSpacing keeps the document height intact so anchors still resolve, and
+ * `invalidateOnRefresh` re-measures the distance on resize / late asset load.
+ *
+ * Mobile and prefers-reduced-motion get NO pin — the markup falls back to a
+ * native `scroll-snap` carousel (see `.h-snap` in index.css), so the content is
+ * always reachable without scroll hijacking.
+ *
+ * @param sectionRef  the section to pin.
+ * @param trackRef    the flex row that translates horizontally.
+ * @param progressRef optional element whose scaleX mirrors track progress.
+ */
+export function useHorizontalGallery(
+  sectionRef: RefObject<HTMLElement | null>,
+  trackRef: RefObject<HTMLElement | null>,
+  progressRef?: RefObject<HTMLElement | null>,
+) {
+  useGSAP(
+    () => {
+      const section = sectionRef.current;
+      const track = trackRef.current;
+      if (!section || !track) return;
+      if (reduceMotion()) return; // native CSS scroll-snap handles it
+
+      const mm = gsap.matchMedia();
+
+      mm.add(MOTION.desktop, () => {
+        const distance = () => Math.max(0, track.scrollWidth - section.clientWidth);
+        const cards = track.children.length;
+
+        gsap.set(track, { willChange: "transform" });
+
+        const tween = gsap.to(track, {
+          x: () => -distance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: () => "+=" + distance(),
+            scrub: MOTION.horizontalScrub,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            snap: cards > 1
+              ? { snapTo: 1 / (cards - 1), duration: MOTION.horizontalSnapDuration, ease: "power1.inOut" }
+              : undefined,
+            onUpdate: (self) => {
+              if (progressRef?.current) {
+                progressRef.current.style.transform = `scaleX(${self.progress || 0})`;
+              }
+            },
+          },
+        });
+
+        // Distance depends on measured widths — recompute once layout settles.
+        ScrollTrigger.refresh();
+
+        return () => {
+          tween.scrollTrigger?.kill();
+          tween.kill();
+        };
+      });
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef },
+  );
+}

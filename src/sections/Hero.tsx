@@ -31,30 +31,40 @@ export default function Hero() {
       mm.add({ isDesktop: MOTION.desktop, isMobile: MOTION.mobile }, (ctx) => {
         const { isMobile } = ctx.conditions as { isDesktop: boolean; isMobile: boolean };
 
-        // Entrance — layered, title by mask reveal, plays on load.
+        // Entrance — layered & cinematic, plays on load: the aurora swells in
+        // first (the stage lights up), the badge settles, the title masks in
+        // line by line, the cue arrives last.
         gsap
           .timeline({ defaults: { ease: "power4.out" } })
-          .from(badge, { y: 20, opacity: 0, duration: 0.7 })
+          .from(
+            aurora,
+            { autoAlpha: 0, scale: 1.25, yPercent: -10, duration: 1.6, ease: "expo.out" },
+            0,
+          )
+          .from(badge, { y: 22, opacity: 0, duration: 0.7 }, 0.15)
           .fromTo(
             lines,
-            { clipPath: "inset(0 0 100% 0)", yPercent: 18, opacity: 1 },
+            { clipPath: "inset(0 0 100% 0)", yPercent: 22, opacity: 1 },
             {
               clipPath: "inset(0 0 0% 0)",
               yPercent: 0,
-              duration: 1.15,
+              duration: 1.25,
               ease: MOTION.easeTitle,
-              stagger: 0.14,
+              stagger: 0.16,
             },
-            "-=0.25",
+            0.35,
           )
-          .from(cue, { y: 14, opacity: 0, duration: 0.7 }, "-=0.4");
+          .from(cue, { y: 16, opacity: 0, duration: 0.7 }, "-=0.35");
 
-        // Exit / parallax — desktop only (avoids touch jank).
+        // Exit / parallax — desktop only (avoids touch jank). The copy lifts,
+        // scales down, defocuses and fades, handing the screen to the next
+        // chapter with real depth.
         if (!isMobile) {
           gsap.to(copy, {
             yPercent: MOTION.heroExitY,
             scale: MOTION.heroExitScale,
             opacity: 0,
+            filter: `blur(${MOTION.exitBlur}px)`,
             ease: "none",
             scrollTrigger: { trigger: el, start: "top top", end: "bottom top", scrub: true },
           });
@@ -86,7 +96,7 @@ export default function Hero() {
     <section
       ref={root}
       id="top"
-      className="relative flex min-h-[68vh] flex-col items-center justify-center overflow-clip px-5 pt-28 pb-14 text-center sm:px-8"
+      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-clip px-5 pt-28 pb-20 text-center sm:px-8"
     >
       {/* ── ambient structure: editorial grid + soft pink aurora ── */}
       <div
@@ -96,7 +106,7 @@ export default function Hero() {
       <div
         aria-hidden
         data-hero="aurora"
-        className="aurora pointer-events-none absolute top-[-8%] left-1/2 -z-10 h-[52vh] w-[120vw] max-w-[1100px] -translate-x-1/2 rounded-full opacity-30 blur-[120px]"
+        className="aurora pointer-events-none absolute top-[-6%] left-1/2 -z-10 h-[64vh] w-[130vw] max-w-[1280px] -translate-x-1/2 rounded-full opacity-35 blur-[130px]"
         style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, var(--color-pink) 0%, transparent 70%)" }}
       />
 

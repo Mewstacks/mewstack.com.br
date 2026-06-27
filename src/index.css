@@ -304,6 +304,50 @@
   }
 }
 
+/* ── custom cursor: a soft pink ring that trails the pointer. Desktop +
+   fine-pointer only; the native cursor stays visible underneath (a11y). The
+   dot is driven by JS transform (translate + scale), so no layout work. */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-overlay);
+  width: var(--cursor-size, 12px);
+  height: var(--cursor-size, 12px);
+  margin: calc(var(--cursor-size, 12px) / -2) 0 0 calc(var(--cursor-size, 12px) / -2);
+  border-radius: 9999px;
+  border: 1.5px solid var(--color-pink);
+  background: oklch(0.745 0.155 356 / 0.12);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-quart), background-color 0.25s var(--ease-quart);
+  will-change: transform;
+}
+.cursor-dot[data-visible="true"] { opacity: 1; }
+.cursor-dot[data-hover="true"] { background: oklch(0.745 0.155 356 / 0.22); }
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-dot { display: none; }
+}
+
+/* ── horizontal gallery: on mobile (no JS pin) the track is a native
+   scroll-snap carousel; on desktop the hook pins + translates it instead. */
+.h-track {
+  display: flex;
+  gap: 1.25rem;
+}
+.h-track > * { flex: 0 0 auto; }
+@media (max-width: 767px) {
+  .h-snap {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .h-snap::-webkit-scrollbar { display: none; }
+  .h-snap > .h-track > * { scroll-snap-align: center; }
+}
+
 /* slow-drifting aurora blobs for soft light-mode atmosphere */
 @keyframes aurora-drift {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }

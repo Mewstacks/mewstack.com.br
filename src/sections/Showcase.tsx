@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import {
   FileText,
   Sheet,
@@ -17,14 +17,16 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useChapter } from "../lib/useChapter";
+import { useHorizontalGallery } from "../lib/useHorizontalGallery";
 
-/* ── Showcase: três telas de produto reais que a MewStack ship, num seletor de
-   abas (mantém a página curta — uma tela por vez, mesmo vocabulário visual):
+/* ── Showcase: três telas de produto reais que a MewStack ship, numa GALERIA
+   HORIZONTAL — no desktop a seção pina e o scroll vertical vira deslocamento
+   horizontal entre as telas, com snap; no mobile vira um carrossel nativo de
+   scroll-snap. Concreto > metáfora: arquivo de verdade, não diagrama.
      1. Baixador de NFS-e do portal nacional.
      2. Editor de SPED & XML — você passa os requisitos, ele aplica e valida.
      3. Conciliador SPED × XML — confronta tags do XML com campos do SPED.
-   Concreto > metáfora: arquivo de verdade, não diagrama. Tudo em `.console`,
-   hairlines `border-cream-line`, mono chips e paleta da marca. */
+   Tudo em `.console`, hairlines `border-cream-line`, mono chips e paleta. */
 
 type TabId = "nfse" | "editor" | "reconcile";
 
@@ -57,12 +59,12 @@ type Status = "ok" | "proc";
 type Note = { id: string; prestador: string; comp: string; valor: string; status: Status };
 
 const NOTES: Note[] = [
-  { id: "2025-000487", prestador: "MewStack Tecnologia", comp: "06/2025", valor: "4.250,00", status: "ok" },
-  { id: "2025-000486", prestador: "Studio Alpha Ltda", comp: "06/2025", valor: "1.800,00", status: "ok" },
-  { id: "2025-000485", prestador: "Contábil Souza ME", comp: "06/2025", valor: "920,00", status: "ok" },
-  { id: "2025-000484", prestador: "Verde Engenharia", comp: "06/2025", valor: "7.640,50", status: "proc" },
-  { id: "2025-000483", prestador: "Padaria Pão Quente", comp: "06/2025", valor: "320,00", status: "ok" },
-  { id: "2025-000482", prestador: "Office Print Center", comp: "05/2025", valor: "1.145,00", status: "ok" },
+  { id: "2025-000487", prestador: "Empresa Modelo LTDA", comp: "06/2025", valor: "4.250,00", status: "ok" },
+  { id: "2025-000486", prestador: "Comércio Exemplo S.A.", comp: "06/2025", valor: "1.800,00", status: "ok" },
+  { id: "2025-000485", prestador: "Serviços Demonstração ME", comp: "06/2025", valor: "920,00", status: "ok" },
+  { id: "2025-000484", prestador: "Consultoria Amostra Ltda", comp: "06/2025", valor: "7.640,50", status: "proc" },
+  { id: "2025-000483", prestador: "Tecnologia Padrão SA", comp: "06/2025", valor: "320,00", status: "ok" },
+  { id: "2025-000482", prestador: "Logística Teste Ltda", comp: "05/2025", valor: "1.145,00", status: "ok" },
 ];
 
 /* ── data: editor requisitos ── */
@@ -89,73 +91,87 @@ const RED = "oklch(0.52 0.18 25)";
 
 export default function Showcase() {
   const root = useRef<HTMLElement>(null);
-  const [active, setActive] = useState<TabId>("nfse");
-  useChapter(root);
-
-  const tab = TABS.find((t) => t.id === active)!;
+  const track = useRef<HTMLDivElement>(null);
+  const progress = useRef<HTMLSpanElement>(null);
+  // Reveals only — the horizontal gallery hook owns the pin/transform, so we
+  // disable useChapter's own enter/exit to avoid two timelines fighting the root.
+  useChapter(root, { enter: false, exit: false });
+  useHorizontalGallery(root, track, progress);
 
   return (
     <section
       ref={root}
       id="exemplos"
-      className="relative overflow-clip scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
+      className="relative overflow-clip scroll-mt-24 px-5 py-14 sm:px-8 md:flex md:h-screen md:flex-col md:justify-center md:overflow-hidden md:py-0"
     >
-      {/* ── soft pink aurora behind the product shot ── */}
+      {/* ── soft pink aurora behind the product shots (no parallax — the section
+          is pinned during the horizontal pass) ── */}
       <div
         aria-hidden
-        data-parallax="1.4"
         className="aurora pointer-events-none absolute top-[18%] left-1/2 -z-10 h-[44vh] w-[120vw] max-w-[1000px] -translate-x-1/2 rounded-full opacity-25 blur-[120px]"
         style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, var(--color-pink) 0%, transparent 70%)" }}
       />
 
-      <div className="mx-auto max-w-2xl">
-        <p data-reveal className="eyebrow mb-6">exemplos</p>
-        <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
+      <div className="mx-auto w-full max-w-2xl shrink-0">
+        <p data-reveal className="eyebrow mb-5">exemplos</p>
+        <h2 data-reveal-title className="font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
           Exemplos do que a gente coloca pra rodar.
         </h2>
-
-        {/* ── tab selector (segmented control) ── */}
-        <div
-          data-reveal
-          role="tablist"
-          aria-label="Exemplos de telas"
-          className="mt-7 inline-flex flex-wrap gap-1 rounded-xl border border-cream-line bg-cream p-1"
-        >
-          {TABS.map((t) => {
-            const on = active === t.id;
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => setActive(t.id)}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[0.8rem] font-medium transition-colors ${
-                  on
-                    ? "bg-cream-deep text-ink shadow-[var(--shadow-soft)]"
-                    : "text-ink-soft hover:text-ink"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" strokeWidth={1.8} style={on ? { color: "var(--color-pink-deep)" } : undefined} />
-                {t.label}
-              </button>
-            );
-          })}
+        <div data-reveal className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <p className="text-ink-soft">
+            Três telas reais que a gente entrega.{" "}
+            <span className="text-ink">Role para o lado&nbsp;→</span>
+          </p>
+          {/* horizontal progress wire (desktop) */}
+          <span aria-hidden className="hidden h-[3px] w-32 overflow-hidden rounded-full bg-cream-line md:block">
+            <span ref={progress} className="block h-full w-full origin-left scale-x-0 rounded-full bg-pink" />
+          </span>
         </div>
-
-        <p data-reveal className="mt-5 max-w-[50ch] text-ink-soft">
-          {tab.desc}
-        </p>
       </div>
 
-      {/* ── active product shot ── */}
-      <div data-reveal data-parallax="0.5" className="relative mx-auto mt-10 w-full max-w-5xl">
-        <div className="console">
-          <WindowChrome file={tab.file} />
-          {active === "nfse" && <NfseScreen />}
-          {active === "editor" && <EditorScreen />}
-          {active === "reconcile" && <ReconcileScreen />}
+      {/* ── horizontal track: pinned + translated on desktop, native snap on mobile ── */}
+      <div className="h-snap mt-8 -mx-5 px-5 sm:-mx-8 sm:px-8 md:mx-0 md:mt-10 md:overflow-visible md:px-0">
+        <div ref={track} className="h-track items-stretch">
+          {TABS.map((t) => {
+            const Icon = t.icon;
+            return (
+              <article
+                key={t.id}
+                data-reveal
+                className="flex w-[86vw] max-w-[1040px] flex-col sm:w-[78vw] md:w-[72vw]"
+              >
+                <div className="mb-3 flex items-center gap-2.5">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-cream-line bg-cream-deep text-pink-deep shadow-[var(--shadow-soft)]">
+                    <Icon className="h-3.5 w-3.5" strokeWidth={1.9} />
+                  </span>
+                  <span className="font-display text-[0.98rem] font-semibold tracking-[-0.01em] text-ink">
+                    {t.label}
+                  </span>
+                  <span className="mono ml-auto hidden rounded-md border border-cream-line bg-cream px-2 py-0.5 text-[0.68rem] text-ink-soft sm:inline">
+                    {t.file}
+                  </span>
+                </div>
+                <p className="mb-5 max-w-[60ch] text-[0.92rem] leading-relaxed text-ink-soft">
+                  {t.desc}
+                </p>
+                {/* console capped on desktop so the pinned gallery fits one
+                    viewport; the overflow fades out at the bottom edge */}
+                <div className="relative md:max-h-[50vh] md:overflow-hidden">
+                  <div className="console">
+                    <WindowChrome file={t.file} />
+                    {t.id === "nfse" && <NfseScreen />}
+                    {t.id === "editor" && <EditorScreen />}
+                    {t.id === "reconcile" && <ReconcileScreen />}
+                  </div>
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-20 md:block"
+                    style={{ background: "linear-gradient(to top, var(--color-cream) 0%, transparent 100%)" }}
+                  />
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -265,8 +281,8 @@ function NfseScreen() {
           </div>
 
           <div className="flex flex-col gap-3.5 px-5 py-4 text-[0.78rem]">
-            <Field label="Prestador" value="MewStack Tecnologia LTDA" sub="CNPJ 54.321.000/0001-09" />
-            <Field label="Tomador" value="Cliente Exemplo S.A." sub="CNPJ 12.345.678/0001-90" />
+            <Field label="Prestador" value="Empresa Modelo LTDA" sub="CNPJ 00.000.000/0000-00" />
+            <Field label="Tomador" value="Cliente Demonstração S.A." sub="CNPJ 00.000.000/0000-01" />
             <div className="grid grid-cols-2 gap-3">
               <Field label="Emissão" value="12/06/2025" />
               <Field label="Competência" value="06/2025" />

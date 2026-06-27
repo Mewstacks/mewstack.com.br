@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import Logo from "../components/Logo";
+import { HEADER_CHAPTERS } from "../lib/chapters";
 
-const LINKS = [
-  { href: "#servicos", label: "Serviços" },
-  { href: "#processo", label: "Processo" },
-  { href: "#estudio", label: "Estúdio" },
-  { href: "#exemplos", label: "Exemplos" },
-];
+const LINKS = HEADER_CHAPTERS.map((c) => ({ href: `#${c.id}`, label: c.label }));
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);

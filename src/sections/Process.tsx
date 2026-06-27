@@ -72,9 +72,11 @@ export default function Process() {
         },
       });
 
-      // Desktop: scrub the timeline as the section rises through the screen.
-      // No pin — so jumping here via an anchor lands on a filled timeline (the
-      // scrub reflects scroll position) instead of an empty pre-pin frame.
+      // Desktop: the signature beat — the section PINS and the timeline is
+      // scrubbed in place: the pink wire fills the rail and each node ignites
+      // with its step, one after another, as the user scrolls. pinSpacing keeps
+      // the document height intact, so the #processo anchor still lands at the
+      // start of the pinned beat (LenisAnchors resolves to the pin-spacer top).
       mm.add(MOTION.desktop, () => {
         gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
         gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
@@ -83,9 +85,12 @@ export default function Process() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
-            start: "top 72%",
-            end: "top 28%",
+            start: "top 16%",
+            end: "+=120%",
             scrub: true,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
           },
         });
 
@@ -98,6 +103,8 @@ export default function Process() {
             at,
           );
         });
+        // tail hold so the finished timeline lingers a touch before unpinning.
+        tl.to({}, { duration: 0.6 });
       });
 
       // Mobile: no pin — reveal steps as they enter.

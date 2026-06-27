@@ -2,6 +2,7 @@ import { useGSAP } from "@gsap/react";
 import type { RefObject } from "react";
 import { gsap, ScrollTrigger } from "./gsap";
 import { MOTION, reduceMotion } from "./motion";
+import type { SceneVariant } from "./motion";
 
 type ChapterOptions = {
   /** ScrollTrigger start for the reveal batches. Default "top 82%". */
@@ -10,6 +11,17 @@ type ChapterOptions = {
   enter?: boolean;
   /** Whether the section recedes (lift/scale/fade/defocus) as it leaves. Default true. */
   exit?: boolean;
+  /**
+   * Scene-exit shape played as the next chapter takes over (desktop only):
+   *  - "recede"       → the whole section lifts/scales/dims/defocuses (default).
+   *  - "scaleHandoff" → a `[data-handoff]` element scales up and fades while the
+   *                     section recedes more gently — the mockup "becomes" the
+   *                     background of the next chapter. Falls back to recede if no
+   *                     `[data-handoff]` is present.
+   *  - "wipe"         → a `[data-wipe]` overlay sweeps across the seam via
+   *                     clip-path. Falls back to recede if no `[data-wipe]`.
+   */
+  variant?: SceneVariant;
 };
 
 /**
@@ -136,6 +148,7 @@ export function useChapter(
           // over the light sections).
           const doEnter = options.enter !== false;
           const doExit = options.exit !== false;
+          const variant = options.variant ?? "recede";
           if (doEnter || doExit) {
             gsap.set(root, {
               transformOrigin: "center top",
@@ -160,14 +173,58 @@ export function useChapter(
             }
             // Hold the scene at rest (no transform churn through the middle).
             tl.to(root, { duration: MOTION.holdWeight });
+            // Exit — the chosen scene variant. Each one is graceful: if its
+            // marker element is missing, it degrades to the recede default so a
+            // section can opt in by attribute alone.
             if (doExit) {
-              tl.to(root, {
-                yPercent: MOTION.exitY,
-                scale: MOTION.exitScale,
-                opacity: MOTION.exitOpacity,
-                filter: `blur(${MOTION.exitBlur}px)`,
-                duration: MOTION.exitWeight,
-              });
+              tl.addLabel("exit");
+              const handoff = variant === "scaleHandoff"
+                ? root.querySelector<HTMLElement>("[data-handoff]")
+                : null;
+              const wipe = variant === "wipe"
+                ? root.querySelector<HTMLElement>("[data-wipe]")
+                : null;
+
+              if (handoff) {
+                // Mockup grows past the frame and dissolves while the section
+                // recedes gently underneath — a depth hand-off to the next scene.
+                tl.to(
+                  root,
+                  {
+                    yPercent: MOTION.exitY * 0.5,
+                    scale: MOTION.exitScale,
+                    opacity: MOTION.exitOpacity,
+                    duration: MOTION.exitWeight,
+                  },
+                  "exit",
+                ).fromTo(
+                  handoff,
+                  { scale: 1 },
+                  { scale: MOTION.handoffScale, opacity: 0, duration: MOTION.exitWeight },
+                  "exit",
+                );
+              } else if (wipe) {
+                // An overlay panel sweeps up across the seam (charcoal over
+                // cream, etc.). The section itself stays put behind it.
+                gsap.set(wipe, { clipPath: "inset(100% 0 0 0)" });
+                tl.to(
+                  wipe,
+                  { clipPath: "inset(0% 0 0 0)", duration: MOTION.exitWeight },
+                  "exit",
+                );
+              } else {
+                tl.to(
+                  root,
+                  {
+                    yPercent: MOTION.exitY,
+                    scale: MOTION.exitScale,
+                    opacity: MOTION.exitOpacity,
+                    filter: `blur(${MOTION.exitBlur}px)`,
+                    duration: MOTION.exitWeight,
+                  },
+                  "exit",
+                );
+              }
             }
           }
         }

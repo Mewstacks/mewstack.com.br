@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { ReactLenis, useLenis } from "lenis/react";
 import { ScrollTrigger } from "./lib/gsap";
 import { reduceMotion } from "./lib/motion";
+import Cursor from "./components/Cursor";
 import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
 import Capabilities from "./sections/Capabilities";
@@ -99,6 +100,7 @@ export default function App() {
     >
       <LenisAnchors />
       {!reduce && <ScrollChrome />}
+      <Cursor />
       <a
         href="#conteudo"
         className="sr-only z-[var(--z-overlay)] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-cream"

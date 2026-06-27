@@ -1,4 +1,7 @@
 import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap, ScrollTrigger } from "../lib/gsap";
+import { reduceMotion } from "../lib/motion";
 import { useChapter } from "../lib/useChapter";
 
 const STACK = [
@@ -14,6 +17,34 @@ export default function About() {
   const root = useRef<HTMLElement>(null);
   useChapter(root);
 
+  // The avatar is revealed by an expanding circular mask + a settling zoom —
+  // a distinct entrance from the page's mask-and-rise default. Runs alongside
+  // useChapter's text reveals (different element, different property).
+  useGSAP(
+    () => {
+      const img = root.current?.querySelector<HTMLElement>("[data-avatar]");
+      if (!img) return;
+      if (reduceMotion()) {
+        gsap.set(img, { clearProps: "all" });
+        return;
+      }
+      gsap.set(img, { clipPath: "circle(0% at 50% 50%)", scale: 1.25 });
+      ScrollTrigger.create({
+        trigger: img,
+        start: "top 82%",
+        once: true,
+        onEnter: () =>
+          gsap.to(img, {
+            clipPath: "circle(75% at 50% 50%)",
+            scale: 1,
+            duration: 1.2,
+            ease: "expo.out",
+          }),
+      });
+    },
+    { scope: root },
+  );
+
   return (
     <section
       ref={root}
@@ -27,7 +58,8 @@ export default function About() {
             <img
               src="/brand/founder.png"
               alt="Germano Argenta Dal Prá"
-              className="h-full w-full object-cover [object-position:50%_28%]"
+              data-avatar
+              className="h-full w-full object-cover [object-position:50%_28%] will-change-transform"
               loading="lazy"
               decoding="async"
             />

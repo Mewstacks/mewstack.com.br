@@ -102,7 +102,9 @@ export default function CodeLab() {
   const root = useRef<HTMLElement>(null);
   const theme = THEMES[themeIdx];
 
-  useChapter(root);
+  // Scene exit: the IDE mockup scales up and dissolves into the next chapter
+  // (a depth hand-off), instead of the section simply receding.
+  useChapter(root, { variant: "scaleHandoff" });
 
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
@@ -158,7 +160,7 @@ export default function CodeLab() {
         </p>
       </div>
 
-      <div data-reveal className="mt-8">
+      <div data-reveal data-handoff className="mt-8 will-change-transform">
         <div
           className="overflow-hidden rounded-2xl shadow-[0_40px_90px_-50px_rgba(40,30,40,0.55)] ring-1 ring-black/5"
           style={{ background: theme.bg, border: `1px solid ${theme.border}` }}
