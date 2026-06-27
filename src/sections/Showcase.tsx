@@ -39,7 +39,7 @@ export default function Showcase() {
     <section
       ref={root}
       id="exemplos"
-      className="relative overflow-clip scroll-mt-24 px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24"
+      className="relative overflow-clip scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
       {/* ── soft pink aurora behind the product shot ── */}
       <div
