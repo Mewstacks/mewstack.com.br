@@ -86,7 +86,7 @@ export default function Hero() {
     <section
       ref={root}
       id="top"
-      className="relative flex min-h-[86vh] flex-col items-center justify-center overflow-clip px-5 pt-32 pb-16 text-center sm:px-8"
+      className="relative flex min-h-[68vh] flex-col items-center justify-center overflow-clip px-5 pt-28 pb-14 text-center sm:px-8"
     >
       {/* ── ambient structure: editorial grid + soft pink aurora ── */}
       <div
