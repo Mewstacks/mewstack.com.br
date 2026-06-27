@@ -60,7 +60,7 @@ const CODE: Line[] = [
   [["from ", "kw"], ["mewstack ", "fg"], ["import ", "kw"], ["automatizar", "builtin"]],
   [],
   [["# tarefas chatas que ninguém merece fazer na mão", "com"]],
-  [["tarefas ", "fg"], ["= ", "op"], ["[", "op"], ['"baixar notas"', "str"], [", ", "op"], ['"limpar planilha"', "str"], [", ", "op"], ['"enviar relatório"', "str"], ["]", "op"]],
+  [["tarefas ", "fg"], ["= ", "op"], ["[", "op"], ['"digitar notas"', "str"], [", ", "op"], ['"consultar ecac"', "str"], [", ", "op"], ['"conciliar extratos"', "str"], ["]", "op"]],
   [],
   [["@automatizar", "fn"], ["(", "op"], ["quando", "fg"], ["=", "op"], ['"toda segunda às 08:00"', "str"], [")", "op"]],
   [["def ", "kw"], ["liberar_meu_tempo", "fn"], ["():", "op"]],
@@ -75,9 +75,9 @@ const CODE: Line[] = [
 
 const OUTPUT = [
   "$ python liberar_meu_tempo.py",
-  "✓ baixar notas agora roda sozinho",
-  "✓ limpar planilha agora roda sozinho",
-  "✓ enviar relatório agora roda sozinho",
+  "✓ digitar notas agora roda sozinho",
+  "✓ consultar ecac agora roda sozinho",
+  "✓ conciliar extratos agora roda sozinho",
   "tempo livre desbloqueado ✨",
   "→ abrindo instagram.com/meewstack …",
 ];
