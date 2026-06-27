@@ -6,7 +6,9 @@ import { MOTION, reduceMotion } from "./motion";
 type ChapterOptions = {
   /** ScrollTrigger start for the reveal batches. Default "top 82%". */
   start?: string;
-  /** Whether the section recedes (lift/scale/fade) as it leaves. Default true. */
+  /** Whether the section rises into focus ("from behind") as it arrives. Default true. */
+  enter?: boolean;
+  /** Whether the section recedes (lift/scale/fade/defocus) as it leaves. Default true. */
   exit?: boolean;
 };
 
@@ -55,9 +57,13 @@ export function useChapter(
         };
         const y = isMobile ? MOTION.revealYMobile : MOTION.revealY;
         const stagger = isMobile ? MOTION.staggerMobile : MOTION.stagger;
-        const start = options.start ?? "top 82%";
+        // Title leads; content follows a beat later (a chapter assembles itself,
+        // heading → body, instead of popping all at once). options.start, when
+        // given, overrides the content start.
+        const titleStart = MOTION.revealTitleStart;
+        const contentStart = options.start ?? MOTION.revealContentStart;
 
-        // Titles — mask reveal (clip sweep + rise).
+        // Titles — mask reveal (clip sweep + rise), leading the scene.
         if (titles.length) {
           gsap.set(titles, {
             clipPath: "inset(0 0 100% 0)",
@@ -65,7 +71,7 @@ export function useChapter(
             opacity: 1,
           });
           ScrollTrigger.batch(titles, {
-            start,
+            start: titleStart,
             onEnter: (batch) =>
               gsap.to(batch, {
                 clipPath: "inset(0 0 0% 0)",
@@ -78,11 +84,11 @@ export function useChapter(
           });
         }
 
-        // Other content — staggered rise + scale.
+        // Other content — staggered rise + scale, a beat behind the title.
         if (reveals.length) {
           gsap.set(reveals, { opacity: 0, y, scale: MOTION.revealScale });
           ScrollTrigger.batch(reveals, {
-            start,
+            start: contentStart,
             onEnter: (batch) =>
               gsap.to(batch, {
                 opacity: 1,
@@ -119,20 +125,50 @@ export function useChapter(
               );
             });
 
-          // Exit: the chapter recedes as the next one takes the screen.
-          if (options.exit !== false) {
-            gsap.to(root, {
-              yPercent: MOTION.exitY,
-              scale: MOTION.exitScale,
-              opacity: MOTION.exitOpacity,
-              ease: "none",
+          // Chapter handoff — ONE scrubbed timeline owns the section's own
+          // transform across its whole pass: rise into focus (from behind, a
+          // touch smaller) → hold the scene → recede (lift, scale down, dim,
+          // defocus) so the next chapter takes over with overlap. Because a
+          // single timeline drives the root, entrance and exit never fight
+          // over the same properties. transformOrigin "center top" glues the
+          // top edge to the previous chapter while it grows, so no background
+          // sliver opens at the seam (matters for the charcoal Contact rising
+          // over the light sections).
+          const doEnter = options.enter !== false;
+          const doExit = options.exit !== false;
+          if (doEnter || doExit) {
+            gsap.set(root, {
+              transformOrigin: "center top",
+              willChange: "transform",
+            });
+            const tl = gsap.timeline({
+              defaults: { ease: "none" },
               scrollTrigger: {
                 trigger: root,
-                start: "bottom 65%",
+                start: "top bottom",
                 end: "bottom top",
                 scrub: true,
               },
             });
+
+            if (doEnter) {
+              tl.fromTo(
+                root,
+                { scale: MOTION.enterScale },
+                { scale: 1, duration: MOTION.enterWeight },
+              );
+            }
+            // Hold the scene at rest (no transform churn through the middle).
+            tl.to(root, { duration: MOTION.holdWeight });
+            if (doExit) {
+              tl.to(root, {
+                yPercent: MOTION.exitY,
+                scale: MOTION.exitScale,
+                opacity: MOTION.exitOpacity,
+                filter: `blur(${MOTION.exitBlur}px)`,
+                duration: MOTION.exitWeight,
+              });
+            }
           }
         }
       });
