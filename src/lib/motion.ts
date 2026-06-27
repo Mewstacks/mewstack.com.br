@@ -14,14 +14,29 @@ export const MOTION = {
   revealYMobile: 30,
   revealScale: 0.94, // items start slightly scaled down
 
-  /* section exit (the chapter recedes as the next takes over) */
-  exitY: -8, // % the leaving section lifts
-  exitScale: 0.97, // scale it settles to while leaving
-  exitOpacity: 0.32, // opacity floor as it leaves
+  /* reveal hierarchy — the title leads, the content follows a beat later, so a
+     chapter assembles itself (heading → body/image) instead of popping at once.
+     Earlier % = triggers sooner as the section rises into view. */
+  revealTitleStart: "top 84%", // titles lead
+  revealContentStart: "top 76%", // content/images follow
+
+  /* section entrance (the incoming chapter rises into focus "from behind") */
+  enterScale: 0.955, // scale the section grows from as it takes the screen
+
+  /* section exit (the chapter recedes — drops behind — as the next takes over) */
+  exitY: -9, // % the leaving section lifts
+  exitScale: 0.96, // scale it settles to while leaving (more recede = more depth)
+  exitOpacity: 0.34, // opacity floor as it leaves
+  exitBlur: 5, // px the section defocuses into the background (desktop only)
+
+  /* handoff timeline shape (proportional weights inside one scrubbed timeline) */
+  enterWeight: 1, // share of the pass spent rising into focus
+  holdWeight: 2.4, // share held at rest (the "scene" itself)
+  exitWeight: 1.2, // share spent receding for the next chapter
 
   /* parallax — higher = more drift. Per-element override via data-parallax="N" */
   parallax: 1,
-  parallaxRange: 15, // max % an element drifts across its pass (desktop)
+  parallaxRange: 18, // max % an element drifts across its pass (desktop)
 
   /* hero exit (cinematic hand-off to the next chapter) */
   heroExitY: -26, // % the hero copy lifts as it leaves
