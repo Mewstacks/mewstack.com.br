@@ -321,7 +321,8 @@
   pointer-events: none;
   mix-blend-mode: multiply;
   opacity: 0;
-  transition: opacity 0.3s var(--ease-quart), background-color 0.25s var(--ease-quart);
+  transition: opacity 0.3s var(--ease-quart), background-color 0.25s var(--ease-quart),
+    width 0.22s var(--ease-quart), height 0.22s var(--ease-quart), margin 0.22s var(--ease-quart);
   will-change: transform;
 }
 .cursor-dot[data-visible="true"] { opacity: 1; }

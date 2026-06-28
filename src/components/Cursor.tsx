@@ -35,6 +35,12 @@ export default function Cursor() {
       const inConsole = (e.target as HTMLElement)?.closest?.('.console');
       hover = !!t && !inConsole;
       dot.dataset.hover = hover ? "true" : "false";
+      // Swell by changing the ring's real diameter (CSS animates width/height),
+      // never via transform: scale() — scaling a composited layer upsamples its
+      // cached texture and the ring looks pixelated. Repainting at true size and
+      // a constant 1.5px border keeps it razor-sharp at any size.
+      const size = hover ? MOTION.cursorSize * MOTION.cursorHoverScale : MOTION.cursorSize;
+      dot.style.setProperty("--cursor-size", `${size}px`);
     };
     const onLeave = () => {
       dot.dataset.visible = "false";
@@ -43,8 +49,9 @@ export default function Cursor() {
     const loop = () => {
       x += (tx - x) * MOTION.cursorLerp;
       y += (ty - y) * MOTION.cursorLerp;
-      const s = hover ? MOTION.cursorHoverScale : 1;
-      dot.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+      // Transform carries position only; the swell is a size change (see onOver),
+      // so the ring is never a scaled-up bitmap.
+      dot.style.transform = `translate(${x}px, ${y}px)`;
       raf = requestAnimationFrame(loop);
     };
     loop();

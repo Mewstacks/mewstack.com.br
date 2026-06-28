@@ -51,11 +51,13 @@ export const MOTION = {
   handoffScale: 1.12, // scale a [data-handoff] element grows to as it leaves
 
   /* horizontal gallery — vertical scroll becomes a horizontal track (desktop).
-     extraPan adds a touch of over-scroll so the last card fully clears the edge.
-     snapDuration eases the rest onto the nearest card. */
+     lead holds the track still for a beat on entry so arriving at the section
+     doesn't immediately yank sideways; snap settles onto the nearest card;
+     scrub smooths the travel (higher = softer, a touch more lag). */
   horizontalExtraVw: 8, // vw of breathing room past the last card
-  horizontalSnapDuration: 0.4, // s — settle onto nearest card
-  horizontalScrub: 1, // scrub smoothing for the track
+  horizontalLead: 0.12, // share of the pass spent settled before the slide starts
+  horizontalSnapDuration: 0.55, // s — max settle onto nearest card (scales with distance)
+  horizontalScrub: 1.1, // scrub smoothing for the track
 
   /* count-up — number stats animate from 0 on enter */
   countDuration: 1.8, // s

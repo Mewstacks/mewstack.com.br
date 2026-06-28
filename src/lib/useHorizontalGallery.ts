@@ -36,23 +36,40 @@ export function useHorizontalGallery(
       mm.add(MOTION.desktop, () => {
         const distance = () => Math.max(0, track.scrollWidth - section.clientWidth);
         const cards = track.children.length;
+        const lead = MOTION.horizontalLead; // settle-in beat before the slide
+
+        // Snap points in scroll-progress space: the slide doesn't begin until
+        // `ps`, so each card sits at ps + (1-ps)·k/(cards-1) — keeps the snap
+        // landing exactly on a card even with the lead-in hold in front.
+        const ps = lead / (1 + lead);
+        const snapPts =
+          cards > 1
+            ? Array.from({ length: cards }, (_, k) => ps + (1 - ps) * (k / (cards - 1)))
+            : null;
 
         gsap.set(track, { willChange: "transform" });
 
-        const tween = gsap.to(track, {
-          x: () => -distance(),
-          ease: "none",
+        // A timeline so the track can HOLD at x:0 for the first `lead` of the
+        // pass, then travel. Arriving at the pinned section therefore settles
+        // for a beat instead of lurching sideways on the first scroll tick.
+        // The travel still maps 1:1 to scroll (ease:none), so it feels direct.
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: () => "+=" + distance(),
+            end: () => "+=" + Math.round(distance() * (1 + lead)),
             scrub: MOTION.horizontalScrub,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            snap: cards > 1
-              ? { snapTo: 1 / (cards - 1), duration: MOTION.horizontalSnapDuration, ease: "power1.inOut" }
+            snap: snapPts
+              ? {
+                  snapTo: snapPts,
+                  duration: { min: 0.2, max: MOTION.horizontalSnapDuration },
+                  ease: "power2.inOut",
+                  delay: 0.06,
+                }
               : undefined,
             onUpdate: (self) => {
               if (progressRef?.current) {
@@ -61,13 +78,14 @@ export function useHorizontalGallery(
             },
           },
         });
+        tl.to(track, { x: () => -distance(), ease: "none", duration: 1 }, lead);
 
         // Distance depends on measured widths — recompute once layout settles.
         ScrollTrigger.refresh();
 
         return () => {
-          tween.scrollTrigger?.kill();
-          tween.kill();
+          tl.scrollTrigger?.kill();
+          tl.kill();
         };
       });
 
