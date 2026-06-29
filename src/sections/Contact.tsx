@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import Logo from "../components/Logo";
 import { useChapter } from "../lib/useChapter";
+import { useMagnetic } from "../lib/useMagnetic";
 
 const INSTAGRAM = "https://instagram.com/meewstack";
 const EMAIL = "germano@mewstack.com.br";
@@ -9,6 +10,8 @@ const WHATSAPP = "https://wa.me/5554996202127"; // (54) 99620-2127
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
   useChapter(root, { exit: false });
+  // Magnetic pull on the primary CTA (small target → classic, snappier effect).
+  useMagnetic(root, "[data-magnetic]", { strength: 0.32, max: 16 });
 
   return (
     <section ref={root} id="contato" className="relative scroll-mt-24 overflow-clip bg-night text-paper">
@@ -40,7 +43,8 @@ export default function Contact() {
                 href={WHATSAPP}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-pink font-semibold"
+                data-magnetic
+                className="btn btn-pink font-semibold will-change-transform"
               >
                 Chamar no WhatsApp
                 <span className="arrow" aria-hidden>→</span>

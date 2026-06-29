@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Boxes, Workflow, Database, Check } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useChapter } from "../lib/useChapter";
+import { useMagnetic } from "../lib/useMagnetic";
 
 type Service = {
   icon: LucideIcon;
@@ -38,6 +39,8 @@ const SERVICES: Service[] = [
 export default function Capabilities() {
   const root = useRef<HTMLElement>(null);
   useChapter(root);
+  // Subtle magnetic drift on the cards (desktop/fine-pointer) — depth without jank.
+  useMagnetic(root, "[data-magnetic]", { strength: 0.12, max: 12 });
 
   return (
     <section ref={root} id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
@@ -55,7 +58,8 @@ export default function Capabilities() {
           return (
             <div data-reveal key={s.title} className={`sm:col-span-2 ${s.span}`}>
               <article
-                className={`card group relative h-full overflow-hidden p-7 transition-[transform,border-color,box-shadow] duration-300 ease-[var(--ease-quart)] hover:-translate-y-1 hover:border-pink/40 hover:shadow-[var(--shadow-glow)] hover:ring-1 hover:ring-pink/15 sm:p-8 ${
+                data-magnetic
+                className={`card group relative h-full overflow-hidden p-7 transition-[border-color,box-shadow] duration-300 ease-[var(--ease-quart)] will-change-transform hover:border-pink/40 hover:shadow-[var(--shadow-glow)] hover:ring-1 hover:ring-pink/15 sm:p-8 ${
                   wide ? "flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between" : "flex flex-col"
                 }`}
               >

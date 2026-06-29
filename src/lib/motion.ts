@@ -59,9 +59,26 @@ export const MOTION = {
   horizontalSnapDuration: 0.55, // s — max settle onto nearest card (scales with distance)
   horizontalScrub: 1.1, // scrub smoothing for the track
 
-  /* count-up — number stats animate from 0 on enter */
-  countDuration: 1.8, // s
-  countEase: "power2.out",
+  /* reactive background — the page tone crossfades cream↔charcoal as chapters
+     pass, so the scroll reads as one continuous story (the "respiro" of the
+     site). Animated via opacity between two stacked color layers (GPU), never
+     background-color (which repaints). Reduced motion → instant swap, no tween. */
+  bgFade: 0.6, // s — crossfade between chapter tones
+  bgEase: "power2.inOut",
+
+  /* title reveal by LINE (SplitText). Lines mask in one after another, leading
+     the scene with an editorial cadence instead of a single block. */
+  lineStagger: 0.12, // gap between lines (desktop)
+  lineStaggerMobile: 0.07,
+  lineY: 30, // px each line rises from
+  lineDuration: 1.0, // s
+  lineEase: "expo.out",
+
+  /* magnetic hover — interactive cards/buttons drift toward the pointer and
+     ease back on leave (desktop, pointer:fine only). Subtle = premium. */
+  magneticStrength: 0.28, // fraction of the cursor offset the element follows
+  magneticLerp: 0.18, // follow smoothing
+  magneticMax: 22, // px cap so it never detaches from its slot
 
   /* custom cursor — a soft trailing dot (desktop, pointer:fine only) */
   cursorLerp: 0.18, // follow smoothing (0..1, higher = snappier)

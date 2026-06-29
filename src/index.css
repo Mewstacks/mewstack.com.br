@@ -96,6 +96,15 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
+
+  /* Programmatic scroll targets (in-page anchors + skip-link) receive focus so
+     screen readers/keyboard move into the region — but a 2px outline around a
+     whole full-width section reads as a glitch. Suppress it for these
+     non-interactive tabindex="-1" targets only; real controls keep their ring. */
+  [tabindex="-1"]:focus,
+  [tabindex="-1"]:focus-visible {
+    outline: none;
+  }
 }
 
 @layer utilities {

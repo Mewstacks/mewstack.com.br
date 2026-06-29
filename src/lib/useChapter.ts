@@ -1,6 +1,6 @@
 import { useGSAP } from "@gsap/react";
 import type { RefObject } from "react";
-import { gsap, ScrollTrigger } from "./gsap";
+import { gsap, ScrollTrigger, SplitText } from "./gsap";
 import { MOTION, reduceMotion } from "./motion";
 import type { SceneVariant } from "./motion";
 
@@ -69,32 +69,59 @@ export function useChapter(
         };
         const y = isMobile ? MOTION.revealYMobile : MOTION.revealY;
         const stagger = isMobile ? MOTION.staggerMobile : MOTION.stagger;
+        const lineStagger = isMobile ? MOTION.lineStaggerMobile : MOTION.lineStagger;
         // Title leads; content follows a beat later (a chapter assembles itself,
         // heading → body, instead of popping all at once). options.start, when
         // given, overrides the content start.
         const titleStart = MOTION.revealTitleStart;
         const contentStart = options.start ?? MOTION.revealContentStart;
 
-        // Titles — mask reveal (clip sweep + rise), leading the scene.
-        if (titles.length) {
-          gsap.set(titles, {
-            clipPath: "inset(0 0 100% 0)",
-            y: y * 0.55,
-            opacity: 1,
-          });
-          ScrollTrigger.batch(titles, {
-            start: titleStart,
-            onEnter: (batch) =>
-              gsap.to(batch, {
-                clipPath: "inset(0 0 0% 0)",
-                y: 0,
-                duration: MOTION.duration + 0.15,
-                ease: MOTION.easeTitle,
-                stagger,
-                overwrite: true,
-              }),
-          });
-        }
+        // Titles — editorial reveal LINE BY LINE: SplitText wraps each line in a
+        // clip mask and the lines rise in sequence, so the heading "writes
+        // itself" instead of fading as a block. Text stays in the DOM (SEO/a11y),
+        // and autoSplit re-splits on resize / late font load. Gradient-clipped
+        // titles can't survive line-splitting, so those fall back to a single
+        // block mask reveal.
+        const splits: SplitText[] = [];
+        titles.forEach((title) => {
+          const cs = getComputedStyle(title);
+          const clipped =
+            (cs.webkitBackgroundClip || cs.backgroundClip) === "text";
+
+          if (clipped) {
+            gsap.set(title, { clipPath: "inset(0 0 100% 0)", y: y * 0.55, opacity: 1 });
+            ScrollTrigger.create({
+              trigger: title,
+              start: titleStart,
+              once: true,
+              onEnter: () =>
+                gsap.to(title, {
+                  clipPath: "inset(0 0 0% 0)",
+                  y: 0,
+                  duration: MOTION.duration + 0.15,
+                  ease: MOTION.easeTitle,
+                  overwrite: true,
+                }),
+            });
+            return;
+          }
+
+          splits.push(
+            SplitText.create(title, {
+              type: "lines",
+              mask: "lines",
+              autoSplit: true,
+              onSplit: (self) =>
+                gsap.from(self.lines, {
+                  yPercent: 110,
+                  duration: MOTION.lineDuration,
+                  ease: MOTION.lineEase,
+                  stagger: lineStagger,
+                  scrollTrigger: { trigger: title, start: titleStart, once: true },
+                }),
+            }),
+          );
+        });
 
         // Other content — staggered rise + scale, a beat behind the title.
         if (reveals.length) {
@@ -188,12 +215,15 @@ export function useChapter(
               if (handoff) {
                 // Mockup grows past the frame and dissolves while the section
                 // recedes gently underneath — a depth hand-off to the next scene.
+                // The root keeps its opacity (no dim): a charcoal "machine room"
+                // dropping to 0.34 over the cream page reads as muddy grey, so the
+                // depth here comes from scale + the handoff element fading, not a
+                // see-through section.
                 tl.to(
                   root,
                   {
                     yPercent: MOTION.exitY * 0.5,
                     scale: MOTION.exitScale,
-                    opacity: MOTION.exitOpacity,
                     duration: MOTION.exitWeight,
                   },
                   "exit",
@@ -228,6 +258,10 @@ export function useChapter(
             }
           }
         }
+
+        // Restore the original (un-split) title DOM when this media context tears
+        // down (breakpoint change / unmount) — autoSplit handles re-splits.
+        return () => splits.forEach((s) => s.revert());
       });
 
       return () => mm.revert();

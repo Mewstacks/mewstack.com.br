@@ -7,5 +7,6 @@ export default defineConfig({
   server: {
     port: Number((globalThis as { process?: { env?: Record<string, string> } }).process?.env?.PORT) || 5173,
     host: true,
+    allowedHosts: true,
   },
 });

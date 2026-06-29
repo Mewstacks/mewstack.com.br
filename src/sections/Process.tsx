@@ -150,6 +150,11 @@ export default function Process() {
 
       {/* ── timeline ── */}
       <div className="relative mt-14 lg:mt-16">
+        {/* faint editorial grid — reinforces the "precision" of the machine */}
+        <div
+          aria-hidden
+          className="grid-lines pointer-events-none absolute -inset-x-6 -top-8 bottom-0 -z-10 opacity-60 [mask-image:radial-gradient(ellipse_72%_82%_at_28%_24%,black,transparent_82%)]"
+        />
         {/* desktop rail behind the nodes: hairline base + pink live wire (scrubbed) */}
         <div
           aria-hidden

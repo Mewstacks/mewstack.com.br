@@ -3,6 +3,7 @@ import { ReactLenis, useLenis } from "lenis/react";
 import { ScrollTrigger } from "./lib/gsap";
 import { reduceMotion } from "./lib/motion";
 import Cursor from "./components/Cursor";
+import SceneBackground from "./components/SceneBackground";
 import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
 import Capabilities from "./sections/Capabilities";
@@ -100,6 +101,7 @@ export default function App() {
     >
       <LenisAnchors />
       {!reduce && <ScrollChrome />}
+      <SceneBackground />
       <Cursor />
       <a
         href="#conteudo"

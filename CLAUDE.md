@@ -12,9 +12,28 @@ Não duplique o conteúdo desses dois; siga-os.
 ## Stack & comandos
 
 - **React 18 + TypeScript + Vite 6 + Tailwind v4** (CSS-first, `@theme` em `src/index.css`).
-- **framer-motion** (animação), **lenis** (scroll suave), **lucide-react** (ícones).
+- **GSAP + ScrollTrigger + SplitText** (animação/scroll cinematográfico), **lenis** (scroll
+  suave, em ponte com o ScrollTrigger), **lucide-react** (ícones). **Sem framer-motion.**
 - Rodar: `npm run dev` · Buildar: `npm run build` (faz `tsc -b` + `vite build`).
 - `vite.config.ts` lê `PORT` do ambiente (fallback 5173) — não remova.
+
+### Arquitetura de motion (o sistema de "capítulos")
+
+- `src/lib/gsap.ts` — registro único de GSAP + ScrollTrigger + SplitText. **Importe daqui**,
+  nunca de `"gsap"` direto (evita dupla-registração).
+- `src/lib/motion.ts` — `MOTION`, o **dial único** de timing/intensidade. Ajuste aqui;
+  nada mais hardcoda valores. Também exporta `reduceMotion()`.
+- `src/lib/chapters.ts` — `CHAPTERS`: ordem + `theme` ("light" | "dark") de cada seção.
+  **Fonte da verdade** para a nav e para o fundo reativo.
+- `src/lib/useChapter.ts` — transforma uma seção em capítulo (enter→hold→exit) só com
+  atributos: `data-reveal-title` (reveal por LINHA via SplitText), `data-reveal` (stagger),
+  `data-parallax`. Variantes de saída: `recede` | `scaleHandoff` (`[data-handoff]`) | `wipe`.
+- `src/lib/useSceneBackground.ts` + `components/SceneBackground.tsx` — fundo global que faz
+  crossfade cream↔charcoal conforme o capítulo no centro da viewport (lê `theme`).
+- `src/lib/useChapterTheme.ts` — tema do capítulo sob a nav; a `Nav` inverte contraste sobre
+  seções charcoal.
+- `src/lib/useMagnetic.ts` — hover magnético (escopo + seletor; desktop/pointer-fine).
+- `src/lib/useHorizontalGallery.ts` — Showcase: scroll vertical vira track horizontal (pin).
 
 ## Fluxo inegociável (toda mudança)
 
@@ -44,14 +63,18 @@ Estes são os princípios que diferenciam premium de genérico. Sigam à risca:
 
 ## Design system (resumo — detalhe em `DESIGN.md`)
 
-- **Paleta fixa, light mode:** `#FF7BAC` rosa · `#262626` carvão · `#F2F2F2` claro.
-  Tokens em OKLCH no `@theme`. **Não** mude as cores nem vá pra dark mode.
+- **Paleta fixa:** `#FF7BAC` rosa · `#262626` carvão · `#F2F2F2` claro. Tokens em OKLCH no
+  `@theme`. **Não** mude as cores nem introduza dark mode global. O site é claro por padrão,
+  com **batidas charcoal intencionais** ("sala de máquinas") em capítulos marcados como
+  `theme: "dark"` no `chapters.ts` (hoje: CodeLab e Contact) — esse é o ritmo claro↔carvão da
+  narrativa, não um tema escuro. Sobre carvão use `--color-paper`/`--color-pink-bright`.
 - **Contraste (AA):** rosa `#FF7BAC` **nunca** é texto pequeno em fundo claro — use
   `--color-pink-deep`. Pink claro só em carvão.
 - **Fontes:** Clash Display (títulos) + Satoshi (corpo).
 - **Reutilize os utilitários** já definidos em `index.css`: `.btn`/`.btn-primary`/`.btn-pink`/
   `.btn-ghost`, `.card`, `.eyebrow`, `.console`, `.mono`. Não recrie variações soltas.
-- Ícones: **lucide-react**. Animações de entrada: componente `Reveal` (já trata reduced-motion).
+- Ícones: **lucide-react**. Reveals de entrada: atributos `data-reveal`/`data-reveal-title` +
+  `useChapter` (trata reduced-motion). Não existe componente `Reveal`.
 
 ## Convenções de código
 
@@ -68,7 +91,10 @@ Estes são os princípios que diferenciam premium de genérico. Sigam à risca:
 - Tabelas/grids: para colunas alinharem entre linhas, use **larguras de coluna explícitas**
   (cada linha é um grid independente; `auto` não alinha entre linhas).
 
-## Mapa das seções (`src/App.tsx`)
+## Mapa das seções (`src/App.tsx`) — ordem fixa
 
-`Nav → Hero` (mockup NFS-e) `→ Pillars` (FIG 01/02/03) `→ CodeLab` (IDE Python executável)
-`→ Capabilities → Process → Projects → About → Contact`.
+`Nav → Hero` (abertura cinematográfica) `→ Capabilities` (3 frentes) `→ CodeLab` (IDE Python
+executável, **charcoal**) `→ Process` (timeline pinada/scrubbed) `→ About` (fundador) `→
+Showcase` (galeria horizontal de telas reais) `→ Contact` (CTA, **charcoal**).
+
+Ritmo de tom no scroll: claro → **carvão** (CodeLab) → claro → **carvão** (Contact).
