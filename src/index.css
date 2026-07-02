@@ -248,9 +248,6 @@
     display: inline-block;
     transition: transform 0.25s var(--ease-quart);
   }
-  .btn:hover .arrow {
-    transform: translateX(3px);
-  }
   /* diagonal sheen sweep — turns a flat fill into something crafted */
   .btn-primary::before,
   .btn-pink::before {
@@ -267,38 +264,53 @@
     transform: translateX(-140%);
     transition: transform 0.65s var(--ease-quart);
   }
-  .btn-primary:hover::before,
-  .btn-pink:hover::before {
-    transform: translateX(140%);
-  }
   .btn-primary {
     background: var(--color-ink);
     color: var(--color-cream);
     box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 0.14),
       inset 0 0 0 1px oklch(1 0 0 / 0.04);
   }
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 1px 2px rgba(40,30,40,0.08), 0 12px 28px -10px rgba(40,30,40,0.34),
-      inset 0 1px 0 oklch(1 0 0 / 0.18);
-  }
   .btn-pink {
     background: var(--color-pink);
     color: oklch(0.22 0.03 356);
     box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 0.28);
-  }
-  .btn-pink:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-glow), inset 0 1px 0 oklch(1 0 0 / 0.32);
   }
   .btn-ghost {
     border: 1px solid var(--line-strong);
     color: var(--color-ink);
     background: oklch(1 0 0 / 0.4);
   }
-  .btn-ghost:hover {
-    border-color: var(--color-ink);
-    background: oklch(1 0 0 / 0.7);
+
+  /* Hover flourishes (arrow slide, sheen sweep, lift + glow) only where a real
+     pointer can hover. On touch a :hover state sticks after the tap — the lift
+     and glow would freeze until you tap elsewhere — so gate them behind
+     (hover: hover). Touch instead gets the crisp press below. */
+  @media (hover: hover) {
+    .btn:hover .arrow {
+      transform: translateX(3px);
+    }
+    .btn-primary:hover::before,
+    .btn-pink:hover::before {
+      transform: translateX(140%);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 1px 2px rgba(40,30,40,0.08), 0 12px 28px -10px rgba(40,30,40,0.34),
+        inset 0 1px 0 oklch(1 0 0 / 0.18);
+    }
+    .btn-pink:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-glow), inset 0 1px 0 oklch(1 0 0 / 0.32);
+    }
+    .btn-ghost:hover {
+      border-color: var(--color-ink);
+      background: oklch(1 0 0 / 0.7);
+    }
+  }
+
+  /* Tap/press feedback — the touch-friendly counterpart to the hover lift. */
+  .btn:active {
+    transform: translateY(1px);
   }
 
   /* hairline card — near-white surface, border-led, whisper shadow */

@@ -154,9 +154,12 @@ export default function Showcase() {
                 <p className="mb-5 max-w-[60ch] text-[0.92rem] leading-relaxed text-ink-soft">
                   {t.desc}
                 </p>
-                {/* console capped on desktop so the pinned gallery fits one
-                    viewport; the overflow fades out at the bottom edge */}
-                <div className="relative md:max-h-[50vh] md:overflow-hidden">
+                {/* console height capped so the three cards stay a consistent
+                    size — otherwise the taller screen (the SPED/XML editor)
+                    stretches every card via items-stretch and makes the whole
+                    section much longer than its neighbours. Overflow fades out
+                    at the bottom. Desktop keeps its own 50vh cap for the pin. */}
+                <div className="relative max-h-[420px] overflow-hidden md:max-h-[50vh]">
                   <div className="console">
                     <WindowChrome file={t.file} />
                     {t.id === "nfse" && <NfseScreen />}
@@ -165,7 +168,7 @@ export default function Showcase() {
                   </div>
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-20 md:block"
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-16 md:h-20"
                     style={{ background: "linear-gradient(to top, var(--color-cream) 0%, transparent 100%)" }}
                   />
                 </div>
