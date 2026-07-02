@@ -37,7 +37,7 @@ const TEAM: Member[] = [
     bio: "Desenvolvedor full-stack: do backend em Python à interface no navegador. Modelo APIs, integro serviços e transformo produto em tela. Web rápida, acessível e com acabamento de alto nível.",
     stack: [
       "Python",
-      "FastAPI / Django",
+      "Django",
       "APIs REST",
       "React",
       "TypeScript",
