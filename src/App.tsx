@@ -20,6 +20,9 @@ function ScrollChrome() {
   const bar = useRef<HTMLDivElement>(null);
 
   useLenis((lenis) => {
+    // Dev-only: expose the live Lenis instance so preview/automation can drive
+    // smooth scroll (native scrollTo is overridden by Lenis). Never ships.
+    if (import.meta.env.DEV) (window as unknown as { __lenis?: unknown }).__lenis = lenis;
     ScrollTrigger.update();
     if (bar.current) {
       bar.current.style.transform = `scaleX(${lenis.progress || 0})`;

@@ -31,6 +31,18 @@ export function useChapterTheme(): ChapterTheme {
           break;
         }
       }
+      // At the very bottom of the page the last chapter can be shorter than the
+      // probe offset — common on mobile, where the dark footer chapter is
+      // compact — so its top never crosses PROBE and the flip is missed. When
+      // scrolled to the end, adopt the last section's theme so the nav still
+      // turns dark over the footer (matches desktop, where the taller footer
+      // already crosses the probe).
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      if (atBottom && sections.length) {
+        current = sections[sections.length - 1].theme;
+      }
       setTheme((prev) => (prev === current ? prev : current));
     };
 

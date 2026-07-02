@@ -28,7 +28,7 @@ export default function Nav() {
       className={`fixed inset-x-0 top-0 border-b transition-[background-color,box-shadow,border-color,backdrop-filter] duration-500 ease-[var(--ease-quart)] ${
         solid
           ? dark
-            ? "border-night-line bg-night/70 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-150"
+            ? "border-night-line bg-night/80 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-150"
             : "border-cream-line bg-cream/80 shadow-[0_8px_30px_-12px_rgba(40,30,40,0.18)] backdrop-blur-xl backdrop-saturate-150"
           : "border-transparent bg-cream/0 backdrop-blur-[2px]"
       }`}
@@ -36,7 +36,7 @@ export default function Nav() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
         <a href="#top" className="flex items-center" aria-label="MewStack, início" onClick={() => setOpen(false)}>
-          <Logo variant={dark ? "white" : "horizontal"} priority className="h-8 w-auto sm:h-9" alt="MewStack" />
+          <Logo variant={dark ? "horizontalDark" : "horizontal"} priority className="h-8 w-auto sm:h-9" alt="MewStack" />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Seções">
