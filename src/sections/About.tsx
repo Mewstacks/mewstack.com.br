@@ -49,7 +49,7 @@ const TEAM: Member[] = [
     role: "Comercial & Social Media",
     photo: "/brand/team-sales.jpeg",
     objectPosition: "50% 30%",
-    bio: "A ponte entre o que a gente constrói e quem precisa disso. Cuido das vendas, do relacionamento e da presença da MewStack nas redes — conteúdo que explica o produto sem enrolar.",
+    bio: "A ponte entre o que a gente constrói e quem precisa disso. Cuido das vendas, do relacionamento e da presença da MewStack nas redes, conteúdo que explica o produto sem enrolar.",
     stack: [
       "Vendas B2B",
       "Social Media",
