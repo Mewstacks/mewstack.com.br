@@ -99,14 +99,21 @@ export default function About() {
     <section
       ref={root}
       id="estudio"
-      className="mx-auto max-w-3xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
+      className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
       <p data-reveal className="eyebrow mb-6">quem faz</p>
 
-      <div className="flex flex-col gap-12">
+      <div className="grid grid-cols-1 gap-12 md:grid-cols-3 md:grid-rows-[auto_auto_auto] md:gap-x-8 md:gap-y-0">
         {TEAM.map((m) => (
-          <div key={m.name} data-reveal>
-            <div className="flex items-center gap-5">
+          <div
+            key={m.name}
+            data-reveal
+            className="md:grid md:row-span-3 md:grid-rows-subgrid"
+          >
+            {/* items-start keeps every name pinned to the same top line so a
+                longer name (more lines) grows downward instead of shifting the
+                header off from its neighbours. */}
+            <div className="flex items-start gap-5">
               <div className="size-16 shrink-0 overflow-hidden rounded-full bg-cream-deep ring-2 ring-pink sm:size-20">
                 <img
                   src={m.photo}
@@ -122,8 +129,9 @@ export default function About() {
                 <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">
                   {m.name}
                 </h2>
-                <p className="mt-0.5 font-medium text-pink-deep">
-                  {m.role} · MewStack
+                {/* Single line, consistent across every card. */}
+                <p className="mt-1 truncate font-medium text-pink-deep">
+                  {m.role}
                 </p>
               </div>
             </div>
@@ -132,7 +140,10 @@ export default function About() {
               {m.bio}
             </p>
 
-            <ul className="mt-6 flex flex-wrap gap-2">
+            {/* content-start + items-start stop the pills from being stretched
+                to fill the (subgrid-equalised) skills row, so every card keeps
+                the same compact pill size. */}
+            <ul className="mt-6 flex flex-wrap content-start items-start gap-2">
               {m.stack.map((t) => (
                 <li
                   key={t}

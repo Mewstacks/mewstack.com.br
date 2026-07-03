@@ -36,7 +36,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon; file: string; desc: Re
     label: "Baixar NFS-e",
     icon: Download,
     file: "baixador-nfse",
-    desc: "Um robô baixa suas NFS-e direto do portal nacional, filtra por competência e exporta pra Excel ou PDF — sem ninguém abrir o site da prefeitura nota por nota.",
+    desc: "Um robô baixa suas NFS-e direto do portal nacional, filtra por competência e exporta pra Excel ou PDF, sem ninguém abrir o site da prefeitura nota por nota.",
   },
   {
     id: "editor",
