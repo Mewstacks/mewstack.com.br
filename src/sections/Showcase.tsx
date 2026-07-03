@@ -50,7 +50,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon; file: string; desc: Re
     label: "Conciliar SPED×XML",
     icon: GitCompare,
     file: "conciliacao-sped-xml",
-    desc: "O programa bate cada tag do XML contra o campo correspondente do SPED e aponta na hora onde os valores divergem — auditoria fiscal sem conferência manual.",
+    desc: "O programa bate cada tag do XML contra o campo correspondente do SPED e aponta na hora onde os valores divergem, auditoria fiscal sem conferência manual.",
   },
 ];
 
