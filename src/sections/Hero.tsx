@@ -126,7 +126,7 @@ export default function Hero() {
 
         <h1 className="font-display text-[clamp(2.6rem,7.2vw,5.2rem)] leading-[0.95] font-semibold tracking-[-0.04em]">
           <span data-hero="line" className="block text-ink-fade">
-            Seus dados já sabem
+            Seus dados já sabem,
           </span>
           <span data-hero="line" className="block text-gradient">
             a gente revela.
