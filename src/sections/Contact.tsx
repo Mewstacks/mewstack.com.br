@@ -4,8 +4,8 @@ import { useChapter } from "../lib/useChapter";
 import { useMagnetic } from "../lib/useMagnetic";
 
 const INSTAGRAM = "https://instagram.com/meewstack";
-const EMAIL = "germano@mewstack.com.br";
-const WHATSAPP = "https://wa.me/5554996202127"; // (54) 99620-2127
+const EMAIL = "vendas@mewstack.com.br";
+const WHATSAPP = "https://wa.me/5554996573455"; // (54) 99620-2127
 
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
