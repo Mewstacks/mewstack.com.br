@@ -1,10 +1,19 @@
-import Reveal from "../components/Reveal";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap, ScrollTrigger } from "../lib/gsap";
+import { MOTION, reduceMotion } from "../lib/motion";
 
+/* ── Process: o capítulo-assinatura. No desktop a timeline é "scrubada" pelo
+   scroll: a live wire rosa preenche o trilho e cada nó acende com seu texto, em
+   sequência, conforme a seção sobe pela tela. Sem pin — assim, pular pra cá por
+   um anchor cai numa timeline já preenchida (o scrub reflete a posição), em vez
+   de um frame vazio pré-pin. No mobile, timeline vertical com reveal em stagger.
+   Título por mask reveal. Tudo transform/opacity (+ clip pontual). */
 const STEPS = [
   {
     n: "01",
-    title: "Mergulho",
-    desc: "Entendo seu processo de ponta a ponta e mapeio exatamente onde o tempo — e o dinheiro — escapa.",
+    title: "Diagnóstico",
+    desc: "Entendo seu processo de ponta a ponta e mapeio exatamente onde o seu tempo e o seu dinheiro escapam.",
   },
   {
     n: "02",
@@ -14,56 +23,177 @@ const STEPS = [
   {
     n: "03",
     title: "Operação",
-    desc: "Roda sozinho, monitorado. Você não recebe planilha — recebe a decisão já pronta para aplicar.",
+    desc: "Roda sozinho e monitorado. Você não recebe planilha, recebe a decisão já pronta para aplicar.",
   },
 ];
 
 export default function Process() {
+  const root = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const el = root.current;
+      if (!el) return;
+      const q = gsap.utils.selector(el);
+      const eyebrow = q("[data-pro='eyebrow']");
+      const title = q("[data-pro='title']");
+      const rail = q("[data-pro='rail']");
+      const nodes = q("[data-pro='node']");
+      const steps = q("[data-pro='step']");
+
+      if (reduceMotion()) {
+        gsap.set([...eyebrow, ...title, ...steps, ...nodes], {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          clipPath: "none",
+        });
+        gsap.set(rail, { scaleX: 1 });
+        return;
+      }
+
+      const mm = gsap.matchMedia();
+
+      // Header reveal — eyebrow rises, title masks in. Both breakpoints.
+      gsap.set(eyebrow, { opacity: 0, y: MOTION.revealY * 0.5 });
+      gsap.set(title, { clipPath: "inset(0 0 100% 0)", y: MOTION.revealY * 0.5, opacity: 1 });
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 78%",
+        once: true,
+        onEnter: () => {
+          gsap.to(eyebrow, { opacity: 1, y: 0, duration: MOTION.duration, ease: MOTION.ease });
+          gsap.to(title, {
+            clipPath: "inset(0 0 0% 0)",
+            y: 0,
+            duration: MOTION.duration + 0.2,
+            ease: MOTION.easeTitle,
+          });
+        },
+      });
+
+      // Desktop: the signature beat — the section PINS and the timeline is
+      // scrubbed in place: the pink wire fills the rail and each node ignites
+      // with its step, one after another, as the user scrolls. pinSpacing keeps
+      // the document height intact, so the #processo anchor still lands at the
+      // start of the pinned beat (LenisAnchors resolves to the pin-spacer top).
+      mm.add(MOTION.desktop, () => {
+        gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
+        gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
+        gsap.set(steps, { opacity: 0, y: 36 });
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el,
+            start: "top 16%",
+            end: "+=120%",
+            scrub: true,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+          },
+        });
+
+        tl.to(rail, { scaleX: 1, ease: "none", duration: 3 }, 0);
+        [0, 1, 2].forEach((i) => {
+          const at = 0.3 + i * 0.85;
+          tl.to(nodes[i], { scale: 1, opacity: 1, ease: "back.out(1.7)", duration: 0.5 }, at).to(
+            steps[i],
+            { opacity: 1, y: 0, ease: "power3.out", duration: 0.6 },
+            at,
+          );
+        });
+        // tail hold so the finished timeline lingers a touch before unpinning.
+        tl.to({}, { duration: 0.6 });
+      });
+
+      // Mobile: no pin — reveal steps as they enter.
+      mm.add(MOTION.mobile, () => {
+        gsap.set(nodes, { scale: 1, opacity: 1 });
+        gsap.set(steps, { opacity: 0, y: MOTION.revealYMobile });
+        ScrollTrigger.batch(steps, {
+          start: "top 85%",
+          onEnter: (batch) =>
+            gsap.to(batch, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              ease: "power3.out",
+              stagger: MOTION.stagger,
+              overwrite: true,
+            }),
+        });
+      });
+
+      return () => mm.revert();
+    },
+    { scope: root },
+  );
+
   return (
     <section
+      ref={root}
       id="processo"
-      className="mx-auto max-w-7xl scroll-mt-24 px-5 py-24 sm:px-8 lg:py-32"
+      className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
-      <Reveal className="max-w-2xl">
-        <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.03em]">
+      <div className="max-w-2xl">
+        <p data-pro="eyebrow" className="eyebrow mb-6">
+          processo
+        </p>
+        <h2
+          data-pro="title"
+          className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]"
+        >
           Da bagunça ao botão que roda sozinho.
         </h2>
-      </Reveal>
+      </div>
 
-      <div className="relative mt-16">
-        {/* flowing pink wire connecting the steps (desktop) */}
-        <svg
+      {/* ── timeline ── */}
+      <div className="relative mt-14 lg:mt-16">
+        {/* faint editorial grid — reinforces the "precision" of the machine */}
+        <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-7 hidden h-2 w-full lg:block"
-          preserveAspectRatio="none"
-          viewBox="0 0 1000 8"
-        >
-          <line x1="0" y1="4" x2="1000" y2="4" stroke="var(--color-cream-line)" strokeWidth="2" />
-          <line
-            x1="0"
-            y1="4"
-            x2="1000"
-            y2="4"
-            stroke="var(--color-pink)"
-            strokeWidth="2"
-            strokeDasharray="6 14"
-            style={{ animation: "wire-flow 16s linear infinite" }}
-          />
-        </svg>
+          className="grid-lines pointer-events-none absolute -inset-x-6 -top-8 bottom-0 -z-10 opacity-60 [mask-image:radial-gradient(ellipse_72%_82%_at_28%_24%,black,transparent_82%)]"
+        />
+        {/* desktop rail behind the nodes: hairline base + pink live wire (scrubbed) */}
+        <div
+          aria-hidden
+          className="absolute top-6 right-0 left-6 hidden h-px bg-cream-line md:block"
+        />
+        <div
+          aria-hidden
+          data-pro="rail"
+          className="absolute top-6 right-0 left-6 hidden h-px origin-left scale-x-0 bg-pink md:block"
+        />
 
-        <ol className="grid gap-12 lg:grid-cols-3 lg:gap-10">
+        <ol className="grid gap-x-8 md:grid-cols-3">
           {STEPS.map((s, i) => (
-            <Reveal as="li" key={s.n} delay={i * 0.12} className="relative">
-              <span
-                className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border border-cream-line bg-cream font-display text-lg font-semibold text-pink-deep mono"
-              >
-                {s.n}
-              </span>
-              <h3 className="mt-6 font-display text-2xl font-semibold tracking-[-0.02em]">
-                {s.title}
-              </h3>
-              <p className="mt-3 max-w-[38ch] text-ink-soft">{s.desc}</p>
-            </Reveal>
+            <li
+              key={s.n}
+              className="relative flex gap-5 pb-9 last:pb-0 md:block md:pb-0"
+            >
+              {/* node column (vertical connector on mobile) */}
+              <div className="relative flex flex-col items-center md:block">
+                <span
+                  data-pro="node"
+                  className="relative z-10 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream-line bg-cream-deep font-display text-sm font-semibold tabular-nums text-pink-deep shadow-[var(--shadow-soft)]"
+                >
+                  {s.n}
+                </span>
+                {i < STEPS.length - 1 && (
+                  <span aria-hidden className="mt-2 w-px flex-1 bg-cream-line md:hidden" />
+                )}
+              </div>
+
+              <div data-pro="step" className="md:mt-6">
+                <h3 className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-[1.4rem]">
+                  {s.title}
+                </h3>
+                <p className="mt-2.5 max-w-[34ch] text-[0.98rem] leading-relaxed text-ink-soft">
+                  {s.desc}
+                </p>
+              </div>
+            </li>
           ))}
         </ol>
       </div>

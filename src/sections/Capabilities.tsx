@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { Boxes, Workflow, Database, Check } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import Reveal from "../components/Reveal";
+import { useChapter } from "../lib/useChapter";
+import { useMagnetic } from "../lib/useMagnetic";
 
 type Service = {
   icon: LucideIcon;
@@ -14,7 +16,7 @@ const SERVICES: Service[] = [
   {
     icon: Boxes,
     title: "Software & Automações",
-    desc: "Sistemas sob medida e robôs que executam suas rotinas — integrados ao que você já usa, sem planilha no meio do caminho.",
+    desc: "Sistemas sob medida e robôs que executam suas rotinas, integrados ao que você já usa, sem planilha no meio do caminho.",
     checks: ["Sistemas sob medida", "Integrações & APIs", "Bots & scripts"],
     span: "md:col-span-7",
   },
@@ -28,30 +30,36 @@ const SERVICES: Service[] = [
   {
     icon: Database,
     title: "Data Processing",
-    desc: "Volume de documento que ninguém dá conta de conferir na mão — lido, validado e organizado no formato que o seu time realmente usa.",
+    desc: "Volume de documento que ninguém dá conta de conferir na mão. A gente lê, valida e organiza no formato que o seu time realmente usa.",
     checks: ["Limpeza & ETL", "Estruturação", "Dashboards", "Dado → decisão"],
     span: "md:col-span-12",
   },
 ];
 
 export default function Capabilities() {
+  const root = useRef<HTMLElement>(null);
+  useChapter(root);
+  // Subtle magnetic drift on the cards (desktop/fine-pointer) — depth without jank.
+  useMagnetic(root, "[data-magnetic]", { strength: 0.12, max: 12 });
+
   return (
-    <section id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20 sm:px-8 lg:py-28">
-      <Reveal className="max-w-2xl">
-        <p className="eyebrow mb-6">serviços</p>
-        <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]">
+    <section ref={root} id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
+      <div className="max-w-2xl">
+        <p data-reveal className="eyebrow mb-6">serviços</p>
+        <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]">
           Três frentes, um objetivo: te devolver tempo e clareza.
         </h2>
-      </Reveal>
+      </div>
 
-      <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-12">
-        {SERVICES.map((s, i) => {
+      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-12">
+        {SERVICES.map((s) => {
           const Icon = s.icon;
           const wide = s.span === "md:col-span-12";
           return (
-            <Reveal as="div" key={s.title} delay={i * 0.08} className={`sm:col-span-2 ${s.span}`}>
+            <div data-reveal key={s.title} className={`sm:col-span-2 ${s.span}`}>
               <article
-                className={`card group relative h-full overflow-hidden p-7 transition-[transform,border-color,box-shadow] duration-300 ease-[var(--ease-quart)] hover:-translate-y-1 hover:border-pink/40 hover:shadow-[var(--shadow-glow)] hover:ring-1 hover:ring-pink/15 sm:p-8 ${
+                data-magnetic
+                className={`card group relative h-full overflow-hidden p-7 transition-[border-color,box-shadow] duration-300 ease-[var(--ease-quart)] will-change-transform hover:border-pink/40 hover:shadow-[var(--shadow-glow)] hover:ring-1 hover:ring-pink/15 sm:p-8 ${
                   wide ? "flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between" : "flex flex-col"
                 }`}
               >
@@ -83,7 +91,7 @@ export default function Capabilities() {
                   ))}
                 </ul>
               </article>
-            </Reveal>
+            </div>
           );
         })}
       </div>

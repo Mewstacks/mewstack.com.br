@@ -51,6 +51,17 @@ Contrast rules: ink-on-light ✔, paper-on-charcoal ✔. Brand #FF7BAC is NEVER 
 
 ## Motion
 
-- Orchestrated hero entrance; mascot float; pink wire draw-in; staggered capability reveals;
-  counter/ticker motion in Process. All transform/opacity/clip-path, GPU-friendly.
-- Full `prefers-reduced-motion` fallback (instant/crossfade, no infinite loops).
+Cinematic scroll (Leclerc-inspired, dev identity). Stack: **GSAP + ScrollTrigger + SplitText
++ Lenis** (no framer-motion). One dial: `src/lib/motion.ts` (`MOTION`).
+
+- **Chapters** (`useChapter`): each section enters → holds → exits as one scrubbed scene
+  (recede / scaleHandoff / wipe), so leaving chapters recede with depth and the next rises over.
+- **Reactive background** (`useSceneBackground`): the page tone crossfades cream↔charcoal as
+  the centered chapter's `theme` changes — the light↔"machine room" rhythm is the main beat
+  (CodeLab + Contact are charcoal). The nav flips contrast over dark chapters (`useChapterTheme`).
+- **Editorial titles**: `data-reveal-title` masks in **line by line** (SplitText); body in
+  staggered `data-reveal`. Hero entrance orchestrated; mascot float; pink "live wire" accents.
+- **Depth & microinteractions**: parallax layers, magnetic hover (`useMagnetic`, desktop/fine
+  pointer), pinned scenes (Process timeline, Showcase horizontal gallery).
+- All transform/opacity/clip-path, GPU-friendly. Full `prefers-reduced-motion` fallback —
+  content visible, no pin, no split, no crossfade, no infinite loops.

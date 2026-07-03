@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import Logo from "../components/Logo";
+import { HEADER_CHAPTERS } from "../lib/chapters";
+import { useChapterTheme } from "../lib/useChapterTheme";
 
-const LINKS = [
-  { href: "#servicos", label: "Serviços" },
-  { href: "#projetos", label: "Projetos" },
-  { href: "#processo", label: "Processo" },
-  { href: "#estudio", label: "Estúdio" },
-];
+const LINKS = HEADER_CHAPTERS.map((c) => ({ href: `#${c.id}`, label: c.label }));
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  // When floating over a charcoal chapter, the nav flips to a dark treatment so
+  // its text/logo stay legible (AA). The mobile panel, when open, forces light.
+  const theme = useChapterTheme();
+  const dark = theme === "dark" && !open;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -20,19 +21,22 @@ export default function Nav() {
   }, []);
 
   const solid = scrolled || open;
+  const bar = dark ? "bg-paper" : "bg-ink"; // hamburger lines
 
   return (
     <header
       className={`fixed inset-x-0 top-0 border-b transition-[background-color,box-shadow,border-color,backdrop-filter] duration-500 ease-[var(--ease-quart)] ${
         solid
-          ? "border-cream-line bg-cream/80 shadow-[0_8px_30px_-12px_rgba(40,30,40,0.18)] backdrop-blur-xl backdrop-saturate-150"
+          ? dark
+            ? "border-night-line bg-night/80 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-150"
+            : "border-cream-line bg-cream/80 shadow-[0_8px_30px_-12px_rgba(40,30,40,0.18)] backdrop-blur-xl backdrop-saturate-150"
           : "border-transparent bg-cream/0 backdrop-blur-[2px]"
       }`}
       style={{ zIndex: "var(--z-nav)" }}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
         <a href="#top" className="flex items-center" aria-label="MewStack, início" onClick={() => setOpen(false)}>
-          <Logo variant="horizontal" priority className="h-8 w-auto sm:h-9" alt="MewStack" />
+          <Logo variant={dark ? "horizontalDark" : "horizontal"} priority className="h-8 w-auto sm:h-9" alt="MewStack" />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Seções">
@@ -40,7 +44,9 @@ export default function Nav() {
             <a
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+              className={`text-sm font-medium transition-colors ${
+                dark ? "text-paper-soft hover:text-paper" : "text-ink-soft hover:text-ink"
+              }`}
             >
               {l.label}
             </a>
@@ -50,7 +56,7 @@ export default function Nav() {
         <div className="flex items-center gap-2">
           <a
             href="#contato"
-            className="btn btn-primary hidden text-sm sm:inline-flex"
+            className={`btn hidden text-sm sm:inline-flex ${dark ? "btn-pink" : "btn-primary"}`}
           >
             Falar com a gente
             <span className="arrow" aria-hidden>→</span>
@@ -63,17 +69,19 @@ export default function Nav() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Fechar menu" : "Abrir menu"}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-cream-line text-ink md:hidden"
+            className={`flex h-10 w-10 items-center justify-center rounded-full border md:hidden ${
+              dark ? "border-night-line text-paper" : "border-cream-line text-ink"
+            }`}
           >
             <span className="relative block h-3.5 w-5">
               <span
-                className={`absolute left-0 block h-0.5 w-5 bg-ink transition-transform duration-300 ${open ? "top-1.5 rotate-45" : "top-0"}`}
+                className={`absolute left-0 block h-0.5 w-5 ${bar} transition-transform duration-300 ${open ? "top-1.5 rotate-45" : "top-0"}`}
               />
               <span
-                className={`absolute left-0 top-1.5 block h-0.5 w-5 bg-ink transition-opacity duration-200 ${open ? "opacity-0" : "opacity-100"}`}
+                className={`absolute left-0 top-1.5 block h-0.5 w-5 ${bar} transition-opacity duration-200 ${open ? "opacity-0" : "opacity-100"}`}
               />
               <span
-                className={`absolute left-0 block h-0.5 w-5 bg-ink transition-transform duration-300 ${open ? "top-1.5 -rotate-45" : "top-3"}`}
+                className={`absolute left-0 block h-0.5 w-5 ${bar} transition-transform duration-300 ${open ? "top-1.5 -rotate-45" : "top-3"}`}
               />
             </span>
           </button>

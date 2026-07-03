@@ -1,7 +1,10 @@
-type Variant = "horizontal" | "stacked" | "icon" | "white" | "vector";
+type Variant = "horizontal" | "horizontalDark" | "stacked" | "icon" | "white" | "vector";
 
 const SRC: Record<Variant, string> = {
   horizontal: "/brand/logo-horizontal.png",
+  // Same horizontal mark as `horizontal`, but the charcoal "Mew" wordmark is
+  // recolored to cream so it stays legible over the dark (night) header.
+  horizontalDark: "/brand/logo-horizontal-dark.png",
   stacked: "/brand/logo-stacked.png",
   icon: "/brand/icon.png",
   white: "/brand/logo-white.png",

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Loader2, Check, ChevronDown, TerminalSquare } from "lucide-react";
-import Reveal from "../components/Reveal";
+import { useChapter } from "../lib/useChapter";
 
 /* Linear-style "code in the marketing page", taken further: a real-feeling
    VS Code editor the visitor can actually RUN. Pressing ▶ types a terminal
@@ -60,7 +60,7 @@ const CODE: Line[] = [
   [["from ", "kw"], ["mewstack ", "fg"], ["import ", "kw"], ["automatizar", "builtin"]],
   [],
   [["# tarefas chatas que ninguém merece fazer na mão", "com"]],
-  [["tarefas ", "fg"], ["= ", "op"], ["[", "op"], ['"baixar notas"', "str"], [", ", "op"], ['"limpar planilha"', "str"], [", ", "op"], ['"enviar relatório"', "str"], ["]", "op"]],
+  [["tarefas ", "fg"], ["= ", "op"], ["[", "op"], ['"digitar notas"', "str"], [", ", "op"], ['"consultar ecac"', "str"], [", ", "op"], ['"conciliar extratos"', "str"], ["]", "op"]],
   [],
   [["@automatizar", "fn"], ["(", "op"], ["quando", "fg"], ["=", "op"], ['"toda segunda às 08:00"', "str"], [")", "op"]],
   [["def ", "kw"], ["liberar_meu_tempo", "fn"], ["():", "op"]],
@@ -75,9 +75,9 @@ const CODE: Line[] = [
 
 const OUTPUT = [
   "$ python liberar_meu_tempo.py",
-  "✓ baixar notas agora roda sozinho",
-  "✓ limpar planilha agora roda sozinho",
-  "✓ enviar relatório agora roda sozinho",
+  "✓ digitar notas agora roda sozinho",
+  "✓ consultar ecac agora roda sozinho",
+  "✓ conciliar extratos agora roda sozinho",
   "tempo livre desbloqueado ✨",
   "→ abrindo instagram.com/meewstack …",
 ];
@@ -99,7 +99,12 @@ export default function CodeLab() {
   const [lines, setLines] = useState<string[]>([]);
   const timers = useRef<number[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLElement>(null);
   const theme = THEMES[themeIdx];
+
+  // Scene exit: the IDE mockup scales up and dissolves into the next chapter
+  // (a depth hand-off), instead of the section simply receding.
+  useChapter(root, { variant: "scaleHandoff" });
 
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
@@ -142,20 +147,45 @@ export default function CodeLab() {
   };
 
   return (
-    <section id="rode" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-16 sm:px-8 lg:py-24">
-      <Reveal className="max-w-2xl">
-        <p className="eyebrow mb-6">experimente</p>
-        <h2 className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
-          Não acredita que roda sozinho? Roda você mesmo.
-        </h2>
-        <p className="mt-5 max-w-[48ch] text-ink-soft">
-          Aperta <span className="font-medium text-ink">▶ Executar</span>. É Python de
-          verdade, curtinho — o mesmo tipo de rotina que a gente monta pra tirar o
-          trabalho repetitivo das suas costas.
-        </p>
-      </Reveal>
+    <section
+      ref={root}
+      id="rode"
+      className="relative scroll-mt-24 overflow-clip bg-night text-paper"
+    >
+      {/* ── machine-room ambience: a faint technical grid + a pink "live wire"
+          glow. The dark page tone is driven by the reactive background
+          (chapter theme "dark"); this section also carries its own charcoal so
+          the copy is always readable regardless of crossfade timing. ── */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_80%_60%_at_50%_38%,black,transparent_76%)]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, oklch(1 0 0 / 0.045) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.045) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
+      <div
+        aria-hidden
+        data-parallax="1.1"
+        className="pointer-events-none absolute -top-10 left-1/2 -z-10 h-[42vh] w-[120vw] max-w-[1100px] -translate-x-1/2 rounded-full opacity-30 blur-[130px]"
+        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, var(--color-pink) 0%, transparent 70%)" }}
+      />
 
-      <Reveal delay={0.1} className="mt-10">
+      <div className="mx-auto max-w-5xl px-5 py-14 sm:px-8 lg:py-20">
+        <div className="max-w-2xl">
+          <p data-reveal className="eyebrow mb-6 text-paper-soft">experimente</p>
+          <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em] text-paper">
+            Não acredita que roda sozinho? Roda você mesmo.
+          </h2>
+          <p data-reveal className="mt-5 max-w-[48ch] text-paper-soft">
+            Aperta <span className="font-medium text-paper">▶ Executar</span>. É Python de
+            verdade, curtinho, o mesmo tipo de rotina que a gente monta pra tirar o
+            trabalho repetitivo das suas costas.
+          </p>
+        </div>
+
+        <div data-reveal data-handoff className="mt-8 will-change-transform">
         <div
           className="overflow-hidden rounded-2xl shadow-[0_40px_90px_-50px_rgba(40,30,40,0.55)] ring-1 ring-black/5"
           style={{ background: theme.bg, border: `1px solid ${theme.border}` }}
@@ -302,10 +332,11 @@ export default function CodeLab() {
           )}
         </div>
 
-        <p className="mt-3 text-center text-[0.8rem] text-ink-soft">
-          {done ? "Aberto! 🐱 (se o navegador bloqueou o pop-up, é só liberar)" : "Sim — ao executar, ele abre nosso Instagram. Pode rodar sem medo. 🐱"}
-        </p>
-      </Reveal>
+          <p className="mt-3 text-center text-[0.8rem] text-paper-soft">
+            {done ? "Aberto! 🐱 (se o navegador bloqueou o pop-up, é só liberar)" : "Sim, ao executar ele abre nosso Instagram. Pode rodar sem medo. 🐱"}
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
