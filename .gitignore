@@ -4,6 +4,10 @@ dist-ssr
 *.local
 .vite
 
+# archives / db dumps
+*.zip
+*.sql
+
 # editor / os
 .DS_Store
 .vscode/*
