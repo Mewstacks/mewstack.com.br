@@ -123,21 +123,58 @@ export function useChapter(
           );
         });
 
+        // Cleanups that must run when this media context tears down (breakpoint
+        // change / unmount): split reverts + any listeners registered below.
+        const cleanup: Array<() => void> = [
+          () => splits.forEach((s) => s.revert()),
+        ];
+
         // Other content — staggered rise + scale, a beat behind the title.
         if (reveals.length) {
           gsap.set(reveals, { opacity: 0, y, scale: MOTION.revealScale });
+          const revealTween = (els: Element[]) =>
+            gsap.to(els, {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              duration: MOTION.duration,
+              ease: MOTION.ease,
+              stagger,
+              overwrite: true,
+            });
+
+          // clamp(): content living in the LAST section's final viewport (e.g. the
+          // Contact CTA buttons) sits in the bottom slice of the page, so its top
+          // can never scroll up to `contentStart` ("top 76%"). clamp() pins that
+          // out-of-reach start back inside the scroll range so the reveal can fire;
+          // it's a no-op for sections that already reach their start.
           ScrollTrigger.batch(reveals, {
-            start: contentStart,
-            onEnter: (batch) =>
-              gsap.to(batch, {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: MOTION.duration,
-                ease: MOTION.ease,
-                stagger,
-                overwrite: true,
-              }),
+            start: `clamp(${contentStart})`,
+            onEnter: (batch) => revealTween(batch),
+          });
+
+          // Catch-up safety net for that same last-section content: because it
+          // never scrolls fully "past" its start, a plain batch crossing can be
+          // missed and it stays at opacity:0 until a resize forces a refresh — the
+          // reported "buttons only appear after resizing" bug. So whenever
+          // ScrollTrigger settles its positions (load / late assets / resize) OR
+          // scrolling comes to rest, reveal any still-hidden reveal item that is
+          // actually on screen. Reachable items are already revealed by the batch,
+          // so this only rescues the ones the crossing couldn't catch.
+          const catchUp = () => {
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            const stuck = reveals.filter((el) => {
+              if (Number(gsap.getProperty(el, "opacity")) > 0) return false;
+              const r = el.getBoundingClientRect();
+              return r.top < vh && r.bottom > 0;
+            });
+            if (stuck.length) revealTween(stuck);
+          };
+          ScrollTrigger.addEventListener("refresh", catchUp);
+          ScrollTrigger.addEventListener("scrollEnd", catchUp);
+          cleanup.push(() => {
+            ScrollTrigger.removeEventListener("refresh", catchUp);
+            ScrollTrigger.removeEventListener("scrollEnd", catchUp);
           });
         }
 
@@ -259,9 +296,10 @@ export function useChapter(
           }
         }
 
-        // Restore the original (un-split) title DOM when this media context tears
-        // down (breakpoint change / unmount) — autoSplit handles re-splits.
-        return () => splits.forEach((s) => s.revert());
+        // Tear down when this media context reverts (breakpoint change / unmount):
+        // restore the original (un-split) title DOM and remove the catch-up
+        // listeners — autoSplit handles re-splits.
+        return () => cleanup.forEach((fn) => fn());
       });
 
       return () => mm.revert();

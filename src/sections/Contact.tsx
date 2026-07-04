@@ -1,11 +1,44 @@
-import { useRef } from "react";
+import { useRef, type MouseEvent } from "react";
 import Logo from "../components/Logo";
 import { useChapter } from "../lib/useChapter";
 import { useMagnetic } from "../lib/useMagnetic";
 
-const INSTAGRAM = "https://instagram.com/meewstack";
+const INSTAGRAM_USER = "meewstack";
+const INSTAGRAM = `https://www.instagram.com/${INSTAGRAM_USER}/`; // canonical web URL (also the iOS fallback)
+const INSTAGRAM_APP = `instagram://user?username=${INSTAGRAM_USER}`;
 const EMAIL = "vendas@mewstack.com.br";
 const WHATSAPP = "https://wa.me/5554996573455"; // (54) 99620-2127
+
+/* iOS/Safari won't reliably open the Instagram app from a plain https link.
+   On a *user tap* (never on load) we try the app's deep link and, if it doesn't
+   take over the page shortly, fall back to the web URL the anchor already points
+   to. Desktop and Android just follow the normal https link (this returns early),
+   so no-JS visitors and other platforms are unaffected. */
+function isIOS(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return (
+    /iPad|iPhone|iPod/.test(ua) ||
+    // iPadOS 13+ masquerades as macOS — tell it apart by touch support.
+    (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+  );
+}
+
+function openInstagram(e: MouseEvent<HTMLAnchorElement>) {
+  if (!isIOS()) return; // desktop / Android: let the normal https link open
+  e.preventDefault();
+  const start = Date.now();
+  const toWeb = window.setTimeout(() => {
+    // If the app took over, the tab was backgrounded and this timer was paused,
+    // so real elapsed time overshoots — in that case don't yank Safari to the
+    // web page when the user comes back. Only fall back if the app never opened.
+    if (Date.now() - start < 1200) window.location.href = INSTAGRAM;
+  }, 700);
+  const cancel = () => window.clearTimeout(toWeb);
+  window.addEventListener("pagehide", cancel, { once: true });
+  window.addEventListener("blur", cancel, { once: true });
+  window.location.href = INSTAGRAM_APP; // must run inside the tap gesture
+}
 
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
@@ -59,6 +92,8 @@ export default function Contact() {
                 href={INSTAGRAM}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={openInstagram}
+                aria-label="Instagram da MewStack (@meewstack)"
                 className="btn border border-night-line text-paper transition-colors duration-300 hover:border-paper/50 hover:bg-white/5"
               >
                 @meewstack
