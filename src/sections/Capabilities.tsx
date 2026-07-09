@@ -45,10 +45,14 @@ export default function Capabilities() {
   return (
     <section ref={root} id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20">
       <div className="max-w-2xl">
-        <p data-reveal className="eyebrow mb-6">serviços</p>
+        <p data-reveal className="eyebrow mb-6">a solução</p>
         <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]">
-          Três frentes, um objetivo: te devolver tempo e clareza.
+          A tecnologia se molda ao seu processo. Não o contrário.
         </h2>
+        <p data-reveal className="mt-5 max-w-[52ch] text-ink-soft">
+          Primeiro a gente entende como sua empresa funciona. Depois constrói em
+          três frentes — sempre em cima do seu fluxo real:
+        </p>
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-12">

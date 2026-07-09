@@ -93,8 +93,27 @@ Estes são os princípios que diferenciam premium de genérico. Sigam à risca:
 
 ## Mapa das seções (`src/App.tsx`) — ordem fixa
 
-`Nav → Hero` (abertura cinematográfica) `→ Capabilities` (3 frentes) `→ CodeLab` (IDE Python
-executável, **charcoal**) `→ Process` (timeline pinada/scrubbed) `→ About` (fundador) `→
-Showcase` (galeria horizontal de telas reais) `→ Contact` (CTA, **charcoal**).
+`Nav → Hero` (abertura cinematográfica + chips de automação) `→ Problem` (antes→depois,
+banda branca) `→ Capabilities` (3 frentes, framing de solução) `→ CodeLab` (IDE Python
+executável, **charcoal**) `→ Process` (timeline pinada/scrubbed, 5 etapas) `→ Accounting`
+(vídeo demo de automação contábil, **charcoal**) `→ Showcase` (galeria horizontal de telas
+reais) `→ Benefits` (pares antes→depois, banda branca) `→ About` (time) `→ Contact` (CTA,
+**charcoal**).
 
-Ritmo de tom no scroll: claro → **carvão** (CodeLab) → claro → **carvão** (Contact).
+Ritmo de tom no scroll: claro → **carvão** (CodeLab) → claro → **carvão** (Accounting) →
+claro → **carvão** (Contact).
+
+### Mascote (`src/components/Mascot.tsx`)
+
+Poses geradas via Higgsfield a partir do asset oficial (`public/brand/icon.png`), servidas
+de `public/mascot/*.webp` (~25 KB cada, 320px). Sempre decorativo (`aria-hidden`, `alt=""`),
+flutuação idle via `.animate-float` (congela sob reduced-motion). Desktop-only nos pontos
+em que poderia atrapalhar leitura (`hidden lg:block`/`xl:block`). Não empilhe transform
+estático no `className` do Mascot (a animação de float sobrescreve) — aplique flips/offsets
+num wrapper.
+
+### Vídeo contábil (`src/sections/Accounting.tsx`)
+
+`public/media/contabil.mp4` (10s, 1440w, ~190 KB, sem áudio) + poster webp. `preload="none"`,
+play/pause via IntersectionObserver, e sob reduced-motion renderiza a imagem estática no
+lugar do vídeo. Gerado via Higgsfield (nano banana pro → Kling 3.0 turbo image-to-video).

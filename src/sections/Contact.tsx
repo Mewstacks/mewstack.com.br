@@ -1,5 +1,6 @@
 import { useRef, type MouseEvent } from "react";
 import Logo from "../components/Logo";
+import Mascot from "../components/Mascot";
 import { useChapter } from "../lib/useChapter";
 import { useMagnetic } from "../lib/useMagnetic";
 
@@ -63,12 +64,12 @@ export default function Contact() {
               Aberto para novos projetos
             </p>
             <h2 data-reveal-title className="font-display text-[clamp(2.3rem,5.5vw,4rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-paper">
-              Vamos automatizar
-              <br />o que te trava?
+              Mostra teu processo.
+              <br />A gente acha o que automatizar.
             </h2>
             <p data-reveal className="mt-6 max-w-[46ch] leading-relaxed text-paper-soft">
-              Me conta o processo que mais consome seu tempo. Em uma conversa
-              curta a gente já identifica o que dá pra resolver primeiro.
+              Conta como a rotina funciona hoje — em uma conversa curta a gente
+              aponta o que dá pra tirar do manual primeiro, sem compromisso.
             </p>
 
             <div data-reveal className="mt-10 flex flex-wrap gap-3">
@@ -101,12 +102,16 @@ export default function Contact() {
             </div>
           </div>
 
-          <div data-reveal className="hidden justify-self-center lg:block">
+          <div data-reveal className="relative hidden justify-self-center lg:block">
             <Logo
               variant="white"
               alt="MewStack"
               className="w-56 animate-float"
             />
+            {/* mascote convidando pra conversa — ao lado do logo, sem cobrir o wordmark */}
+            <div aria-hidden className="pointer-events-none absolute top-1/2 -right-24 -translate-y-1/2">
+              <Mascot pose="waving" className="w-20" floatDelay="1.4s" />
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
+import Mascot from "../components/Mascot";
 
 /* ── Process: o capítulo-assinatura. No desktop a timeline é "scrubada" pelo
    scroll: a live wire rosa preenche o trilho e cada nó acende com seu texto, em
@@ -12,18 +13,28 @@ import { MOTION, reduceMotion } from "../lib/motion";
 const STEPS = [
   {
     n: "01",
-    title: "Diagnóstico",
-    desc: "Entendo seu processo de ponta a ponta e mapeio exatamente onde o seu tempo e o seu dinheiro escapam.",
+    title: "Entender",
+    desc: "Mapeamos seu processo com quem vive ele todo dia — onde trava, onde escapa tempo.",
   },
   {
     n: "02",
-    title: "Construção",
-    desc: "Software e rotinas sob medida, conectados às ferramentas que você já usa. Nada de retrabalho.",
+    title: "Desenhar",
+    desc: "Desenhamos o fluxo ideal: o que sai do manual, o que valida, o que roda sozinho.",
   },
   {
     n: "03",
-    title: "Operação",
-    desc: "Roda sozinho e monitorado. Você não recebe planilha, recebe a decisão já pronta para aplicar.",
+    title: "Construir",
+    desc: "Criamos a automação ou o sistema sob medida — moldado ao fluxo, não o contrário.",
+  },
+  {
+    n: "04",
+    title: "Integrar",
+    desc: "Conectamos às ferramentas que você já usa. Nada de trocar tudo pra começar.",
+  },
+  {
+    n: "05",
+    title: "Acompanhar",
+    desc: "Monitorado e com alerta. A gente ajusta e melhora junto com a sua operação.",
   },
 ];
 
@@ -95,8 +106,10 @@ export default function Process() {
         });
 
         tl.to(rail, { scaleX: 1, ease: "none", duration: 3 }, 0);
-        [0, 1, 2].forEach((i) => {
-          const at = 0.3 + i * 0.85;
+        // Nodes ignite spread across the rail fill, whatever the step count.
+        const gap = 2.2 / Math.max(STEPS.length - 1, 1);
+        STEPS.forEach((_, i) => {
+          const at = 0.3 + i * gap;
           tl.to(nodes[i], { scale: 1, opacity: 1, ease: "back.out(1.7)", duration: 0.5 }, at).to(
             steps[i],
             { opacity: 1, y: 0, ease: "power3.out", duration: 0.6 },
@@ -134,11 +147,11 @@ export default function Process() {
     <section
       ref={root}
       id="processo"
-      className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
+      className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
     >
       <div className="max-w-2xl">
         <p data-pro="eyebrow" className="eyebrow mb-6">
-          processo
+          como funciona
         </p>
         <h2
           data-pro="title"
@@ -165,8 +178,15 @@ export default function Process() {
           data-pro="rail"
           className="absolute top-6 right-0 left-6 hidden h-px origin-left scale-x-0 bg-pink md:block"
         />
+        {/* mascote saltando o trilho rumo à última etapa (desktop) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 right-[6%] hidden lg:block"
+        >
+          <Mascot pose="jumping" className="w-20" floatDelay="0.6s" />
+        </div>
 
-        <ol className="grid gap-x-8 md:grid-cols-3">
+        <ol className="grid gap-x-6 md:grid-cols-5">
           {STEPS.map((s, i) => (
             <li
               key={s.n}
@@ -186,10 +206,10 @@ export default function Process() {
               </div>
 
               <div data-pro="step" className="md:mt-6">
-                <h3 className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-[1.4rem]">
+                <h3 className="font-display text-xl font-semibold tracking-[-0.02em] md:text-[1.2rem]">
                   {s.title}
                 </h3>
-                <p className="mt-2.5 max-w-[34ch] text-[0.98rem] leading-relaxed text-ink-soft">
+                <p className="mt-2.5 max-w-[34ch] text-[0.98rem] leading-relaxed text-ink-soft md:text-[0.88rem]">
                   {s.desc}
                 </p>
               </div>

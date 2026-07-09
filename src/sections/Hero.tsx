@@ -1,13 +1,15 @@
 import { useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
+import Mascot from "../components/Mascot";
 
-/* ── Hero: intro mínima, agora como abertura cinematográfica.
-   Entrada em camadas (badge → título linha a linha → cue), e saída coordenada:
-   ao rolar, a cópia sobe/escala/desvanece e a aurora faz parallax, entregando
-   a tela para o próximo capítulo. Tudo transform/opacity. */
+/* ── Hero: abertura cinematográfica que agora DIZ o que a MewStack faz em
+   segundos. Entrada em camadas (badge → título linha a linha → apoio → CTAs →
+   cue) e, no desktop, chips de automação "rodando agora" flutuam ao lado da
+   copy — produto acontecendo, não decoração. Saída coordenada: copy e chips
+   sobem/escalam/desvanecem entregando a tela ao próximo capítulo. */
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
 
@@ -18,12 +20,23 @@ export default function Hero() {
       const q = gsap.utils.selector(el);
       const badge = q("[data-hero='badge']");
       const lines = q("[data-hero='line']");
+      const sub = q("[data-hero='sub']");
+      const ctas = q("[data-hero='ctas']");
+      const chips = q("[data-hero='chip']");
+      // Camada que envolve os chips: a ENTRADA anima cada chip, a SAÍDA (scrub)
+      // anima a camada — nunca o mesmo elemento nos dois tweens, senão o scrub
+      // parado em 0 re-aplica o valor inicial e engole a entrada.
+      const chipsLayer = q("[data-hero='chips-layer']");
       const cue = q("[data-hero='cue']");
       const copy = q("[data-hero='copy']");
       const aurora = q("[data-hero='aurora']");
 
       if (reduceMotion()) {
-        gsap.set([...badge, ...lines, ...cue], { clearProps: "all", opacity: 1, y: 0 });
+        gsap.set([...badge, ...lines, ...sub, ...ctas, ...chips, ...cue], {
+          clearProps: "all",
+          opacity: 1,
+          y: 0,
+        });
         return;
       }
 
@@ -33,7 +46,7 @@ export default function Hero() {
 
         // Entrance — layered & cinematic, plays on load: the aurora swells in
         // first (the stage lights up), the badge settles, the title masks in
-        // line by line, the cue arrives last.
+        // line by line, support copy + CTAs follow, the side chips pop last.
         gsap
           .timeline({ defaults: { ease: "power4.out" } })
           .from(
@@ -54,13 +67,20 @@ export default function Hero() {
             },
             0.35,
           )
-          .from(cue, { y: 16, opacity: 0, duration: 0.7 }, "-=0.35");
+          .from(sub, { y: 18, opacity: 0, duration: 0.7 }, "-=0.55")
+          .from(ctas, { y: 18, opacity: 0, duration: 0.7 }, "-=0.5")
+          .from(
+            chips,
+            { y: 26, opacity: 0, scale: 0.92, duration: 0.8, stagger: 0.12 },
+            "-=0.45",
+          )
+          .from(cue, { y: 16, opacity: 0, duration: 0.7 }, "-=0.4");
 
-        // Exit / parallax — desktop only (avoids touch jank). The copy lifts,
-        // scales down, defocuses and fades, handing the screen to the next
+        // Exit / parallax — desktop only (avoids touch jank). Copy and chips
+        // lift, scale down, defocus and fade, handing the screen to the next
         // chapter with real depth.
         if (!isMobile) {
-          gsap.to(copy, {
+          gsap.to([...copy, ...chipsLayer], {
             yPercent: MOTION.heroExitY,
             scale: MOTION.heroExitScale,
             opacity: 0,
@@ -110,6 +130,53 @@ export default function Hero() {
         style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, var(--color-pink) 0%, transparent 70%)" }}
       />
 
+      {/* ── automações "rodando agora" — produto, não decoração (desktop) ── */}
+      <div
+        aria-hidden
+        data-hero="chips-layer"
+        className="pointer-events-none absolute inset-0 hidden will-change-transform xl:block"
+      >
+        <div
+          data-hero="chip"
+          className="absolute top-[34%] left-[max(2rem,7vw)] w-52"
+        >
+          <div className="animate-float rounded-xl border border-cream-line bg-cream-deep/85 p-3.5 text-left shadow-[var(--shadow-card)] backdrop-blur-sm">
+            <p className="mono flex items-center gap-2 text-[0.68rem] text-ink-soft">
+              <span className="live-dot" aria-hidden />
+              baixador-nfse · rodando
+            </p>
+            <p className="mt-2 font-display text-[1.05rem] font-semibold tracking-[-0.01em] text-ink">
+              487 notas <span className="text-pink-deep">hoje</span>
+            </p>
+            <p className="mt-0.5 text-[0.72rem] text-ink-soft">sem ninguém abrir o portal</p>
+          </div>
+        </div>
+        <div
+          data-hero="chip"
+          className="absolute top-[28%] right-[max(2rem,6vw)] w-56"
+        >
+          <div className="relative">
+            <Mascot pose="typing" className="absolute -top-14 right-3 w-16" floatDelay="0.8s" />
+            <div className="animate-float rounded-xl border border-cream-line bg-cream-deep/85 p-3.5 text-left shadow-[var(--shadow-card)] backdrop-blur-sm [animation-delay:0.5s]">
+              <p className="mono text-[0.68rem] text-ink-soft">conciliação · 06/2026</p>
+              <p className="mt-2 font-display text-[1.05rem] font-semibold tracking-[-0.01em] text-ink">
+                98% <span className="text-pink-deep">sem divergência</span>
+              </p>
+              <ul className="mt-1.5 flex flex-col gap-1 text-[0.72rem] text-ink-soft">
+                <li className="flex items-center gap-1.5">
+                  <Check className="h-3 w-3 text-[oklch(0.46_0.13_150)]" strokeWidth={2.6} />
+                  extrato × notas fiscais
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <Check className="h-3 w-3 text-[oklch(0.46_0.13_150)]" strokeWidth={2.6} />
+                  relatório enviado às 07:00
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ── centered copy column ── */}
       <div data-hero="copy" className="mx-auto flex max-w-3xl flex-col items-center">
         <a
@@ -124,19 +191,34 @@ export default function Hero() {
           </span>
         </a>
 
-        <h1 className="font-display text-[clamp(2.6rem,7.2vw,5.2rem)] leading-[0.95] font-semibold tracking-[-0.04em]">
+        <h1 className="font-display text-[clamp(2.5rem,6.8vw,4.9rem)] leading-[0.97] font-semibold tracking-[-0.04em]">
           <span data-hero="line" className="block text-ink-fade">
-            Seus dados já sabem,
+            Automações e sistemas
           </span>
           <span data-hero="line" className="block text-gradient">
-            a gente revela.
+            do jeito que sua empresa roda.
           </span>
         </h1>
+
+        <p data-hero="sub" className="mt-6 max-w-[54ch] text-[1.02rem] leading-relaxed text-ink-soft">
+          A gente entende seu processo real e cria a tecnologia ao redor dele —
+          aplicações, integrações e rotinas que tiram o trabalho repetitivo do seu time.
+        </p>
+
+        <div data-hero="ctas" className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="#contato" className="btn btn-primary">
+            Mostrar meu processo
+            <span className="arrow" aria-hidden>→</span>
+          </a>
+          <a href="#contabil" className="btn btn-ghost">
+            Ver na prática
+          </a>
+        </div>
       </div>
 
       {/* ── scroll cue: convida a descer e explorar ── */}
       <a
-        href="#servicos"
+        href="#problema"
         data-hero="cue"
         aria-label="Explorar o que a gente faz"
         className="absolute bottom-7 left-1/2 -translate-x-1/2 inline-flex flex-col items-center gap-1.5 text-[0.72rem] font-medium tracking-[0.14em] text-ink-soft uppercase transition-colors hover:text-pink-deep"

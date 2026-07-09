@@ -6,11 +6,14 @@ import Cursor from "./components/Cursor";
 import SceneBackground from "./components/SceneBackground";
 import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
+import Problem from "./sections/Problem";
 import Capabilities from "./sections/Capabilities";
 import CodeLab from "./sections/CodeLab";
 import Process from "./sections/Process";
+import Accounting from "./sections/Accounting";
 import About from "./sections/About";
 import Showcase from "./sections/Showcase";
+import Benefits from "./sections/Benefits";
 import Contact from "./sections/Contact";
 
 /* Bridges Lenis's smooth scroll into ScrollTrigger (so every scrubbed/pinned
@@ -115,11 +118,14 @@ export default function App() {
       <Nav />
       <main id="conteudo">
         <Hero />
+        <Problem />
         <Capabilities />
         <CodeLab />
         <Process />
-        <About />
+        <Accounting />
         <Showcase />
+        <Benefits />
+        <About />
         <Contact />
       </main>
     </ReactLenis>
