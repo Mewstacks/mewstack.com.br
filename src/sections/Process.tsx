@@ -89,6 +89,7 @@ export default function Process() {
       // the document height intact, so the #processo anchor still lands at the
       // start of the pinned beat (LenisAnchors resolves to the pin-spacer top).
       mm.add(MOTION.desktop, () => {
+        const mascot = q("[data-pro='mascot']");
         gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
         gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
         gsap.set(steps, { opacity: 0, y: 36 });
@@ -102,10 +103,20 @@ export default function Process() {
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
+            invalidateOnRefresh: true,
           },
         });
 
         tl.to(rail, { scaleX: 1, ease: "none", duration: 3 }, 0);
+        // O mascote acompanha a live wire: viaja sobre o trilho apontando o
+        // caminho, do primeiro ao último nó, no mesmo scrub do preenchimento.
+        if (mascot.length && rail[0]) {
+          tl.to(
+            mascot,
+            { x: () => (rail[0] as HTMLElement).offsetWidth - 64, ease: "none", duration: 3 },
+            0,
+          );
+        }
         // Nodes ignite spread across the rail fill, whatever the step count.
         const gap = 2.2 / Math.max(STEPS.length - 1, 1);
         STEPS.forEach((_, i) => {
@@ -178,12 +189,16 @@ export default function Process() {
           data-pro="rail"
           className="absolute top-6 right-0 left-6 hidden h-px origin-left scale-x-0 bg-pink md:block"
         />
-        {/* mascote saltando o trilho rumo à última etapa (desktop) */}
+        {/* mascote-guia: viaja sobre o trilho durante o scrub apontando as
+            etapas (flip no wrapper interno — aponta na direção do movimento) */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-16 right-[6%] hidden lg:block"
+          data-pro="mascot"
+          className="pointer-events-none absolute -top-14 left-6 z-10 hidden will-change-transform lg:block"
         >
-          <Mascot pose="jumping" className="w-20" floatDelay="0.6s" />
+          <span className="block -scale-x-100">
+            <Mascot pose="pointing" className="w-16" floatDelay="0.5s" />
+          </span>
         </div>
 
         <ol className="grid gap-x-6 md:grid-cols-5">

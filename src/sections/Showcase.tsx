@@ -18,6 +18,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useChapter } from "../lib/useChapter";
 import { useHorizontalGallery } from "../lib/useHorizontalGallery";
+import Mascot from "../components/Mascot";
 
 /* ── Showcase: três telas de produto reais que a MewStack ship, numa GALERIA
    HORIZONTAL — no desktop a seção pina e o scroll vertical vira deslocamento
@@ -112,7 +113,11 @@ export default function Showcase() {
         style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, var(--color-pink) 0%, transparent 70%)" }}
       />
 
-      <div className="mx-auto w-full max-w-2xl shrink-0">
+      <div className="relative mx-auto w-full max-w-2xl shrink-0">
+        {/* mascote curioso espiando as telas (desktop) */}
+        <div aria-hidden className="pointer-events-none absolute -top-6 right-0 hidden lg:block">
+          <Mascot pose="looking" className="w-16" floatDelay="0.9s" />
+        </div>
         <p data-reveal className="eyebrow mb-5">exemplos</p>
         <h2 data-reveal-title className="font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-[1.04] font-semibold tracking-[-0.035em]">
           Exemplos do que a gente coloca pra rodar.

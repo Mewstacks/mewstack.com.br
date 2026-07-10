@@ -13,7 +13,6 @@ import Process from "./sections/Process";
 import Accounting from "./sections/Accounting";
 import About from "./sections/About";
 import Showcase from "./sections/Showcase";
-import Benefits from "./sections/Benefits";
 import Contact from "./sections/Contact";
 
 /* Bridges Lenis's smooth scroll into ScrollTrigger (so every scrubbed/pinned
@@ -124,7 +123,6 @@ export default function App() {
         <Process />
         <Accounting />
         <Showcase />
-        <Benefits />
         <About />
         <Contact />
       </main>

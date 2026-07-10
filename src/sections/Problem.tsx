@@ -52,8 +52,12 @@ export default function Problem() {
       id="problema"
       className="relative scroll-mt-24 border-y border-[var(--line)] bg-cream-deep"
     >
-      {/* grain sutil para a banda não ficar chapada */}
+      {/* grain sutil + grid editorial — banda com estrutura, não chapada */}
       <div aria-hidden className="grain pointer-events-none absolute inset-0 opacity-60" />
+      <div
+        aria-hidden
+        className="grid-lines pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(ellipse_75%_70%_at_50%_30%,black,transparent_80%)]"
+      />
 
       <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:py-20">
         <div className="max-w-2xl">
@@ -73,13 +77,13 @@ export default function Problem() {
 
         {/* ── antes → depois ── */}
         <div className="relative mt-10 grid items-center gap-5 md:mt-14 md:grid-cols-[1fr_auto_1fr] md:gap-6">
-          {/* mascote observando a bagunça (desktop) */}
+          {/* mascote analisando a bagunça de cima (desktop) */}
           <div
             aria-hidden
             className="pointer-events-none absolute -top-16 left-[30%] z-10 hidden -translate-x-1/2 lg:block"
             data-parallax="1.3"
           >
-            <Mascot pose="observing" className="w-20" />
+            <Mascot pose="looking" className="w-20" />
           </div>
 
           {/* ANTES — a planilha de todo dia */}

@@ -1,14 +1,18 @@
-/* ── Mascote oficial da MewStack (gato + headset) em poses geradas a partir do
-   asset da marca. Sempre decorativo: alt="" + aria-hidden — a informação nunca
-   depende dele (a11y). Flutuação idle em CSS transform (GPU); o media query
-   global de prefers-reduced-motion congela a animação. Entrada/parallax ficam a
-   cargo dos atributos do capítulo (data-reveal / data-parallax) no wrapper. */
+/* ── Mascote oficial da MewStack — criatura-espírito rosa (#FF7BAC) com headset,
+   gerada no Higgsfield (Nano Banana) a partir de um design 100% original.
+   Sempre decorativo: alt="" + aria-hidden — a informação nunca depende dele
+   (a11y). Flutuação idle em CSS transform (GPU); o media query global de
+   prefers-reduced-motion congela a animação. Entrada/parallax/deslocamentos
+   ficam a cargo de wrappers (data-reveal / data-parallax / GSAP) — nunca
+   empilhe transform estático no className do próprio Mascot (o float
+   sobrescreve); flips/offsets vão num wrapper. */
 
 export type MascotPose =
-  | "typing" // digitando no laptop — monitorando sistemas
-  | "observing" // flutuando, observando algo abaixo
-  | "jumping" // pulando entre etapas
-  | "pointing" // apontando para um painel/explicação
+  | "idle" // flutuando de frente — presença calma (Hero)
+  | "looking" // olhando para baixo, curioso (Problem, Showcase)
+  | "focused" // modo técnico, mão no headset (CodeLab)
+  | "pointing" // apontando uma etapa/painel (Process, Accounting)
+  | "celebrating" // comemorando de braços pra cima (Capabilities, Contact)
   | "waving"; // acenando, convidando
 
 type MascotProps = {
@@ -24,13 +28,13 @@ type MascotProps = {
 export default function Mascot({ pose, className = "w-16", floatDelay, still }: MascotProps) {
   return (
     <img
-      src={`/mascot/${pose}.webp`}
+      src={`/mascot/mascot-${pose}.webp`}
       alt=""
       aria-hidden
       loading="lazy"
       decoding="async"
       draggable={false}
-      className={`pointer-events-none select-none ${still ? "" : "animate-float"} ${className}`}
+      className={`pointer-events-none select-none drop-shadow-[0_12px_20px_rgba(40,20,35,0.18)] ${still ? "" : "animate-float"} ${className}`}
       style={floatDelay ? { animationDelay: floatDelay } : undefined}
     />
   );

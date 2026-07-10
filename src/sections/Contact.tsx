@@ -49,6 +49,25 @@ export default function Contact() {
 
   return (
     <section ref={root} id="contato" className="relative scroll-mt-24 overflow-clip bg-night text-paper">
+      {/* cenário-final: glow-horizonte rosa subindo do rodapé — nenhuma outra
+          seção charcoal usa essa luz; o encerramento muda de cena (ritmo Railway) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%]"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 62% at 50% 108%, oklch(0.745 0.155 356 / 0.24) 0%, oklch(0.745 0.155 356 / 0.08) 45%, transparent 72%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70 [mask-image:radial-gradient(ellipse_80%_60%_at_50%_100%,black,transparent_78%)]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, oklch(1 0 0 / 0.04) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.04) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
       {/* soft ambient glow, top-right */}
       <div
         aria-hidden
@@ -108,9 +127,9 @@ export default function Contact() {
               alt="MewStack"
               className="w-56 animate-float"
             />
-            {/* mascote convidando pra conversa — ao lado do logo, sem cobrir o wordmark */}
+            {/* mascote comemorando a virada — ponto final da narrativa */}
             <div aria-hidden className="pointer-events-none absolute top-1/2 -right-24 -translate-y-1/2">
-              <Mascot pose="waving" className="w-20" floatDelay="1.4s" />
+              <Mascot pose="celebrating" className="w-22" floatDelay="1.4s" />
             </div>
           </div>
         </div>

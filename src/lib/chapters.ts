@@ -28,12 +28,11 @@ export type Chapter = {
 export const CHAPTERS: readonly Chapter[] = [
   { id: "top", label: "Início", theme: "light", nav: false, header: false },
   { id: "problema", label: "Problema", theme: "light", nav: true, header: false },
-  { id: "servicos", label: "Serviços", theme: "light", nav: true, header: true },
+  { id: "servicos", label: "Serviços", theme: "dark", nav: true, header: true },
   { id: "rode", label: "Rode", theme: "dark", nav: true, header: false },
   { id: "processo", label: "Processo", theme: "light", nav: true, header: true },
   { id: "contabil", label: "Contábil", theme: "dark", nav: true, header: true },
   { id: "exemplos", label: "Exemplos", theme: "light", nav: true, header: true },
-  { id: "beneficios", label: "Benefícios", theme: "light", nav: true, header: false },
   { id: "estudio", label: "Estúdio", theme: "light", nav: true, header: true },
   { id: "contato", label: "Contato", theme: "dark", nav: true, header: false },
 ] as const;

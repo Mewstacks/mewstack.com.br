@@ -152,10 +152,10 @@ export default function Accounting() {
             fechamento concluído
           </div>
 
-          {/* mascote apresentando a demo (desktop) */}
+          {/* mascote apresentando a demo (desktop) — flip no wrapper, nunca no Mascot */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-7 -left-4 hidden -scale-x-100 xl:block"
+            className="pointer-events-none absolute -bottom-8 -left-4 hidden -scale-x-100 xl:block"
           >
             <Mascot pose="pointing" className="w-24" floatDelay="1.2s" />
           </div>

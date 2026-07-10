@@ -118,7 +118,15 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-clip px-5 pt-28 pb-20 text-center sm:px-8"
     >
-      {/* ── ambient structure: editorial grid + soft pink aurora ── */}
+      {/* ── ambient structure: gradiente cream→pink + editorial grid + aurora ── */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-20"
+        style={{
+          background:
+            "linear-gradient(180deg, transparent 0%, oklch(0.745 0.155 356 / 0.05) 46%, oklch(0.745 0.155 356 / 0.09) 74%, transparent 100%)",
+        }}
+      />
       <div
         aria-hidden
         className="grid-lines pointer-events-none absolute inset-0 -z-10 opacity-40 [mask-image:radial-gradient(ellipse_70%_55%_at_50%_0%,black,transparent_72%)]"
@@ -136,6 +144,11 @@ export default function Hero() {
         data-hero="chips-layer"
         className="pointer-events-none absolute inset-0 hidden will-change-transform xl:block"
       >
+        {/* mascote flutuando perto do título — entra com os chips, sai com a
+            camada (parallax do exit scrub) */}
+        <div data-hero="chip" className="absolute top-[15%] right-[max(4rem,11vw)]">
+          <Mascot pose="idle" className="w-24" floatDelay="0.2s" />
+        </div>
         <div
           data-hero="chip"
           className="absolute top-[34%] left-[max(2rem,7vw)] w-52"
@@ -156,7 +169,6 @@ export default function Hero() {
           className="absolute top-[28%] right-[max(2rem,6vw)] w-56"
         >
           <div className="relative">
-            <Mascot pose="typing" className="absolute -top-14 right-3 w-16" floatDelay="0.8s" />
             <div className="animate-float rounded-xl border border-cream-line bg-cream-deep/85 p-3.5 text-left shadow-[var(--shadow-card)] backdrop-blur-sm [animation-delay:0.5s]">
               <p className="mono text-[0.68rem] text-ink-soft">conciliação · 06/2026</p>
               <p className="mt-2 font-display text-[1.05rem] font-semibold tracking-[-0.01em] text-ink">
@@ -211,7 +223,7 @@ export default function Hero() {
             <span className="arrow" aria-hidden>→</span>
           </a>
           <a href="#contabil" className="btn btn-ghost">
-            Ver na prática
+            Ver a automação rodando
           </a>
         </div>
       </div>

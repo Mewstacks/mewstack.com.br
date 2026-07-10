@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Loader2, Check, ChevronDown, TerminalSquare } from "lucide-react";
 import { useChapter } from "../lib/useChapter";
+import Mascot from "../components/Mascot";
 
 /* Linear-style "code in the marketing page", taken further: a real-feeling
    VS Code editor the visitor can actually RUN. Pressing ▶ types a terminal
@@ -185,7 +186,12 @@ export default function CodeLab() {
           </p>
         </div>
 
-        <div data-reveal data-handoff className="mt-8 will-change-transform">
+        <div data-reveal data-handoff className="relative mt-8 will-change-transform">
+        {/* mascote em modo técnico, concentrado ao lado do IDE (desktop) —
+            dentro do handoff: sai de cena junto com o editor */}
+        <div aria-hidden className="pointer-events-none absolute -top-[6.5rem] right-2 z-10 hidden xl:block">
+          <Mascot pose="focused" className="w-20" floatDelay="0.7s" />
+        </div>
         <div
           className="overflow-hidden rounded-2xl shadow-[0_40px_90px_-50px_rgba(40,30,40,0.55)] ring-1 ring-black/5"
           style={{ background: theme.bg, border: `1px solid ${theme.border}` }}

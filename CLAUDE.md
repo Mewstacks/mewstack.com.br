@@ -66,8 +66,9 @@ Estes são os princípios que diferenciam premium de genérico. Sigam à risca:
 - **Paleta fixa:** `#FF7BAC` rosa · `#262626` carvão · `#F2F2F2` claro. Tokens em OKLCH no
   `@theme`. **Não** mude as cores nem introduza dark mode global. O site é claro por padrão,
   com **batidas charcoal intencionais** ("sala de máquinas") em capítulos marcados como
-  `theme: "dark"` no `chapters.ts` (hoje: CodeLab e Contact) — esse é o ritmo claro↔carvão da
-  narrativa, não um tema escuro. Sobre carvão use `--color-paper`/`--color-pink-bright`.
+  `theme: "dark"` no `chapters.ts` (hoje: Capabilities, CodeLab, Accounting e Contact) —
+  esse é o ritmo claro↔carvão da narrativa, não um tema escuro. Sobre carvão use
+  `--color-paper`/`--color-pink-bright`.
 - **Contraste (AA):** rosa `#FF7BAC` **nunca** é texto pequeno em fundo claro — use
   `--color-pink-deep`. Pink claro só em carvão.
 - **Fontes:** Clash Display (títulos) + Satoshi (corpo).
@@ -93,27 +94,36 @@ Estes são os princípios que diferenciam premium de genérico. Sigam à risca:
 
 ## Mapa das seções (`src/App.tsx`) — ordem fixa
 
-`Nav → Hero` (abertura cinematográfica + chips de automação) `→ Problem` (antes→depois,
-banda branca) `→ Capabilities` (3 frentes, framing de solução) `→ CodeLab` (IDE Python
-executável, **charcoal**) `→ Process` (timeline pinada/scrubbed, 5 etapas) `→ Accounting`
-(vídeo demo de automação contábil, **charcoal**) `→ Showcase` (galeria horizontal de telas
-reais) `→ Benefits` (pares antes→depois, banda branca) `→ About` (time) `→ Contact` (CTA,
-**charcoal**).
+`Nav → Hero` (abertura cinematográfica + chips de automação + mascote flutuando) `→ Problem`
+(antes→depois, banda branca com grid) `→ Capabilities` (3 frentes como painéis de sistema,
+**charcoal** — 1ª batida dark) `→ CodeLab` (IDE Python executável, **charcoal**) `→ Process`
+(timeline pinada/scrubbed, 5 etapas, mascote viaja o trilho) `→ Accounting` (vídeo demo de
+automação contábil, **charcoal**) `→ Showcase` (galeria horizontal de telas reais) `→ About`
+(time) `→ Contact` (CTA, **charcoal** com glow-horizonte próprio).
 
-Ritmo de tom no scroll: claro → **carvão** (CodeLab) → claro → **carvão** (Accounting) →
-claro → **carvão** (Contact).
+Ritmo de tom no scroll: claro → **carvão** (Capabilities→CodeLab, ato dark sustentado) →
+claro → **carvão** (Accounting) → claro → **carvão** (Contact). A antiga seção "Benefits"
+(eyebrow "na prática") foi removida — duplicava o antes→depois do Problem.
 
 ### Mascote (`src/components/Mascot.tsx`)
 
-Poses geradas via Higgsfield a partir do asset oficial (`public/brand/icon.png`), servidas
-de `public/mascot/*.webp` (~25 KB cada, 320px). Sempre decorativo (`aria-hidden`, `alt=""`),
-flutuação idle via `.animate-float` (congela sob reduced-motion). Desktop-only nos pontos
-em que poderia atrapalhar leitura (`hidden lg:block`/`xl:block`). Não empilhe transform
-estático no `className` do Mascot (a animação de float sobrescreve) — aplique flips/offsets
-num wrapper.
+Personagem 3D **original** (criatura-espírito rosa `#FF7BAC` com headset charcoal — design
+próprio, sem derivar de IP existente), criado no Higgsfield: design-mestre no Nano Banana 2,
+poses por image-reference, cutout pelo background remover do Higgsfield. Servido de
+`public/mascot/mascot-<pose>.webp` (480px, 32–39 KB). Poses em uso: `idle` (Hero), `looking`
+(Problem, Showcase), `focused` (CodeLab), `pointing` (Process — viaja sobre o trilho no
+scrub do pin — e Accounting), `focused`→`celebrating` com swap por ScrollTrigger na
+Capabilities, `celebrating` (Contact); `waving`/`three-quarter`/`side`/`back`/`headset-close`
+ficam como character sheet. Sempre decorativo (`aria-hidden`, `alt=""`), flutuação idle via
+`.animate-float` (congela sob reduced-motion; o swap vira pose final estática). Desktop-only
+(`hidden lg:block`/`xl:block`). Não empilhe transform estático no `className` do Mascot (o
+float sobrescreve) — flips/offsets vão num wrapper.
 
 ### Vídeo contábil (`src/sections/Accounting.tsx`)
 
-`public/media/contabil.mp4` (10s, 1440w, ~190 KB, sem áudio) + poster webp. `preload="none"`,
-play/pause via IntersectionObserver, e sob reduced-motion renderiza a imagem estática no
-lugar do vídeo. Gerado via Higgsfield (nano banana pro → Kling 3.0 turbo image-to-video).
+`public/media/contabil.mp4` (10s, 1440w, ~370 KB, h264 24fps, sem áudio) + poster webp.
+`preload="none"`, play/pause via IntersectionObserver, e sob reduced-motion renderiza a
+imagem estática no lugar do vídeo. Pipeline Higgsfield: screenshot da tela NFS-e real da
+Showcase → Nano Banana expande para dashboard completo (PT-BR, paleta da marca) →
+**Seedance 2.0** image-to-video (start_image, 1080p std) → ffmpeg crf 33, escala 1440w.
+O loop emenda bem (progresso ~62% no primeiro frame e ~60% no último).
