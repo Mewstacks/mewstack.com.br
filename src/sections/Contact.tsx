@@ -1,111 +1,89 @@
 import { useRef, type MouseEvent } from "react";
 import Logo from "../components/Logo";
-import Mascot from "../components/Mascot";
+import SignalLine from "../components/SignalLine";
+import { NAV_CHAPTERS } from "../lib/chapters";
 import { useChapter } from "../lib/useChapter";
 import { useMagnetic } from "../lib/useMagnetic";
 
 const INSTAGRAM_USER = "meewstack";
-const INSTAGRAM = `https://www.instagram.com/${INSTAGRAM_USER}/`; // canonical web URL (also the iOS fallback)
+const INSTAGRAM = `https://www.instagram.com/${INSTAGRAM_USER}/`;
 const INSTAGRAM_APP = `instagram://user?username=${INSTAGRAM_USER}`;
 const EMAIL = "vendas@mewstack.com.br";
-const WHATSAPP = "https://wa.me/5554996573455"; // (54) 99620-2127
+const WHATSAPP = "https://wa.me/5554996573455";
 
-/* iOS/Safari won't reliably open the Instagram app from a plain https link.
-   On a *user tap* (never on load) we try the app's deep link and, if it doesn't
-   take over the page shortly, fall back to the web URL the anchor already points
-   to. Desktop and Android just follow the normal https link (this returns early),
-   so no-JS visitors and other platforms are unaffected. */
-function isIOS(): boolean {
+function isIOS() {
   if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
   return (
-    /iPad|iPhone|iPod/.test(ua) ||
-    // iPadOS 13+ masquerades as macOS — tell it apart by touch support.
-    (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
   );
 }
 
-function openInstagram(e: MouseEvent<HTMLAnchorElement>) {
-  if (!isIOS()) return; // desktop / Android: let the normal https link open
-  e.preventDefault();
-  const start = Date.now();
-  const toWeb = window.setTimeout(() => {
-    // If the app took over, the tab was backgrounded and this timer was paused,
-    // so real elapsed time overshoots — in that case don't yank Safari to the
-    // web page when the user comes back. Only fall back if the app never opened.
-    if (Date.now() - start < 1200) window.location.href = INSTAGRAM;
+function openInstagram(event: MouseEvent<HTMLAnchorElement>) {
+  if (!isIOS()) return;
+  event.preventDefault();
+  const startedAt = Date.now();
+  const fallback = window.setTimeout(() => {
+    if (Date.now() - startedAt < 1200) window.location.href = INSTAGRAM;
   }, 700);
-  const cancel = () => window.clearTimeout(toWeb);
+  const cancel = () => window.clearTimeout(fallback);
   window.addEventListener("pagehide", cancel, { once: true });
   window.addEventListener("blur", cancel, { once: true });
-  window.location.href = INSTAGRAM_APP; // must run inside the tap gesture
+  window.location.href = INSTAGRAM_APP;
 }
 
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
   useChapter(root, { exit: false });
-  // Magnetic pull on the primary CTA (small target → classic, snappier effect).
-  useMagnetic(root, "[data-magnetic]", { strength: 0.32, max: 16 });
+  useMagnetic(root, "[data-contact-magnetic]", { strength: 0.12, max: 10 });
 
   return (
-    <section ref={root} id="contato" className="relative scroll-mt-24 overflow-clip bg-night text-paper">
-      {/* cenário-final: glow-horizonte rosa subindo do rodapé — nenhuma outra
-          seção charcoal usa essa luz; o encerramento muda de cena (ritmo Railway) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%]"
-        style={{
-          background:
-            "radial-gradient(ellipse 90% 62% at 50% 108%, oklch(0.745 0.155 356 / 0.24) 0%, oklch(0.745 0.155 356 / 0.08) 45%, transparent 72%)",
-        }}
+    <section
+      ref={root}
+      id="contato"
+      className="relative scroll-mt-24 overflow-clip bg-night text-paper-on-night"
+    >
+      <SignalLine
+        triggerRef={root}
+        viewBox="0 0 1200 2"
+        path="M0 1 H1200"
+        strokeWidth={1}
+        className="pointer-events-none absolute top-[46%] left-0 h-2 w-full [filter:drop-shadow(0_0_5px_var(--color-signal-ghost))]"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70 [mask-image:radial-gradient(ellipse_80%_60%_at_50%_100%,black,transparent_78%)]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, oklch(1 0 0 / 0.04) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.04) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-        }}
-      />
-      {/* soft ambient glow, top-right */}
-      <div
-        aria-hidden
-        data-parallax="1.2"
-        className="pointer-events-none absolute -top-20 right-[-6%] h-[44vh] w-[44vh] rounded-full opacity-20 blur-[120px]"
-        style={{ background: "radial-gradient(circle, var(--color-pink) 0%, transparent 65%)" }}
-      />
-      <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
+
+      <div className="relative mx-auto max-w-[1200px] px-5 py-24 sm:px-8 lg:py-32">
+        <div className="grid gap-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div>
-            <p data-reveal className="mb-5 inline-flex items-center gap-2.5 font-medium text-pink-bright">
-              <span className="live-dot" aria-hidden />
-              Aberto para novos projetos
+            <p data-reveal className="section-index section-index-dark mb-8">
+              <span>07</span>
+              <span aria-hidden className="signal-dot" data-pulse="true" />
+              <span>anoitecer · aberto para projetos</span>
             </p>
-            <h2 data-reveal-title className="font-display text-[clamp(2.3rem,5.5vw,4rem)] leading-[0.98] font-semibold tracking-[-0.035em] text-paper">
-              Mostra teu processo.
-              <br />A gente acha o que automatizar.
+            <h2
+              data-reveal-title
+              className="max-w-[12ch] text-[clamp(2.6rem,6vw,5rem)] leading-[0.98] text-paper-on-night"
+            >
+              Mostra o processo. A gente encontra o <em className="font-wonk">sinal.</em>
             </h2>
-            <p data-reveal className="mt-6 max-w-[46ch] leading-relaxed text-paper-soft">
-              Conta como a rotina funciona hoje — em uma conversa curta a gente
-              aponta o que dá pra tirar do manual primeiro, sem compromisso.
+            <p
+              data-reveal
+              className="mt-7 max-w-[48ch] text-lede text-paper-on-night-soft"
+            >
+              Em uma conversa curta, mapeamos o que hoje depende de repetição,
+              improviso ou conferência manual — e por onde vale começar.
             </p>
 
-            <div data-reveal className="mt-10 flex flex-wrap gap-3">
+            <div data-reveal className="mt-9 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
               <a
                 href={WHATSAPP}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-magnetic
-                className="btn btn-pink font-semibold will-change-transform"
+                data-contact-magnetic
+                className="btn btn-primary btn-inverse w-full will-change-transform sm:w-auto"
               >
                 Chamar no WhatsApp
-                <span className="arrow" aria-hidden>→</span>
               </a>
-              <a
-                href={`mailto:${EMAIL}`}
-                className="btn border border-night-line text-paper transition-colors duration-300 hover:border-paper/50 hover:bg-white/5"
-              >
+              <a href={`mailto:${EMAIL}`} className="text-link min-h-11 py-2 text-paper-on-night">
                 {EMAIL}
               </a>
               <a
@@ -113,40 +91,54 @@ export default function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={openInstagram}
-                aria-label="Instagram da MewStack (@meewstack)"
-                className="btn border border-night-line text-paper transition-colors duration-300 hover:border-paper/50 hover:bg-white/5"
+                className="text-link min-h-11 py-2 text-paper-on-night"
+                aria-label="Instagram da MewStack"
               >
                 @meewstack
               </a>
             </div>
           </div>
 
-          <div data-reveal className="relative hidden justify-self-center lg:block">
+          <div data-reveal className="justify-self-start lg:justify-self-end">
             <Logo
               variant="white"
               alt="MewStack"
-              className="w-56 animate-float"
+              className="w-48 sm:w-64 lg:w-72"
             />
-            {/* mascote comemorando a virada — ponto final da narrativa */}
-            <div aria-hidden className="pointer-events-none absolute top-1/2 -right-24 -translate-y-1/2">
-              <Mascot pose="celebrating" className="w-22" floatDelay="1.4s" />
-            </div>
           </div>
         </div>
       </div>
 
-      <footer className="border-t border-night-line">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-paper-soft sm:flex-row sm:px-8">
-          <span className="font-display text-lg font-semibold tracking-[-0.02em] text-paper">
-            Mew<span className="text-pink-bright">Stack</span>
-          </span>
-          <p>© {new Date().getFullYear()} MewStack · Software, automações &amp; dados</p>
-          <a
-            href="https://mewstack.com.br"
-            className="transition-colors hover:text-paper"
+      <footer className="relative border-t border-night-line">
+        <div className="mx-auto grid max-w-[1200px] gap-8 px-5 py-8 text-paper-on-night-soft sm:px-8 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+          <Logo
+            variant="horizontalDark"
+            alt="MewStack"
+            className="h-8 w-auto"
+          />
+          <nav
+            aria-label="Índice do rodapé"
+            className="mono flex flex-wrap gap-x-4 gap-y-2 text-[0.62rem] lg:justify-center"
           >
-            mewstack.com.br
-          </a>
+            {NAV_CHAPTERS.map((chapter, index) => (
+              <a
+                key={chapter.id}
+                href={`#${chapter.id}`}
+                className="transition-colors duration-200 hover:text-signal-bright"
+              >
+                {String(index + 1).padStart(2, "0")} {chapter.label}
+              </a>
+            ))}
+          </nav>
+          <div className="text-sm lg:text-right">
+            <p>© {new Date().getFullYear()} MewStack</p>
+            <a
+              href="https://mewstack.com.br"
+              className="transition-colors duration-200 hover:text-paper-on-night"
+            >
+              mewstack.com.br
+            </a>
+          </div>
         </div>
       </footer>
     </section>

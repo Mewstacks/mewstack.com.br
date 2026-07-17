@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { ReactLenis, useLenis } from "lenis/react";
 import { ScrollTrigger } from "./lib/gsap";
 import { reduceMotion } from "./lib/motion";
-import Cursor from "./components/Cursor";
 import SceneBackground from "./components/SceneBackground";
 import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
@@ -10,7 +9,6 @@ import Problem from "./sections/Problem";
 import Capabilities from "./sections/Capabilities";
 import CodeLab from "./sections/CodeLab";
 import Process from "./sections/Process";
-import Accounting from "./sections/Accounting";
 import About from "./sections/About";
 import Showcase from "./sections/Showcase";
 import Contact from "./sections/Contact";
@@ -45,9 +43,9 @@ function ScrollChrome() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-[var(--z-overlay)] h-[2px]"
-    >
-      <div ref={bar} className="h-full w-full origin-left scale-x-0 bg-pink" />
+        className="pointer-events-none fixed inset-x-0 top-0 z-[var(--z-overlay)] h-[2px]"
+      >
+      <div ref={bar} className="h-full w-full origin-left scale-x-0 bg-signal" />
     </div>
   );
 }
@@ -94,6 +92,13 @@ function LenisAnchors() {
 export default function App() {
   const reduce = reduceMotion();
 
+  useEffect(() => {
+    document.documentElement.dataset.reducedMotion = reduce ? "true" : "false";
+    return () => {
+      delete document.documentElement.dataset.reducedMotion;
+    };
+  }, [reduce]);
+
   return (
     <ReactLenis
       root
@@ -107,10 +112,9 @@ export default function App() {
       <LenisAnchors />
       {!reduce && <ScrollChrome />}
       <SceneBackground />
-      <Cursor />
       <a
         href="#conteudo"
-        className="sr-only z-[var(--z-overlay)] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-cream"
+        className="sr-only z-[var(--z-overlay)] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:rounded-md focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-paper"
       >
         Pular para o conteúdo
       </a>
@@ -119,9 +123,8 @@ export default function App() {
         <Hero />
         <Problem />
         <Capabilities />
-        <CodeLab />
         <Process />
-        <Accounting />
+        <CodeLab />
         <Showcase />
         <About />
         <Contact />

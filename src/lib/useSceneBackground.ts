@@ -1,61 +1,64 @@
 import { useGSAP } from "@gsap/react";
+import { CHAPTERS, type ChapterTone } from "./chapters";
 import { gsap } from "./gsap";
 import { MOTION, reduceMotion } from "./motion";
-import { CHAPTERS } from "./chapters";
 
-/**
- * Reactive page background — the global tone crossfades cream↔charcoal as the
- * chapter occupying the viewport center changes theme (see `chapters.ts`), so
- * the scroll reads as one continuous story instead of a stack of boxes.
- *
- * Drives the OPACITY of a stacked charcoal layer over a cream base
- * (`[data-scene-overlay]`, rendered by `SceneBackground`) — GPU-cheap, never
- * `background-color` (which repaints). Dark chapters still carry their own solid
- * background, so text contrast is always correct; the overlay smooths the seams
- * and fills behind transparent light chapters.
- *
- * Geometry recomputed from getBoundingClientRect on each scroll (same robust
- * approach as the nav's theme probe) — immune to pin/anchor-jump refresh
- * ordering, which made an onToggle-per-trigger version stick. Under
- * prefers-reduced-motion there's no crossfade; the overlay stays clear.
- */
+const TONES: ChapterTone[] = ["paper", "paper-lilac", "paper-rose", "night"];
+
 export function useSceneBackground() {
   useGSAP(() => {
-    const overlay = document.querySelector<HTMLElement>("[data-scene-overlay]");
-    if (!overlay) return;
+    const layers = new Map(
+      TONES.map((tone) => [
+        tone,
+        document.querySelector<HTMLElement>(`[data-scene-tone="${tone}"]`),
+      ]),
+    );
+    if ([...layers.values()].some((layer) => !layer)) return;
 
-    const sections = CHAPTERS.map((c) => ({
-      dark: c.theme === "dark",
-      el: document.getElementById(c.id),
-    })).filter((s): s is { dark: boolean; el: HTMLElement } => !!s.el);
+    const sections = CHAPTERS.map((chapter) => ({
+      tone: chapter.tone,
+      el: document.getElementById(chapter.id),
+    })).filter(
+      (section): section is { tone: ChapterTone; el: HTMLElement } => !!section.el,
+    );
     if (!sections.length) return;
 
-    if (reduceMotion()) {
-      gsap.set(overlay, { opacity: 0 });
-      return;
-    }
+    let current: ChapterTone = "paper";
+    const setters = new Map(
+      TONES.map((tone) => [
+        tone,
+        gsap.quickTo(layers.get(tone)!, "opacity", {
+          duration: MOTION.bgFade,
+          ease: MOTION.bgEase,
+        }),
+      ]),
+    );
 
-    const fade = gsap.quickTo(overlay, "opacity", {
-      duration: MOTION.bgFade,
-      ease: MOTION.bgEase,
-    });
+    const paint = (tone: ChapterTone) => {
+      if (tone === current) return;
+      const instant = reduceMotion();
+      TONES.forEach((candidate) => {
+        const target = candidate === tone ? 1 : 0;
+        if (instant) {
+          gsap.set(layers.get(candidate)!, { opacity: target });
+        } else {
+          setters.get(candidate)!(target);
+        }
+      });
+      current = tone;
+    };
 
-    let last = -1;
     const update = () => {
-      const probe = window.innerHeight * 0.5; // viewport center = dominant chapter
-      let dark = false;
-      for (const s of sections) {
-        const r = s.el.getBoundingClientRect();
-        if (r.top <= probe && r.bottom > probe) {
-          dark = s.dark;
+      const probe = window.innerHeight * 0.5;
+      let tone: ChapterTone = "paper";
+      for (const section of sections) {
+        const bounds = section.el.getBoundingClientRect();
+        if (bounds.top <= probe && bounds.bottom > probe) {
+          tone = section.tone;
           break;
         }
       }
-      const target = dark ? 1 : 0;
-      if (target !== last) {
-        last = target;
-        fade(target);
-      }
+      paint(tone);
     };
 
     update();

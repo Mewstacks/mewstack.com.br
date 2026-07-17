@@ -3,52 +3,74 @@ import Logo from "../components/Logo";
 import { HEADER_CHAPTERS } from "../lib/chapters";
 import { useChapterTheme } from "../lib/useChapterTheme";
 
-const LINKS = HEADER_CHAPTERS.map((c) => ({ href: `#${c.id}`, label: c.label }));
+const LINKS = HEADER_CHAPTERS.map((chapter, index) => ({
+  href: `#${chapter.id}`,
+  label: chapter.label,
+  index: String(index + 1).padStart(2, "0"),
+}));
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  // When floating over a charcoal chapter, the nav flips to a dark treatment so
-  // its text/logo stay legible (AA). The mobile panel, when open, forces light.
-  const theme = useChapterTheme();
-  const dark = theme === "dark" && !open;
+  const dark = useChapterTheme() === "dark" && !open;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const update = () => setScrolled(window.scrollY > 20);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
-  const solid = scrolled || open;
-  const bar = dark ? "bg-paper" : "bg-ink"; // hamburger lines
+  const surface = open
+    ? "border-line bg-paper-high"
+    : dark
+      ? scrolled
+        ? "border-night-line bg-night/85 backdrop-blur-xl"
+        : "border-transparent bg-night/0"
+      : scrolled
+        ? "border-line bg-paper-high/85 backdrop-blur-xl"
+        : "border-transparent bg-paper/0";
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 border-b transition-[background-color,box-shadow,border-color,backdrop-filter] duration-500 ease-[var(--ease-quart)] ${
-        solid
-          ? dark
-            ? "border-night-line bg-night/80 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-150"
-            : "border-cream-line bg-cream/80 shadow-[0_8px_30px_-12px_rgba(40,30,40,0.18)] backdrop-blur-xl backdrop-saturate-150"
-          : "border-transparent bg-cream/0 backdrop-blur-[2px]"
-      }`}
-      style={{ zIndex: "var(--z-nav)" }}
+      className={`fixed inset-x-0 top-0 z-[var(--z-nav)] h-16 border-b transition-[background-color,border-color,backdrop-filter] duration-300 ${surface}`}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
-        <a href="#top" className="flex items-center" aria-label="MewStack, início" onClick={() => setOpen(false)}>
-          <Logo variant={dark ? "horizontalDark" : "horizontal"} priority className="h-8 w-auto sm:h-9" alt="MewStack" />
+      <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 sm:px-8">
+        <a
+          href="#top"
+          aria-label="MewStack, início"
+          className="flex min-h-11 items-center"
+          onClick={() => setOpen(false)}
+        >
+          <Logo
+            variant={dark ? "horizontalDark" : "horizontal"}
+            priority
+            alt="MewStack"
+            className="h-8 w-auto"
+          />
         </a>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Seções">
-          {LINKS.map((l) => (
+        <nav aria-label="Capítulos" className="hidden items-center gap-5 lg:flex xl:gap-7">
+          {LINKS.map((link) => (
             <a
-              key={l.href}
-              href={l.href}
-              className={`text-sm font-medium transition-colors ${
-                dark ? "text-paper-soft hover:text-paper" : "text-ink-soft hover:text-ink"
+              key={link.href}
+              href={link.href}
+              className={`group relative flex min-h-11 items-center gap-1.5 text-[0.78rem] font-medium ${
+                dark ? "text-paper-on-night-soft" : "text-ink-soft"
               }`}
             >
-              {l.label}
+              <span
+                className={`mono text-[0.62rem] ${
+                  dark ? "text-signal-bright" : "text-ink-faint"
+                }`}
+              >
+                {link.index}
+              </span>
+              <span>{link.label}</span>
+              <span
+                aria-hidden
+                className="absolute inset-x-0 bottom-1 h-px origin-left scale-x-0 bg-signal transition-transform duration-200 group-hover:scale-x-100"
+              />
             </a>
           ))}
         </nav>
@@ -56,66 +78,72 @@ export default function Nav() {
         <div className="flex items-center gap-2">
           <a
             href="#contato"
-            className={`btn hidden text-sm sm:inline-flex ${dark ? "btn-pink" : "btn-primary"}`}
+            className={`btn hidden text-sm sm:inline-flex ${
+              dark ? "btn-primary btn-inverse" : "btn-ghost"
+            }`}
           >
-            Falar com a gente
-            <span className="arrow" aria-hidden>→</span>
+            Fale com a gente
           </a>
-
-          {/* mobile menu toggle */}
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Fechar menu" : "Abrir menu"}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border md:hidden ${
-              dark ? "border-night-line text-paper" : "border-cream-line text-ink"
+            onClick={() => setOpen((value) => !value)}
+            className={`flex h-11 w-11 items-center justify-center rounded-md border lg:hidden ${
+              dark
+                ? "border-night-line text-paper-on-night"
+                : "border-line-strong text-ink"
             }`}
           >
-            <span className="relative block h-3.5 w-5">
+            <span className="relative h-4 w-5">
               <span
-                className={`absolute left-0 block h-0.5 w-5 ${bar} transition-transform duration-300 ${open ? "top-1.5 rotate-45" : "top-0"}`}
+                className={`absolute left-0 top-0.5 h-px w-5 bg-current transition-transform ${
+                  open ? "translate-y-[6px] rotate-45" : ""
+                }`}
               />
               <span
-                className={`absolute left-0 top-1.5 block h-0.5 w-5 ${bar} transition-opacity duration-200 ${open ? "opacity-0" : "opacity-100"}`}
+                className={`absolute left-0 top-[7px] h-px w-5 bg-current transition-opacity ${
+                  open ? "opacity-0" : ""
+                }`}
               />
               <span
-                className={`absolute left-0 block h-0.5 w-5 ${bar} transition-transform duration-300 ${open ? "top-1.5 -rotate-45" : "top-3"}`}
+                className={`absolute bottom-0.5 left-0 h-px w-5 bg-current transition-transform ${
+                  open ? "-translate-y-[6px] -rotate-45" : ""
+                }`}
               />
             </span>
           </button>
         </div>
       </div>
 
-      {/* mobile panel */}
       <nav
         id="mobile-menu"
-        aria-label="Seções"
-        className={`mx-3 origin-top overflow-hidden rounded-2xl border border-cream-line bg-cream-deep shadow-[0_20px_40px_-24px_rgba(40,30,40,0.5)] transition-[max-height,opacity] duration-300 ease-[var(--ease-quart)] md:hidden ${
-          open ? "max-h-80 opacity-100" : "pointer-events-none max-h-0 opacity-0"
-        }`}
+        aria-label="Menu móvel"
+        className={`border-b border-line bg-paper-high transition-[max-height,opacity] duration-300 lg:hidden ${
+          open ? "max-h-[34rem] opacity-100" : "pointer-events-none max-h-0 opacity-0"
+        } overflow-hidden`}
       >
-        <ul className="flex flex-col p-2">
-          {LINKS.map((l) => (
-            <li key={l.href}>
+        <ul className="mx-auto max-w-[1200px] px-5 sm:px-8">
+          {LINKS.map((link) => (
+            <li key={link.href} className="border-b border-line last:border-0">
               <a
-                href={l.href}
+                href={link.href}
                 onClick={() => setOpen(false)}
-                className="block rounded-xl px-4 py-3 font-display text-lg font-medium text-ink transition-colors hover:bg-cream"
+                className="flex min-h-14 items-center gap-4 text-ink"
               >
-                {l.label}
+                <span className="mono text-xs text-ink-faint">{link.index}</span>
+                <span className="font-display text-xl">{link.label}</span>
               </a>
             </li>
           ))}
-          <li className="p-2">
+          <li className="py-4">
             <a
               href="#contato"
               onClick={() => setOpen(false)}
               className="btn btn-primary w-full"
             >
-              Falar com a gente
-              <span className="arrow" aria-hidden>→</span>
+              Fale com a gente
             </a>
           </li>
         </ul>

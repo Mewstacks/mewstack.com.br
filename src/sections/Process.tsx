@@ -2,102 +2,60 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
-import Mascot from "../components/Mascot";
+import { useChapter } from "../lib/useChapter";
 
-/* ── Process: o capítulo-assinatura. No desktop a timeline é "scrubada" pelo
-   scroll: a live wire rosa preenche o trilho e cada nó acende com seu texto, em
-   sequência, conforme a seção sobe pela tela. Sem pin — assim, pular pra cá por
-   um anchor cai numa timeline já preenchida (o scrub reflete a posição), em vez
-   de um frame vazio pré-pin. No mobile, timeline vertical com reveal em stagger.
-   Título por mask reveal. Tudo transform/opacity (+ clip pontual). */
 const STEPS = [
   {
-    n: "01",
-    title: "Entender",
-    desc: "Mapeamos seu processo com quem vive ele todo dia — onde trava, onde escapa tempo.",
+    title: "Diagnóstico",
+    label: "ENTENDER",
+    description:
+      "A gente acompanha o processo de ponta a ponta e encontra onde o tempo, o dado e a responsabilidade se perdem.",
   },
   {
-    n: "02",
-    title: "Desenhar",
-    desc: "Desenhamos o fluxo ideal: o que sai do manual, o que valida, o que roda sozinho.",
+    title: "Construção",
+    label: "ORGANIZAR",
+    description:
+      "O fluxo vira software conectado às ferramentas que já fazem parte da rotina do time.",
   },
   {
-    n: "03",
-    title: "Construir",
-    desc: "Criamos a automação ou o sistema sob medida — moldado ao fluxo, não o contrário.",
-  },
-  {
-    n: "04",
-    title: "Integrar",
-    desc: "Conectamos às ferramentas que você já usa. Nada de trocar tudo pra começar.",
-  },
-  {
-    n: "05",
-    title: "Acompanhar",
-    desc: "Monitorado e com alerta. A gente ajusta e melhora junto com a sua operação.",
+    title: "Operação",
+    label: "RODAR",
+    description:
+      "A entrega entra em produção com monitoramento, alerta e suporte para continuar útil depois do lançamento.",
   },
 ];
 
 export default function Process() {
   const root = useRef<HTMLElement>(null);
+  useChapter(root, { enter: false, exit: false });
 
   useGSAP(
     () => {
-      const el = root.current;
-      if (!el) return;
-      const q = gsap.utils.selector(el);
-      const eyebrow = q("[data-pro='eyebrow']");
-      const title = q("[data-pro='title']");
-      const rail = q("[data-pro='rail']");
-      const nodes = q("[data-pro='node']");
-      const steps = q("[data-pro='step']");
+      const section = root.current;
+      if (!section) return;
+      const path = section.querySelector<SVGPathElement>("[data-process-path]");
+      const nodes = gsap.utils.toArray<HTMLElement>("[data-process-node]", section);
+      const labels = gsap.utils.toArray<HTMLElement>("[data-process-label]", section);
+      const steps = gsap.utils.toArray<HTMLElement>("[data-process-step]", section);
+      if (!path) return;
 
       if (reduceMotion()) {
-        gsap.set([...eyebrow, ...title, ...steps, ...nodes], {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          clipPath: "none",
-        });
-        gsap.set(rail, { scaleX: 1 });
+        gsap.set(path, { strokeDashoffset: 0 });
+        gsap.set([...nodes, ...labels, ...steps], { clearProps: "all", opacity: 1 });
         return;
       }
 
       const mm = gsap.matchMedia();
-
-      // Header reveal — eyebrow rises, title masks in. Both breakpoints.
-      gsap.set(eyebrow, { opacity: 0, y: MOTION.revealY * 0.5 });
-      gsap.set(title, { clipPath: "inset(0 0 100% 0)", y: MOTION.revealY * 0.5, opacity: 1 });
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 78%",
-        once: true,
-        onEnter: () => {
-          gsap.to(eyebrow, { opacity: 1, y: 0, duration: MOTION.duration, ease: MOTION.ease });
-          gsap.to(title, {
-            clipPath: "inset(0 0 0% 0)",
-            y: 0,
-            duration: MOTION.duration + 0.2,
-            ease: MOTION.easeTitle,
-          });
-        },
-      });
-
-      // Desktop: the signature beat — the section PINS and the timeline is
-      // scrubbed in place: the pink wire fills the rail and each node ignites
-      // with its step, one after another, as the user scrolls. pinSpacing keeps
-      // the document height intact, so the #processo anchor still lands at the
-      // start of the pinned beat (LenisAnchors resolves to the pin-spacer top).
       mm.add(MOTION.desktop, () => {
-        const mascot = q("[data-pro='mascot']");
-        gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
-        gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
-        gsap.set(steps, { opacity: 0, y: 36 });
+        gsap.set(path, { strokeDasharray: 1, strokeDashoffset: 1 });
+        gsap.set(nodes, { scale: 0.7, opacity: 0.28 });
+        gsap.set(labels, { color: "var(--color-ink-faint)" });
+        gsap.set(steps, { y: 24, opacity: 0.28 });
 
-        const tl = gsap.timeline({
+        const timeline = gsap.timeline({
           scrollTrigger: {
-            trigger: el,
-            start: "top 16%",
+            trigger: section,
+            start: "top 12%",
             end: "+=120%",
             scrub: true,
             pin: true,
@@ -107,44 +65,47 @@ export default function Process() {
           },
         });
 
-        tl.to(rail, { scaleX: 1, ease: "none", duration: 3 }, 0);
-        // O mascote acompanha a live wire: viaja sobre o trilho apontando o
-        // caminho, do primeiro ao último nó, no mesmo scrub do preenchimento.
-        if (mascot.length && rail[0]) {
-          tl.to(
-            mascot,
-            { x: () => (rail[0] as HTMLElement).offsetWidth - 64, ease: "none", duration: 3 },
-            0,
-          );
-        }
-        // Nodes ignite spread across the rail fill, whatever the step count.
-        const gap = 2.2 / Math.max(STEPS.length - 1, 1);
-        STEPS.forEach((_, i) => {
-          const at = 0.3 + i * gap;
-          tl.to(nodes[i], { scale: 1, opacity: 1, ease: "back.out(1.7)", duration: 0.5 }, at).to(
-            steps[i],
-            { opacity: 1, y: 0, ease: "power3.out", duration: 0.6 },
-            at,
-          );
+        timeline.to(path, { strokeDashoffset: 0, ease: "none", duration: 3 }, 0);
+        STEPS.forEach((_, index) => {
+          const at = 0.4 + index * 0.85;
+          timeline
+            .to(
+              nodes[index],
+              { scale: 1, opacity: 1, duration: 0.35, ease: "power2.out" },
+              at,
+            )
+            .to(
+              labels[index],
+              { color: "var(--color-ink)", duration: 0.3 },
+              at,
+            )
+            .to(
+              steps[index],
+              { y: 0, opacity: 1, duration: 0.45, ease: "power2.out" },
+              at,
+            );
         });
-        // tail hold so the finished timeline lingers a touch before unpinning.
-        tl.to({}, { duration: 0.6 });
+        timeline.to({}, { duration: 0.55 });
+
+        return () => {
+          timeline.scrollTrigger?.kill();
+          timeline.kill();
+        };
       });
 
-      // Mobile: no pin — reveal steps as they enter.
       mm.add(MOTION.mobile, () => {
+        gsap.set(path, { strokeDashoffset: 0 });
         gsap.set(nodes, { scale: 1, opacity: 1 });
-        gsap.set(steps, { opacity: 0, y: MOTION.revealYMobile });
+        gsap.set(steps, { y: 18, opacity: 0 });
         ScrollTrigger.batch(steps, {
-          start: "top 85%",
+          start: "top 86%",
           onEnter: (batch) =>
             gsap.to(batch, {
-              opacity: 1,
               y: 0,
-              duration: 0.7,
-              ease: "power3.out",
-              stagger: MOTION.stagger,
-              overwrite: true,
+              opacity: 1,
+              duration: 0.65,
+              stagger: 0.08,
+              ease: MOTION.ease,
             }),
         });
       });
@@ -158,74 +119,90 @@ export default function Process() {
     <section
       ref={root}
       id="processo"
-      className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
+      className="relative scroll-mt-24 overflow-clip border-y border-line bg-paper-lilac"
     >
-      <div className="max-w-2xl">
-        <p data-pro="eyebrow" className="eyebrow mb-6">
-          como funciona
-        </p>
-        <h2
-          data-pro="title"
-          className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]"
-        >
-          Da bagunça ao botão que roda sozinho.
-        </h2>
-      </div>
-
-      {/* ── timeline ── */}
-      <div className="relative mt-14 lg:mt-16">
-        {/* faint editorial grid — reinforces the "precision" of the machine */}
-        <div
-          aria-hidden
-          className="grid-lines pointer-events-none absolute -inset-x-6 -top-8 bottom-0 -z-10 opacity-60 [mask-image:radial-gradient(ellipse_72%_82%_at_28%_24%,black,transparent_82%)]"
-        />
-        {/* desktop rail behind the nodes: hairline base + pink live wire (scrubbed) */}
-        <div
-          aria-hidden
-          className="absolute top-6 right-0 left-6 hidden h-px bg-cream-line md:block"
-        />
-        <div
-          aria-hidden
-          data-pro="rail"
-          className="absolute top-6 right-0 left-6 hidden h-px origin-left scale-x-0 bg-pink md:block"
-        />
-        {/* mascote-guia: viaja sobre o trilho durante o scrub apontando as
-            etapas (flip no wrapper interno — aponta na direção do movimento) */}
-        <div
-          aria-hidden
-          data-pro="mascot"
-          className="pointer-events-none absolute -top-14 left-6 z-10 hidden will-change-transform lg:block"
-        >
-          <span className="block -scale-x-100">
-            <Mascot pose="pointing" className="w-16" floatDelay="0.5s" />
-          </span>
+      <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
+      <div className="relative mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-24">
+        <div className="grid gap-6 lg:grid-cols-12">
+          <p data-reveal className="section-index lg:col-span-3">
+            <span>03</span>
+            <span>o sinal se ordena</span>
+          </p>
+          <div className="lg:col-span-8 lg:col-start-5">
+            <h2 data-reveal-title className="max-w-[12ch] text-h2 leading-[1.04]">
+              Do processo vivido ao processo que roda.
+            </h2>
+            <p data-reveal className="mt-5 max-w-[56ch] text-ink-soft">
+              Três etapas, uma linha de responsabilidade. Sem desaparecer depois
+              do deploy e sem entregar uma caixa-preta.
+            </p>
+          </div>
         </div>
 
-        <ol className="grid gap-x-6 md:grid-cols-5">
-          {STEPS.map((s, i) => (
-            <li
-              key={s.n}
-              className="relative flex gap-5 pb-9 last:pb-0 md:block md:pb-0"
+        <div className="relative mt-16 hidden md:block">
+          <svg
+            aria-hidden
+            viewBox="0 0 900 200"
+            preserveAspectRatio="none"
+            className="h-36 w-full"
+          >
+            <path
+              d="M0 100 C36 40 68 160 105 100 S174 40 210 100 C248 160 276 100 330 100 H900"
+              fill="none"
+              stroke="var(--color-line-strong)"
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
+            />
+            <path
+              data-process-path
+              pathLength={1}
+              d="M0 100 C36 40 68 160 105 100 S174 40 210 100 C248 160 276 100 330 100 H900"
+              fill="none"
+              stroke="var(--color-signal)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+          {[10, 50, 90].map((left, index) => (
+            <div
+              key={left}
+              className="absolute top-[72px] -translate-x-1/2"
+              style={{ left: `${left}%` }}
             >
-              {/* node column (vertical connector on mobile) */}
-              <div className="relative flex flex-col items-center md:block">
-                <span
-                  data-pro="node"
-                  className="relative z-10 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream-line bg-cream-deep font-display text-sm font-semibold tabular-nums text-pink-deep shadow-[var(--shadow-soft)]"
-                >
-                  {s.n}
-                </span>
-                {i < STEPS.length - 1 && (
-                  <span aria-hidden className="mt-2 w-px flex-1 bg-cream-line md:hidden" />
-                )}
-              </div>
+              <span
+                data-process-node
+                className="block h-3 w-3 rounded-full border border-signal bg-paper-lilac"
+              />
+              <span
+                data-process-label
+                className="mono absolute top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[0.64rem] text-ink-faint"
+              >
+                {STEPS[index].label}
+              </span>
+            </div>
+          ))}
+        </div>
 
-              <div data-pro="step" className="md:mt-6">
-                <h3 className="font-display text-xl font-semibold tracking-[-0.02em] md:text-[1.2rem]">
-                  {s.title}
-                </h3>
-                <p className="mt-2.5 max-w-[34ch] text-[0.98rem] leading-relaxed text-ink-soft md:text-[0.88rem]">
-                  {s.desc}
+        <ol className="relative mt-12 grid gap-0 border-t border-line-strong md:mt-8 md:grid-cols-3 md:border-t-0">
+          <span
+            aria-hidden
+            className="absolute top-0 bottom-0 left-[7px] w-px bg-line-strong md:hidden"
+          />
+          {STEPS.map((step, index) => (
+            <li
+              key={step.title}
+              data-process-step
+              className="relative grid grid-cols-[1.5rem_1fr] gap-4 border-b border-line py-7 md:block md:border-t md:border-r md:border-b-0 md:px-6 md:py-8 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
+            >
+              <span className="relative z-10 mt-1 h-4 w-4 rounded-full border border-signal bg-paper-lilac md:hidden" />
+              <div>
+                <span className="mono text-[0.68rem] text-ink-faint">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-2 text-h3 leading-tight">{step.title}</h3>
+                <p className="mt-3 max-w-[36ch] text-ink-soft">
+                  {step.description}
                 </p>
               </div>
             </li>

@@ -1,45 +1,20 @@
 import { useRef } from "react";
-import {
-  Repeat2,
-  TriangleAlert,
-  Table2,
-  EyeOff,
-  Check,
-  ArrowRight,
-  ArrowDown,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
+import SignalLine from "../components/SignalLine";
 import { useChapter } from "../lib/useChapter";
-import Mascot from "../components/Mascot";
 
-/* ── Problema: o capítulo que faz o visitante se reconhecer. Storytelling
-   visual, não texto: uma planilha "antes" (bagunçada, com erro e retrabalho)
-   vira, atravessando a live wire rosa, uma rotina "depois" rodando sozinha.
-   Banda branca (cream-deep) com hairlines — dá o "preenchimento" de fundo sem
-   sair da paleta. Mascote observa a bagunça de cima (desktop). */
-
-const PAINS: { icon: LucideIcon; label: string }[] = [
-  { icon: Repeat2, label: "Retrabalho manual" },
-  { icon: TriangleAlert, label: "Erro de digitação" },
-  { icon: Table2, label: "Planilhas espalhadas" },
-  { icon: EyeOff, label: "Status invisível" },
+const LEDGER = [
+  ["controle_FINAL_v7(3).xlsx", "uma fonte única, sempre atualizada"],
+  ["retrabalho manual", "rotina executada e monitorada"],
+  ["dado preso no WhatsApp", "informação disponível para decidir"],
+  ["status que ninguém enxerga", "alerta antes do problema crescer"],
 ];
 
-/* linhas da planilha "antes" — a bagunça reconhecível */
-const BEFORE_ROWS: { c1: string; c2: string; c3: string; bad?: boolean }[] = [
-  { c1: "NF 2025-0487", c2: "4.250,00", c3: "ok" },
-  { c1: "NF 2025-0486", c2: "1.800,00", c3: "digitar de novo", bad: true },
-  { c1: "NF 2025-0485", c2: "#REF!", c3: "fórmula quebrou", bad: true },
-  { c1: "NF 2025-0485", c2: "920,00", c3: "duplicada?", bad: true },
-  { c1: "Extrato jun", c2: "—", c3: "valor não bate", bad: true },
-];
-
-/* passos da rotina "depois" — o mesmo trabalho, rodando sozinho */
-const AFTER_STEPS = [
-  "487 notas importadas do portal",
-  "Dados extraídos e validados",
-  "Extrato conciliado com as notas",
-  "Relatório no seu e-mail, 07:00",
+const PAINS = [
+  "O time redigita a mesma informação em sistemas diferentes.",
+  "O fechamento depende da pessoa que conhece a planilha.",
+  "Documento chega em PDF, foto, e-mail e mensagem.",
+  "A decisão aparece tarde porque o dado ainda está sendo organizado.",
 ];
 
 export default function Problem() {
@@ -50,146 +25,96 @@ export default function Problem() {
     <section
       ref={root}
       id="problema"
-      className="relative scroll-mt-24 border-y border-[var(--line)] bg-cream-deep"
+      className="relative scroll-mt-24 overflow-clip border-y border-line bg-paper-rose"
     >
-      {/* grain sutil + grid editorial — banda com estrutura, não chapada */}
-      <div aria-hidden className="grain pointer-events-none absolute inset-0 opacity-60" />
-      <div
-        aria-hidden
-        className="grid-lines pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(ellipse_75%_70%_at_50%_30%,black,transparent_80%)]"
-      />
+      <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
+      <div className="relative mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
+        <div className="grid gap-12 lg:grid-cols-[7fr_5fr] lg:gap-16">
+          <div className="min-w-0">
+            <p data-reveal className="section-index mb-7">
+              <span>01</span>
+              <span>o ruído</span>
+            </p>
+            <h2
+              data-reveal-title
+              className="max-w-[12ch] text-h2 leading-[1.04] text-ink"
+            >
+              O trabalho não é confuso. As ferramentas é que se perderam.
+            </h2>
+            <p data-reveal className="mt-6 max-w-[58ch] text-lede text-ink-soft">
+              Quando planilha, sistema legado, documento e conversa não se conectam,
+              alguém vira a integração. É aí que o tempo escapa e o erro aparece.
+            </p>
+          </div>
 
-      <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:py-20">
-        <div className="max-w-2xl">
-          <p data-reveal className="eyebrow mb-6">o problema</p>
-          <h2
-            data-reveal-title
-            className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]"
-          >
-            Todo mês, a mesma rotina manual.
-          </h2>
-          <p data-reveal className="mt-5 max-w-[52ch] text-ink-soft">
-            Planilha que vai e volta por e-mail, alguém digitando de novo, um número
-            que não bate e ninguém sabe onde travou. A diferença entre isso e um
-            fluxo que roda sozinho é menor do que parece:
-          </p>
-        </div>
-
-        {/* ── antes → depois ── */}
-        <div className="relative mt-10 grid items-center gap-5 md:mt-14 md:grid-cols-[1fr_auto_1fr] md:gap-6">
-          {/* mascote analisando a bagunça de cima (desktop) */}
           <div
-            aria-hidden
-            className="pointer-events-none absolute -top-16 left-[30%] z-10 hidden -translate-x-1/2 lg:block"
-            data-parallax="1.3"
+            data-reveal
+            className="relative min-h-72 border-y border-line lg:min-h-[24rem]"
           >
-            <Mascot pose="looking" className="w-20" />
-          </div>
-
-          {/* ANTES — a planilha de todo dia */}
-          <figure data-reveal className="min-w-0">
-            <figcaption className="fig mb-2.5 text-ink-soft">antes · na mão</figcaption>
-            <div className="overflow-hidden rounded-2xl border border-[var(--line-strong)] bg-cream shadow-[var(--shadow-card)]">
-              <div className="flex h-9 items-center gap-1.5 border-b border-cream-line bg-cream-deep px-3.5">
-                <span className="win-dot bg-[#FF5F57]" />
-                <span className="win-dot bg-[#FEBC2E]" />
-                <span className="win-dot bg-[#28C840]" />
-                <span className="mono ml-2 truncate text-[0.68rem] text-ink-soft">
-                  controle_financeiro_FINAL_v7(3).xlsx
-                </span>
-              </div>
-              <div className="p-1.5">
-                {BEFORE_ROWS.map((r, i) => (
-                  <div
-                    key={i}
-                    className={`grid grid-cols-[minmax(0,1.2fr)_5rem_minmax(0,1fr)] items-center gap-x-3 rounded-lg px-2.5 py-[0.42rem] text-[0.76rem] ${
-                      r.bad ? "bg-[oklch(0.58_0.17_25_/_0.07)]" : ""
-                    }`}
-                  >
-                    <span className="mono truncate text-ink">{r.c1}</span>
-                    <span
-                      className={`mono text-right tabular-nums ${
-                        r.c2 === "#REF!" ? "font-semibold text-[oklch(0.52_0.18_25)]" : "text-ink"
-                      }`}
-                    >
-                      {r.c2}
-                    </span>
-                    <span
-                      className={`truncate text-right ${
-                        r.bad ? "font-medium text-[oklch(0.52_0.18_25)]" : "text-ink-soft"
-                      }`}
-                    >
-                      {r.c3}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between border-t border-cream-line px-3.5 py-2 text-[0.7rem] text-ink-soft">
-                <span>editada por 4 pessoas hoje</span>
-                <span className="mono">última versão? ninguém sabe</span>
-              </div>
+            <div className="mono absolute top-4 left-0 text-[0.65rem] text-ink-faint">
+              ENTRADA · CAÓTICA
             </div>
-          </figure>
-
-          {/* a travessia — live wire rosa */}
-          <div aria-hidden className="flex items-center justify-center md:h-full">
-            <span className="hidden h-px w-14 bg-pink md:block lg:w-20" />
-            <span className="hidden rounded-full border border-pink/30 bg-pink/10 p-2 text-pink-deep md:block">
-              <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
-            </span>
-            <span className="rounded-full border border-pink/30 bg-pink/10 p-2 text-pink-deep md:hidden">
-              <ArrowDown className="h-4 w-4" strokeWidth={2.2} />
-            </span>
-          </div>
-
-          {/* DEPOIS — a mesma rotina, rodando sozinha */}
-          <figure data-reveal className="min-w-0">
-            <figcaption className="fig mb-2.5">depois · com a MewStack</figcaption>
-            <div className="overflow-hidden rounded-2xl border border-night-line bg-night text-paper shadow-[0_24px_60px_-30px_rgba(40,30,40,0.5)]">
-              <div className="flex h-9 items-center gap-2 border-b border-night-line px-3.5">
-                <span className="live-dot" aria-hidden />
-                <span className="mono truncate text-[0.68rem] text-paper-soft">
-                  rotina-fechamento · rodando
-                </span>
-                <span className="mono ml-auto shrink-0 text-[0.66rem] text-paper-soft">06/2026</span>
-              </div>
-              <ul className="p-1.5">
-                {AFTER_STEPS.map((s) => (
-                  <li
-                    key={s}
-                    className="flex items-center gap-2.5 rounded-lg px-2.5 py-[0.52rem] text-[0.8rem]"
-                  >
-                    <span className="inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-[oklch(0.62_0.13_150_/_0.2)] text-[oklch(0.75_0.13_150)]">
-                      <Check className="h-3 w-3" strokeWidth={2.6} />
-                    </span>
-                    {s}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex items-center justify-between border-t border-night-line px-3.5 py-2 text-[0.7rem] text-paper-soft">
-                <span>ninguém digitou nada</span>
-                <span className="mono">próxima execução · 18:00</span>
-              </div>
+            <div className="mono absolute right-0 bottom-4 text-[0.65rem] text-ink-faint">
+              SAÍDA · ORDENADA
             </div>
-          </figure>
+            <SignalLine
+              triggerRef={root}
+              viewBox="0 0 520 390"
+              path="M80 -20 C80 35 250 24 198 88 C150 146 38 75 62 173 C88 280 345 87 408 168 C463 239 265 271 318 326 C351 360 438 348 438 410"
+              className="absolute inset-0 h-full w-full"
+            />
+            <span
+              aria-hidden
+              className="absolute top-[21%] left-[36%] h-2 w-2 rounded-full border border-signal bg-paper-rose"
+            />
+            <span
+              aria-hidden
+              className="absolute right-[14%] bottom-[15%] h-2 w-2 rounded-full bg-signal"
+            />
+          </div>
         </div>
 
-        {/* ── dores que o visitante reconhece ── */}
-        <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 md:mt-12">
-          {PAINS.map((p) => {
-            const Icon = p.icon;
-            return (
-              <li
-                key={p.label}
-                data-reveal
-                className="flex items-center gap-2.5 rounded-xl border border-[var(--line)] bg-cream px-3.5 py-3 text-[0.86rem] font-medium text-ink"
-              >
-                <Icon className="h-4 w-4 shrink-0 text-pink-deep" strokeWidth={1.9} />
-                {p.label}
-              </li>
-            );
-          })}
-        </ul>
+        <div data-reveal className="mt-16 border-t border-line-strong">
+          <div className="mono grid grid-cols-[1fr_auto_1fr] gap-3 border-b border-line py-3 text-[0.68rem] text-ink-faint sm:gap-8">
+            <span>ANTES</span>
+            <span aria-hidden>→</span>
+            <span>DEPOIS</span>
+          </div>
+          {LEDGER.map(([before, after]) => (
+            <div
+              key={before}
+              className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-b border-line py-4 sm:gap-8"
+            >
+              <span className="mono min-w-0 break-words text-[0.74rem] text-ink-faint line-through decoration-line-strong sm:text-[0.82rem]">
+                {before}
+              </span>
+              <span aria-hidden className="h-px w-4 bg-signal sm:w-10" />
+              <span className="flex min-w-0 items-start gap-2 text-[0.92rem] text-ink sm:text-base">
+                <Check
+                  aria-hidden
+                  className="mt-1 h-4 w-4 shrink-0 text-signal-deep"
+                  strokeWidth={2}
+                />
+                {after}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <ol className="mt-16 border-t border-line-strong">
+          {PAINS.map((pain, index) => (
+            <li
+              key={pain}
+              data-reveal
+              className="grid grid-cols-[2.5rem_1fr] gap-4 border-b border-line py-5 sm:grid-cols-[4rem_1fr]"
+            >
+              <span className="mono text-[0.7rem] text-ink-faint">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <p className="max-w-[62ch] text-base text-ink">{pain}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

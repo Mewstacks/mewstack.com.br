@@ -6,55 +6,48 @@ brand
 
 ## Users
 
-Brazilian small-and-mid business owners, operations leads, and founders who are drowning in
-repetitive manual work and scattered, unstructured data (spreadsheets, PDFs, WhatsApp exports,
-legacy systems). They are not necessarily technical. They land here from Instagram (@meewstack)
-or a referral, on mobile as often as desktop, wanting to quickly judge whether MewStack is a
-credible, capable studio they could trust with their automation and data problems.
+Brazilian small-and-mid business owners, operations leads, and founders dealing
+with repetitive manual work and scattered data: spreadsheets, PDFs, WhatsApp
+exports and legacy systems. Many are non-technical and arrive on mobile through
+Instagram or referrals. They need to judge quickly whether MewStack is credible,
+capable and easy to work with.
 
-## Product Purpose
+## Product purpose
 
-MewStack is a one-person (Germano Argenta Dal Prá) software studio specializing in **software &
-automations, intelligent routines, and data processing** — turning unstructured data into highly
-applicable business decisions and eliminating repetitive processes. This site is a
-credibility-first portfolio one-pager: it must make a stranger believe MewStack is real, sharp,
-and worth contacting, while staying unmistakably on-brand (the headset-cat mascot and the official
-palette: #FF7BAC pink + #262626 charcoal + #F2F2F2 light). Success = visitor finishes the scroll understanding what MewStack
-does, feels the brand personality, and reaches the contact section.
+MewStack is a small software studio specializing in software, automation and data
+processing. It turns unstructured inputs and manual routines into systems that
+produce useful business decisions. This one-page portfolio must make the work,
+process and people feel concrete, then lead the visitor naturally to contact.
 
-## Brand Personality
+## Brand personality
 
-Three words: **playful, mechanical, confident.** Voice is PT-BR, direct and warm with a
-techie wink — it removes filler, makes bold claims it can back up, and never sounds corporate or
-templated. The headset cat is the face: a focused operator plugged into the data stream. The
-brand should feel like a clever indie studio that ships, not an enterprise consultancy.
+Three words: **playful, mechanical, confident.** Voice is PT-BR, direct and warm,
+with technical precision and no corporate padding. The studio should feel close
+to the operation and accountable for what it ships.
 
 ## Anti-references
 
-- The previous draft of this site: a dark "psychic aura / holographic gradient-text studio." Off
-  brand, generic, banned techniques. Do not return to it.
-- Generic SaaS: navy/indigo, soft cards in a 3-up grid, hero-metric template, tiny tracked
-  uppercase eyebrow above every section.
-- Pokémon imagery: never use the actual Mew sprite or official art. The headset-cat mascot is
-  MewStack's own original art and is the only feline allowed; an additional simplified original
-  official logo PNGs in `public/brand/` are the marks to use.
-- Corporate stock-photo agency look. Editorial-magazine serif/drop-cap affectation.
+- Dark psychic-aura or holographic studio aesthetics.
+- Generic SaaS grids, hero metrics, floating chips and decorative dashboards.
+- Fake product screens, corporate stock imagery or AI-generated people.
+- Pokémon imagery. Official marks in `public/brand/` are used only through
+  `Logo.tsx`; the mascot is not a recurring body-page character.
+- Editorial affectation that makes the content harder to understand.
 
-## Design Principles
+## Design principles
 
-- **The mascot is the brand.** The headset cat earns center stage; it is the memory hook, not a
-  decorative afterthought.
-- **Show the machine working.** This studio automates and processes data — the interface itself
-  should feel alive and mechanical (motion, counters, pipelines), demonstrating the craft rather
-  than just claiming it.
-- **Loud color, clear words.** Commit to light + hot pink + charcoal. Big confident type, plain
-  PT-BR copy, no jargon padding.
-- **Credible, not corporate.** Specific capabilities and an honest founder presence beat vague
-  enterprise polish.
+- **Show the work honestly.** Use real captures when available and explicit
+  graphic standby states until then.
+- **Follow the signal.** The page explains the journey from operational noise to
+  a system that runs.
+- **Typography carries hierarchy.** Color and motion reinforce meaning instead of
+  replacing it.
+- **Credible, not corporate.** Specific capabilities, process and team beat vague
+  claims.
 
-## Accessibility & Inclusion
+## Accessibility & inclusion
 
-Target WCAG 2.1 AA. Body text ≥4.5:1 (charcoal on light, light on charcoal — brand #FF7BAC only on
-charcoal or as large/heading accents via the deeper pink, never small pink-on-light body).
-Full `prefers-reduced-motion` alternative for all motion. Keyboard-navigable, focus-visible,
-semantic landmarks, alt text in brand voice. PT-BR primary language.
+Target WCAG 2.1 AA. Body copy keeps at least 4.5:1 contrast, focus is always
+visible, interactive targets are at least 44×44px and landmarks remain semantic.
+The PT-BR experience is keyboard navigable and complete under
+`prefers-reduced-motion`.

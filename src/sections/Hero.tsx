@@ -1,112 +1,47 @@
 import { useRef } from "react";
-import { ChevronDown, Check } from "lucide-react";
 import { useGSAP } from "@gsap/react";
+import MediaFrame from "../components/MediaFrame";
+import SignalLine from "../components/SignalLine";
 import { gsap } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
-import Mascot from "../components/Mascot";
 
-/* ── Hero: abertura cinematográfica que agora DIZ o que a MewStack faz em
-   segundos. Entrada em camadas (badge → título linha a linha → apoio → CTAs →
-   cue) e, no desktop, chips de automação "rodando agora" flutuam ao lado da
-   copy — produto acontecendo, não decoração. Saída coordenada: copy e chips
-   sobem/escalam/desvanecem entregando a tela ao próximo capítulo. */
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      const el = root.current;
-      if (!el) return;
-      const q = gsap.utils.selector(el);
-      const badge = q("[data-hero='badge']");
-      const lines = q("[data-hero='line']");
-      const sub = q("[data-hero='sub']");
-      const ctas = q("[data-hero='ctas']");
-      const chips = q("[data-hero='chip']");
-      // Camada que envolve os chips: a ENTRADA anima cada chip, a SAÍDA (scrub)
-      // anima a camada — nunca o mesmo elemento nos dois tweens, senão o scrub
-      // parado em 0 re-aplica o valor inicial e engole a entrada.
-      const chipsLayer = q("[data-hero='chips-layer']");
-      const cue = q("[data-hero='cue']");
-      const copy = q("[data-hero='copy']");
-      const aurora = q("[data-hero='aurora']");
+      const section = root.current;
+      if (!section) return;
+      const items = gsap.utils.toArray<HTMLElement>("[data-hero]", section);
 
       if (reduceMotion()) {
-        gsap.set([...badge, ...lines, ...sub, ...ctas, ...chips, ...cue], {
-          clearProps: "all",
-          opacity: 1,
-          y: 0,
-        });
+        gsap.set(items, { clearProps: "all", opacity: 1 });
         return;
       }
 
+      gsap
+        .timeline({ defaults: { ease: MOTION.ease } })
+        .from(items, {
+          y: 28,
+          opacity: 0,
+          duration: 0.9,
+          stagger: 0.1,
+          delay: 0.12,
+        });
+
       const mm = gsap.matchMedia();
-      mm.add({ isDesktop: MOTION.desktop, isMobile: MOTION.mobile }, (ctx) => {
-        const { isMobile } = ctx.conditions as { isDesktop: boolean; isMobile: boolean };
-
-        // Entrance — layered & cinematic, plays on load: the aurora swells in
-        // first (the stage lights up), the badge settles, the title masks in
-        // line by line, support copy + CTAs follow, the side chips pop last.
-        gsap
-          .timeline({ defaults: { ease: "power4.out" } })
-          .from(
-            aurora,
-            { autoAlpha: 0, scale: 1.25, yPercent: -10, duration: 1.6, ease: "expo.out" },
-            0,
-          )
-          .from(badge, { y: 22, opacity: 0, duration: 0.7 }, 0.15)
-          .fromTo(
-            lines,
-            { clipPath: "inset(0 0 100% 0)", yPercent: 22, opacity: 1 },
-            {
-              clipPath: "inset(0 0 0% 0)",
-              yPercent: 0,
-              duration: 1.25,
-              ease: MOTION.easeTitle,
-              stagger: 0.16,
-            },
-            0.35,
-          )
-          .from(sub, { y: 18, opacity: 0, duration: 0.7 }, "-=0.55")
-          .from(ctas, { y: 18, opacity: 0, duration: 0.7 }, "-=0.5")
-          .from(
-            chips,
-            { y: 26, opacity: 0, scale: 0.92, duration: 0.8, stagger: 0.12 },
-            "-=0.45",
-          )
-          .from(cue, { y: 16, opacity: 0, duration: 0.7 }, "-=0.4");
-
-        // Exit / parallax — desktop only (avoids touch jank). Copy and chips
-        // lift, scale down, defocus and fade, handing the screen to the next
-        // chapter with real depth.
-        if (!isMobile) {
-          gsap.to([...copy, ...chipsLayer], {
-            yPercent: MOTION.heroExitY,
-            scale: MOTION.heroExitScale,
-            opacity: 0,
-            filter: `blur(${MOTION.exitBlur}px)`,
-            ease: "none",
-            scrollTrigger: { trigger: el, start: "top top", end: "bottom top", scrub: true },
-          });
-          gsap.fromTo(
-            cue,
-            { autoAlpha: 1 },
-            {
-              autoAlpha: 0,
-              ease: "none",
-              immediateRender: false,
-              scrollTrigger: { trigger: el, start: "top top", end: "12% top", scrub: true },
-            },
-          );
-          gsap.to(aurora, {
-            yPercent: 38,
-            scale: 1.18,
-            ease: "none",
-            scrollTrigger: { trigger: el, start: "top top", end: "bottom top", scrub: true },
-          });
-        }
+      mm.add(MOTION.desktop, () => {
+        gsap.to("[data-hero-stage]", {
+          yPercent: -5,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
       });
-
       return () => mm.revert();
     },
     { scope: root },
@@ -116,128 +51,128 @@ export default function Hero() {
     <section
       ref={root}
       id="top"
-      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-clip px-5 pt-28 pb-20 text-center sm:px-8"
+      className="relative min-h-[100svh] overflow-clip bg-paper pt-28 pb-20 sm:pt-32 lg:pt-36 lg:pb-24"
     >
-      {/* ── ambient structure: gradiente cream→pink + editorial grid + aurora ── */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20"
-        style={{
-          background:
-            "linear-gradient(180deg, transparent 0%, oklch(0.745 0.155 356 / 0.05) 46%, oklch(0.745 0.155 356 / 0.09) 74%, transparent 100%)",
-        }}
+      <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
+      <SignalLine
+        draw="load"
+        viewBox="0 0 1200 950"
+        path="M42 -20 L42 115 C42 170 16 190 42 238 C75 298 35 365 42 432 C48 490 110 505 238 505 L360 505 C430 505 455 548 520 548"
+        className="pointer-events-none absolute inset-y-0 left-1/2 z-[var(--z-wire)] hidden h-full w-full max-w-[1200px] -translate-x-1/2 lg:block"
       />
-      <div
-        aria-hidden
-        className="grid-lines pointer-events-none absolute inset-0 -z-10 opacity-40 [mask-image:radial-gradient(ellipse_70%_55%_at_50%_0%,black,transparent_72%)]"
-      />
-      <div
-        aria-hidden
-        data-hero="aurora"
-        className="aurora pointer-events-none absolute top-[-6%] left-1/2 -z-10 h-[64vh] w-[130vw] max-w-[1280px] -translate-x-1/2 rounded-full opacity-35 blur-[130px]"
-        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, var(--color-pink) 0%, transparent 70%)" }}
+      <SignalLine
+        draw="load"
+        viewBox="0 0 40 900"
+        path="M20 -20 L20 900"
+        className="pointer-events-none absolute inset-y-0 left-0 z-[var(--z-wire)] h-full w-10 lg:hidden"
       />
 
-      {/* ── automações "rodando agora" — produto, não decoração (desktop) ── */}
-      <div
-        aria-hidden
-        data-hero="chips-layer"
-        className="pointer-events-none absolute inset-0 hidden will-change-transform xl:block"
-      >
-        {/* mascote flutuando perto do título — entra com os chips, sai com a
-            camada (parallax do exit scrub) */}
-        <div data-hero="chip" className="absolute top-[15%] right-[max(4rem,11vw)]">
-          <Mascot pose="idle" className="w-24" floatDelay="0.2s" />
-        </div>
+      <div className="relative z-[var(--z-content)] mx-auto grid max-w-[1200px] grid-cols-1 px-5 sm:px-8 lg:grid-cols-12 lg:gap-x-6">
         <div
-          data-hero="chip"
-          className="absolute top-[34%] left-[max(2rem,7vw)] w-52"
+          data-hero
+          className="section-index mb-7 lg:col-span-3 lg:col-start-1 lg:mb-9"
         >
-          <div className="animate-float rounded-xl border border-cream-line bg-cream-deep/85 p-3.5 text-left shadow-[var(--shadow-card)] backdrop-blur-sm">
-            <p className="mono flex items-center gap-2 text-[0.68rem] text-ink-soft">
-              <span className="live-dot" aria-hidden />
-              baixador-nfse · rodando
-            </p>
-            <p className="mt-2 font-display text-[1.05rem] font-semibold tracking-[-0.01em] text-ink">
-              487 notas <span className="text-pink-deep">hoje</span>
-            </p>
-            <p className="mt-0.5 text-[0.72rem] text-ink-soft">sem ninguém abrir o portal</p>
-          </div>
+          <span>00</span>
+          <span>bancada do estúdio</span>
         </div>
+
         <div
-          data-hero="chip"
-          className="absolute top-[28%] right-[max(2rem,6vw)] w-56"
+          data-hero
+          className="mono mb-8 flex flex-wrap gap-x-5 gap-y-1 text-[0.64rem] tracking-[0.06em] text-ink-faint lg:col-span-2 lg:col-start-11 lg:row-start-1 lg:mb-0 lg:flex-col lg:items-end lg:text-right"
         >
-          <div className="relative">
-            <div className="animate-float rounded-xl border border-cream-line bg-cream-deep/85 p-3.5 text-left shadow-[var(--shadow-card)] backdrop-blur-sm [animation-delay:0.5s]">
-              <p className="mono text-[0.68rem] text-ink-soft">conciliação · 06/2026</p>
-              <p className="mt-2 font-display text-[1.05rem] font-semibold tracking-[-0.01em] text-ink">
-                98% <span className="text-pink-deep">sem divergência</span>
-              </p>
-              <ul className="mt-1.5 flex flex-col gap-1 text-[0.72rem] text-ink-soft">
-                <li className="flex items-center gap-1.5">
-                  <Check className="h-3 w-3 text-[oklch(0.46_0.13_150)]" strokeWidth={2.6} />
-                  extrato × notas fiscais
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <Check className="h-3 w-3 text-[oklch(0.46_0.13_150)]" strokeWidth={2.6} />
-                  relatório enviado às 07:00
-                </li>
-              </ul>
-            </div>
-          </div>
+          <span>EST. 2024 · POA/BR</span>
+          <span>SOFTWARE · AUTOMAÇÕES · DADOS</span>
         </div>
-      </div>
 
-      {/* ── centered copy column ── */}
-      <div data-hero="copy" className="mx-auto flex max-w-3xl flex-col items-center">
-        <a
-          href="#contato"
-          data-hero="badge"
-          className="group mb-7 inline-flex items-center gap-2.5 rounded-full border border-ink/8 bg-cream-deep/70 py-1.5 pr-2.5 pl-3.5 text-[0.82rem] font-medium tracking-[0.01em] text-ink-soft shadow-[var(--shadow-soft)] backdrop-blur-sm transition-colors hover:border-pink/30"
+        <h1
+          data-hero
+          className="col-span-full max-w-[14ch] text-hero leading-[0.98] text-ink lg:col-span-10 lg:col-start-1"
         >
-          <span className="live-dot" aria-hidden />
-          Estúdio de software &amp; dados
-          <span className="rounded-full border border-ink/10 bg-cream px-2 py-0.5 text-[0.72rem] text-ink-soft transition-colors group-hover:border-pink/30 group-hover:text-pink-deep">
-            aberto para projetos →
-          </span>
-        </a>
-
-        <h1 className="font-display text-[clamp(2.5rem,6.8vw,4.9rem)] leading-[0.97] font-semibold tracking-[-0.04em]">
-          <span data-hero="line" className="block text-ink-fade">
-            Automações e sistemas
-          </span>
-          <span data-hero="line" className="block text-gradient">
-            do jeito que sua empresa roda.
-          </span>
+          Seu processo, enfim, ganha <em className="font-wonk">sinal.</em>
         </h1>
 
-        <p data-hero="sub" className="mt-6 max-w-[54ch] text-[1.02rem] leading-relaxed text-ink-soft">
-          A gente entende seu processo real e cria a tecnologia ao redor dele —
-          aplicações, integrações e rotinas que tiram o trabalho repetitivo do seu time.
+        <p
+          data-hero
+          className="mt-7 max-w-[52ch] text-lede leading-[1.55] text-ink-soft lg:col-span-6 lg:col-start-1 lg:mt-9"
+        >
+          A MewStack transforma rotinas manuais e dados espalhados em software
+          sob medida — simples de operar, monitorado e pronto para trabalhar todo dia.
         </p>
 
-        <div data-hero="ctas" className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <a href="#contato" className="btn btn-primary">
-            Mostrar meu processo
-            <span className="arrow" aria-hidden>→</span>
+        <div
+          data-hero
+          className="mt-7 flex flex-col gap-3 sm:flex-row lg:col-span-6 lg:col-start-1"
+        >
+          <a href="#contato" className="btn btn-primary w-full sm:w-auto">
+            Fale com a gente
           </a>
-          <a href="#contabil" className="btn btn-ghost">
-            Ver a automação rodando
+          <a href="#processo" className="btn btn-ghost w-full sm:w-auto">
+            Ver o processo
           </a>
         </div>
-      </div>
 
-      {/* ── scroll cue: convida a descer e explorar ── */}
-      <a
-        href="#problema"
-        data-hero="cue"
-        aria-label="Explorar o que a gente faz"
-        className="absolute bottom-7 left-1/2 -translate-x-1/2 inline-flex flex-col items-center gap-1.5 text-[0.72rem] font-medium tracking-[0.14em] text-ink-soft uppercase transition-colors hover:text-pink-deep"
-      >
-        explore
-        <ChevronDown className="h-4 w-4 animate-bounce" strokeWidth={2} aria-hidden />
-      </a>
+        <div
+          data-hero
+          data-hero-stage
+          className="relative z-[-1] mt-12 min-w-0 lg:col-span-10 lg:col-start-3 lg:row-start-5 lg:mt-8"
+        >
+          <MediaFrame
+            ratio="16 / 9"
+            captionPosition="top"
+            caption={{
+              name: "MEWSTACK — OPERAÇÃO",
+              detail: "SINAL 01 / AO VIVO",
+              type: "●",
+            }}
+            title="Operação MewStack em standby"
+          >
+            <div className="relative h-full overflow-hidden bg-night text-paper-on-night">
+              <div className="grain pointer-events-none absolute inset-0 opacity-[0.045]" />
+              <svg
+                aria-hidden
+                viewBox="0 0 1200 675"
+                preserveAspectRatio="none"
+                className="absolute inset-0 h-full w-full"
+              >
+                <path
+                  className="standby-wave"
+                  d="M-40 350 C70 350 105 238 180 238 S292 452 380 452 S505 180 590 180 S720 405 805 405 S930 285 1005 285 S1128 350 1240 350"
+                  fill="none"
+                  stroke="var(--color-signal)"
+                  strokeWidth="2"
+                  strokeDasharray="18 14"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <path
+                  d="M0 350 H1200"
+                  fill="none"
+                  stroke="var(--color-night-line)"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+              <div className="mono absolute top-5 left-5 text-[0.58rem] tracking-[0.06em] text-paper-on-night-soft sm:top-8 sm:left-8 sm:text-[0.7rem]">
+                <span className="signal-dot mr-2" data-pulse="true" />
+                AGUARDANDO SINAL
+              </div>
+              <div className="mono absolute right-5 bottom-5 text-right text-[0.52rem] leading-relaxed tracking-[0.05em] text-paper-on-night-soft sm:right-8 sm:bottom-8 sm:text-[0.66rem]">
+                <p>30°01&apos;59&quot;S · 51°13&apos;48&quot;W</p>
+                <p>CANAL 01 · STANDBY</p>
+              </div>
+            </div>
+          </MediaFrame>
+        </div>
+
+        <a
+          data-hero
+          href="#problema"
+          aria-label="Continuar para o problema"
+          className="mono mt-9 inline-flex min-h-11 w-fit items-center gap-3 text-[0.66rem] text-ink-faint lg:col-span-2 lg:col-start-1"
+        >
+          continuar
+          <span aria-hidden className="h-6 w-px bg-line-strong" />
+        </a>
+      </div>
     </section>
   );
 }
