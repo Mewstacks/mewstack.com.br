@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import MediaFrame from "../components/MediaFrame";
+import HeroSignalMedia from "../components/HeroSignalMedia";
 import SignalLine from "../components/SignalLine";
 import { gsap } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
@@ -124,42 +125,9 @@ export default function Hero() {
               detail: "SINAL 01 / AO VIVO",
               type: "●",
             }}
-            title="Operação MewStack em standby"
+            title="Operação MewStack organizando sinais dispersos"
           >
-            <div className="relative h-full overflow-hidden bg-night text-paper-on-night">
-              <div className="grain pointer-events-none absolute inset-0 opacity-[0.045]" />
-              <svg
-                aria-hidden
-                viewBox="0 0 1200 675"
-                preserveAspectRatio="none"
-                className="absolute inset-0 h-full w-full"
-              >
-                <path
-                  className="standby-wave"
-                  d="M-40 350 C70 350 105 238 180 238 S292 452 380 452 S505 180 590 180 S720 405 805 405 S930 285 1005 285 S1128 350 1240 350"
-                  fill="none"
-                  stroke="var(--color-signal)"
-                  strokeWidth="2"
-                  strokeDasharray="18 14"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <path
-                  d="M0 350 H1200"
-                  fill="none"
-                  stroke="var(--color-night-line)"
-                  strokeWidth="1"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-              <div className="mono absolute top-5 left-5 text-[0.58rem] tracking-[0.06em] text-paper-on-night-soft sm:top-8 sm:left-8 sm:text-[0.7rem]">
-                <span className="signal-dot mr-2" data-pulse="true" />
-                AGUARDANDO SINAL
-              </div>
-              <div className="mono absolute right-5 bottom-5 text-right text-[0.52rem] leading-relaxed tracking-[0.05em] text-paper-on-night-soft sm:right-8 sm:bottom-8 sm:text-[0.66rem]">
-                <p>30°01&apos;59&quot;S · 51°13&apos;48&quot;W</p>
-                <p>CANAL 01 · STANDBY</p>
-              </div>
-            </div>
+            <HeroSignalMedia />
           </MediaFrame>
         </div>
 
