@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import SignalLine from "../components/SignalLine";
 import { useChapter } from "../lib/useChapter";
 
 type Member = {
@@ -73,7 +74,16 @@ export default function About() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
+        <div aria-hidden className="pointer-events-none relative mt-12 h-20">
+          <SignalLine
+            draw="scroll"
+            viewBox="0 0 1200 80"
+            path="M-20 40 C160 28 300 52 480 40 S820 30 1000 44 S1140 40 1220 40"
+            className="absolute inset-0 h-full w-full"
+          />
+        </div>
+
+        <div className="mt-2 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
           {TEAM.map((member) => (
             <article key={member.name} data-reveal className="min-w-0">
               <div className="relative aspect-[4/5] overflow-hidden rounded-lg border border-line-strong bg-paper-lilac">

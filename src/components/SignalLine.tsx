@@ -1,7 +1,7 @@
 import { useRef, type RefObject } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "../lib/gsap";
-import { reduceMotion } from "../lib/motion";
+import { MOTION, reduceMotion } from "../lib/motion";
 
 type SignalLineProps = {
   path: string;
@@ -10,6 +10,9 @@ type SignalLineProps = {
   triggerRef?: RefObject<HTMLElement | null>;
   draw?: "load" | "scroll" | "static";
   strokeWidth?: number;
+  scrub?: number | boolean;
+  start?: string;
+  end?: string;
 };
 
 export default function SignalLine({
@@ -19,6 +22,9 @@ export default function SignalLine({
   triggerRef,
   draw = "scroll",
   strokeWidth = 1.5,
+  scrub = MOTION.signal.scrub,
+  start = MOTION.signal.start,
+  end = MOTION.signal.end,
 }: SignalLineProps) {
   const svg = useRef<SVGSVGElement>(null);
   const line = useRef<SVGPathElement>(null);
@@ -52,9 +58,9 @@ export default function SignalLine({
         ease: "none",
         scrollTrigger: {
           trigger: triggerRef?.current ?? svg.current,
-          start: "top 78%",
-          end: "bottom 34%",
-          scrub: true,
+          start,
+          end,
+          scrub,
         },
       });
     },

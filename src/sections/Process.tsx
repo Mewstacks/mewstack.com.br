@@ -34,6 +34,7 @@ export default function Process() {
       const section = root.current;
       if (!section) return;
       const path = section.querySelector<SVGPathElement>("[data-process-path]");
+      const spine = section.querySelector<HTMLElement>("[data-process-spine]");
       const nodes = gsap.utils.toArray<HTMLElement>("[data-process-node]", section);
       const labels = gsap.utils.toArray<HTMLElement>("[data-process-label]", section);
       const steps = gsap.utils.toArray<HTMLElement>("[data-process-step]", section);
@@ -41,13 +42,37 @@ export default function Process() {
 
       if (reduceMotion()) {
         gsap.set(path, { strokeDashoffset: 0 });
+        if (spine) gsap.set(spine, { scaleY: 1 });
         gsap.set([...nodes, ...labels, ...steps], { clearProps: "all", opacity: 1 });
         return;
       }
 
+      // Fração do comprimento total em que a ponta da linha cruza o x de cada nó
+      // (o trecho ondulado concentra comprimento de arco, então x não é linear).
+      const tipFractionAtX = (targets: number[]) => {
+        const total = path.getTotalLength();
+        const samples = 120;
+        const fractions = targets.map(() => 1);
+        const found = targets.map(() => false);
+        for (let i = 0; i <= samples; i += 1) {
+          const point = path.getPointAtLength((total * i) / samples);
+          targets.forEach((x, index) => {
+            if (!found[index] && point.x >= x) {
+              found[index] = true;
+              fractions[index] = i / samples;
+            }
+          });
+        }
+        return fractions;
+      };
+
       const mm = gsap.matchMedia();
       mm.add(MOTION.desktop, () => {
-        gsap.set(path, { strokeDasharray: 1, strokeDashoffset: 1 });
+        // Comprimento real (não pathLength={1}): o GSAP arredonda
+        // strokeDashoffset para px inteiros, e com escala 0–1 a linha
+        // saltaria de vazia para cheia em vez de desenhar contínua.
+        const pathLength = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: pathLength, strokeDashoffset: pathLength });
         gsap.set(nodes, { scale: 0.7, opacity: 0.28 });
         gsap.set(labels, { color: "var(--color-ink-faint)" });
         gsap.set(steps, { y: 24, opacity: 0.28 });
@@ -56,8 +81,8 @@ export default function Process() {
           scrollTrigger: {
             trigger: section,
             start: "top 12%",
-            end: "+=120%",
-            scrub: true,
+            end: MOTION.process.end,
+            scrub: MOTION.process.scrub,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
@@ -65,27 +90,38 @@ export default function Process() {
           },
         });
 
-        timeline.to(path, { strokeDashoffset: 0, ease: "none", duration: 3 }, 0);
+        // Timeline normalizada em 1: o draw ocupa tudo menos o settle final,
+        // para a linha nunca parar de se mover enquanto a seção está pinada.
+        const drawDuration = 1 - MOTION.process.settle;
+        const { stepSpan } = MOTION.process;
+        // Nós ficam a 10/50/90% da largura do viewBox de 900.
+        const fractions = tipFractionAtX([90, 450, 810]);
+
+        timeline.to(
+          path,
+          { strokeDashoffset: 0, ease: "none", duration: drawDuration },
+          0,
+        );
         STEPS.forEach((_, index) => {
-          const at = 0.4 + index * 0.85;
+          const at = Math.min(fractions[index] * drawDuration, 1 - stepSpan);
           timeline
             .to(
               nodes[index],
-              { scale: 1, opacity: 1, duration: 0.35, ease: "power2.out" },
+              { scale: 1, opacity: 1, duration: stepSpan, ease: "power1.out" },
               at,
             )
             .to(
               labels[index],
-              { color: "var(--color-ink)", duration: 0.3 },
+              { color: "var(--color-ink)", duration: stepSpan, ease: "none" },
               at,
             )
             .to(
               steps[index],
-              { y: 0, opacity: 1, duration: 0.45, ease: "power2.out" },
+              { y: 0, opacity: 1, duration: stepSpan, ease: "power1.out" },
               at,
             );
         });
-        timeline.to({}, { duration: 0.55 });
+        timeline.to({}, { duration: MOTION.process.settle }, drawDuration);
 
         return () => {
           timeline.scrollTrigger?.kill();
@@ -97,6 +133,19 @@ export default function Process() {
         gsap.set(path, { strokeDashoffset: 0 });
         gsap.set(nodes, { scale: 1, opacity: 1 });
         gsap.set(steps, { y: 18, opacity: 0 });
+        if (spine) {
+          gsap.set(spine, { scaleY: 0 });
+          gsap.to(spine, {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: spine.parentElement,
+              start: "top 75%",
+              end: "bottom 60%",
+              scrub: MOTION.process.scrub,
+            },
+          });
+        }
         ScrollTrigger.batch(steps, {
           start: "top 86%",
           onEnter: (batch) =>
@@ -155,7 +204,6 @@ export default function Process() {
             />
             <path
               data-process-path
-              pathLength={1}
               d="M0 100 C36 40 68 160 105 100 S174 40 210 100 C248 160 276 100 330 100 H900"
               fill="none"
               stroke="var(--color-signal)"
@@ -188,6 +236,11 @@ export default function Process() {
           <span
             aria-hidden
             className="absolute top-0 bottom-0 left-[7px] w-px bg-line-strong md:hidden"
+          />
+          <span
+            aria-hidden
+            data-process-spine
+            className="absolute top-0 bottom-0 left-[7px] w-px origin-top bg-signal md:hidden"
           />
           {STEPS.map((step, index) => (
             <li

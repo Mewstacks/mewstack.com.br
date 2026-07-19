@@ -81,7 +81,6 @@ export default function Hero() {
           data-hero
           className="mono mb-8 flex flex-wrap gap-x-5 gap-y-1 text-[0.64rem] tracking-[0.06em] text-ink-faint lg:col-span-2 lg:col-start-11 lg:row-start-1 lg:mb-0 lg:flex-col lg:items-end lg:text-right"
         >
-          <span>EST. 2024 · POA/BR</span>
           <span>SOFTWARE · AUTOMAÇÕES · DADOS</span>
         </div>
 
@@ -89,15 +88,15 @@ export default function Hero() {
           data-hero
           className="col-span-full max-w-[14ch] text-hero leading-[0.98] text-ink lg:col-span-10 lg:col-start-1"
         >
-          Seu processo, enfim, ganha <em className="font-wonk">sinal.</em>
+          Seus dados já sabem, <em className="font-wonk">a gente revela.</em>
         </h1>
 
         <p
           data-hero
           className="mt-7 max-w-[52ch] text-lede leading-[1.55] text-ink-soft lg:col-span-6 lg:col-start-1 lg:mt-9"
         >
-          A MewStack transforma rotinas manuais e dados espalhados em software
-          sob medida — simples de operar, monitorado e pronto para trabalhar todo dia.
+          A MewStack cria automações, aplicações web e sistemas sob medida que
+          organizam processos, conectam dados e reduzem trabalho manual.
         </p>
 
         <div
@@ -122,7 +121,6 @@ export default function Hero() {
             captionPosition="top"
             caption={{
               name: "MEWSTACK — OPERAÇÃO",
-              detail: "SINAL 01 / AO VIVO",
               type: "●",
             }}
             title="Operação MewStack organizando sinais dispersos"
