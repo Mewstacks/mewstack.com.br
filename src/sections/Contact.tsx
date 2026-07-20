@@ -57,7 +57,7 @@ export default function Contact() {
             <p data-reveal className="section-index section-index-dark mb-8">
               <span>07</span>
               <span aria-hidden className="signal-dot" data-pulse="true" />
-              <span>anoitecer · aberto para projetos</span>
+              <span>aberto para projetos</span>
             </p>
             <h2
               data-reveal-title

@@ -21,6 +21,8 @@ export const MOTION = {
 
   parallax: 1,
   parallaxRange: 10,
+  // Deslocamento em px do vídeo do hero (e do fio) ao longo da seção.
+  heroStageParallax: 28,
   heroExitY: -12,
   heroExitScale: 0.97,
   heroSignal: {
@@ -74,10 +76,12 @@ export const MOTION = {
   },
 
   process: {
-    scrub: 0.65,
+    scrub: 0.5,
     end: "+=105%",
     stepSpan: 0.13,
-    settle: 0.08,
+    // A linha precisa cruzar o último nó (RODAR) bem antes do fim do pin: com
+    // settle curto o scrub ainda estava desenhando quando a seção soltava.
+    settle: 0.26,
   },
 
   instrument: {

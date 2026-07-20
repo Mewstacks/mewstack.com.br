@@ -68,29 +68,40 @@ const THEMES: EditorTheme[] = [
   },
 ];
 
+const INSTAGRAM = "https://instagram.com/meewstack";
+
 const CODE: CodeLine[] = [
   [["from ", "keyword"], ["mewstack ", "plain"], ["import ", "keyword"], ["automatizar", "function"]],
   [],
-  [["# descreva a rotina como ela acontece hoje", "comment"]],
-  [["fontes ", "plain"], ["= ", "operator"], ["[", "operator"], ['"pedidos"', "string"], [", ", "operator"], ['"notas"', "string"], [", ", "operator"], ['"extrato"', "string"], ["]", "operator"]],
+  [["# tarefas chatas que ninguém merece fazer na mão", "comment"]],
+  [["tarefas ", "plain"], ["= ", "operator"], ["[", "operator"], ['"digitar notas"', "string"], [", ", "operator"], ['"consultar ecac"', "string"], [", ", "operator"], ['"conciliar extratos"', "string"], ["]", "operator"]],
   [],
-  [["@automatizar", "function"], ["(", "operator"], ["quando", "plain"], ["=", "operator"], ['"todo dia às 08:00"', "string"], [")", "operator"]],
-  [["def ", "keyword"], ["preparar_decisao", "function"], ["():", "operator"]],
-  [["    dados ", "plain"], ["= ", "operator"], ["ler", "function"], ["(", "operator"], ["fontes", "plain"], [")", "operator"]],
-  [["    validar", "function"], ["(", "operator"], ["dados", "plain"], [")", "operator"]],
-  [["    avisar", "function"], ["(", "operator"], ['"relatório pronto"', "string"], [")", "operator"]],
-  [["    return ", "keyword"], ['"operação em dia"', "string"]],
+  [["@automatizar", "function"], ["(", "operator"], ["quando", "plain"], ["=", "operator"], ['"toda segunda às 08:00"', "string"], [")", "operator"]],
+  [["def ", "keyword"], ["liberar_meu_tempo", "function"], ["():", "operator"]],
+  [["    for ", "keyword"], ["tarefa ", "plain"], ["in ", "keyword"], ["tarefas", "plain"], [":", "operator"]],
+  [["        print", "function"], ["(", "operator"], ['f"✓ {tarefa} agora roda sozinho"', "string"], [")", "operator"]],
+  [["    return ", "keyword"], ['"tempo livre desbloqueado ✨"', "string"]],
   [],
-  [["preparar_decisao", "function"], ["()", "operator"]],
+  [["if ", "keyword"], ["__name__ ", "plain"], ["== ", "operator"], ['"__main__"', "string"], [":", "operator"]],
+  [["    liberar_meu_tempo", "function"], ["()", "operator"]],
+  [["    abrir", "function"], ["(", "operator"], ['"instagram.com/meewstack"', "string"], [")  ", "operator"], ["# ▶ vem ver mais", "comment"]],
 ];
 
 const OUTPUT = [
-  "$ python preparar_decisao.py",
-  "[ok] 1.284 registros lidos",
-  "[ok] 12 inconsistências isoladas",
-  "[ok] relatório pronto para decisão",
-  "operação em dia",
+  "$ python liberar_meu_tempo.py",
+  "✓ digitar notas agora roda sozinho",
+  "✓ consultar ecac agora roda sozinho",
+  "✓ conciliar extratos agora roda sozinho",
+  "tempo livre desbloqueado ✨",
+  "→ abrindo instagram.com/meewstack …",
 ];
+
+const outputColor = (line: string, theme: EditorTheme) => {
+  if (line.startsWith("$")) return theme.muted;
+  if (line.startsWith("✓")) return "var(--color-code-green)";
+  if (line.startsWith("→")) return "var(--color-signal-bright)";
+  return theme.foreground;
+};
 
 export default function CodeLab() {
   const root = useRef<HTMLElement>(null);
@@ -122,6 +133,11 @@ export default function CodeLab() {
     return () => document.removeEventListener("mousedown", close);
   }, [menuOpen]);
 
+  const finish = () => {
+    window.open(INSTAGRAM, "_blank", "noopener,noreferrer");
+    setRunning(false);
+  };
+
   const run = () => {
     if (running) return;
     clearTimers();
@@ -130,7 +146,7 @@ export default function CodeLab() {
 
     if (reduceMotion()) {
       setOutput(OUTPUT);
-      setRunning(false);
+      timers.current.push(window.setTimeout(finish, 550));
       return;
     }
 
@@ -138,10 +154,12 @@ export default function CodeLab() {
       timers.current.push(
         window.setTimeout(() => {
           setOutput((current) => [...current, line]);
-          if (index === OUTPUT.length - 1) setRunning(false);
         }, 220 + index * 320),
       );
     });
+    timers.current.push(
+      window.setTimeout(finish, 220 + OUTPUT.length * 320 + 480),
+    );
   };
 
   return (
@@ -167,8 +185,10 @@ export default function CodeLab() {
               data-reveal
               className="mt-6 max-w-[56ch] text-paper-on-night-soft"
             >
-              Este laboratório é interativo: rode um recorte simples do tipo de
-              automação que organiza entradas, valida dados e devolve um resultado claro.
+              Aperta <span className="font-medium text-paper-on-night">Executar</span>. É
+              Python de verdade, curtinho, o mesmo tipo de rotina que a gente monta pra
+              tirar o trabalho repetitivo das suas costas. No fim, ele abre o nosso
+              Instagram.
             </p>
           </div>
         </div>
@@ -180,7 +200,7 @@ export default function CodeLab() {
             onNight
             caption={{
               name: "LAB — EXECUTÁVEL",
-              detail: "Python 3 · rotina.py",
+              detail: "Python 3 · liberar_meu_tempo.py",
               type: "ATIVO",
             }}
           >
@@ -200,7 +220,7 @@ export default function CodeLab() {
                     aria-hidden
                     className="h-3.5 w-3.5 shrink-0 text-signal-bright"
                   />
-                  <span className="truncate">preparar_decisao.py</span>
+                  <span className="truncate">liberar_meu_tempo.py</span>
                 </div>
 
                 <div className="ml-auto flex items-center gap-2">
@@ -302,11 +322,7 @@ export default function CodeLab() {
                   {output.map((line) => (
                     <p
                       key={line}
-                      style={{
-                        color: line.startsWith("[ok]")
-                          ? "var(--color-code-green)"
-                          : theme.foreground,
-                      }}
+                      style={{ color: outputColor(line, theme) }}
                     >
                       {line}
                     </p>

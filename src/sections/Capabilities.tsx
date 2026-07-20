@@ -341,7 +341,7 @@ export default function Capabilities() {
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
             <span>02</span>
-            <span>domando o sinal</span>
+            <span>a solução</span>
           </p>
           <div className="lg:col-span-8 lg:col-start-5">
             <h2 data-reveal-title className="max-w-[13ch] text-h2 leading-[1.04]">

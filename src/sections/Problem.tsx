@@ -33,7 +33,7 @@ export default function Problem() {
           <div className="min-w-0">
             <p data-reveal className="section-index mb-7">
               <span>01</span>
-              <span>o ruído</span>
+              <span>o problema</span>
             </p>
             <h2
               data-reveal-title

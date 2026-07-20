@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
+import { measurePath } from "../lib/pathMetrics";
 import { useChapter } from "../lib/useChapter";
 
 const STEPS = [
@@ -47,31 +48,13 @@ export default function Process() {
         return;
       }
 
-      // Fração do comprimento total em que a ponta da linha cruza o x de cada nó
-      // (o trecho ondulado concentra comprimento de arco, então x não é linear).
-      const tipFractionAtX = (targets: number[]) => {
-        const total = path.getTotalLength();
-        const samples = 120;
-        const fractions = targets.map(() => 1);
-        const found = targets.map(() => false);
-        for (let i = 0; i <= samples; i += 1) {
-          const point = path.getPointAtLength((total * i) / samples);
-          targets.forEach((x, index) => {
-            if (!found[index] && point.x >= x) {
-              found[index] = true;
-              fractions[index] = i / samples;
-            }
-          });
-        }
-        return fractions;
-      };
-
       const mm = gsap.matchMedia();
       mm.add(MOTION.desktop, () => {
         // Comprimento real (não pathLength={1}): o GSAP arredonda
         // strokeDashoffset para px inteiros, e com escala 0–1 a linha
         // saltaria de vazia para cheia em vez de desenhar contínua.
-        const pathLength = path.getTotalLength();
+        // Nós ficam a 10/50/90% da largura do viewBox de 900.
+        const { length: pathLength, fractions } = measurePath(path, [90, 450, 810]);
         gsap.set(path, { strokeDasharray: pathLength, strokeDashoffset: pathLength });
         gsap.set(nodes, { scale: 0.7, opacity: 0.28 });
         gsap.set(labels, { color: "var(--color-ink-faint)" });
@@ -94,8 +77,6 @@ export default function Process() {
         // para a linha nunca parar de se mover enquanto a seção está pinada.
         const drawDuration = 1 - MOTION.process.settle;
         const { stepSpan } = MOTION.process;
-        // Nós ficam a 10/50/90% da largura do viewBox de 900.
-        const fractions = tipFractionAtX([90, 450, 810]);
 
         timeline.to(
           path,
@@ -175,7 +156,7 @@ export default function Process() {
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
             <span>03</span>
-            <span>o sinal se ordena</span>
+            <span>processo</span>
           </p>
           <div className="lg:col-span-8 lg:col-start-5">
             <h2 data-reveal-title className="max-w-[12ch] text-h2 leading-[1.04]">
