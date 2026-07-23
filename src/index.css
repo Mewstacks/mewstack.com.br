@@ -336,14 +336,14 @@
 
   .case-frame {
     --frame-ratio: 4 / 3;
-    width: min(88vw, 960px);
+    width: min(92vw, 1040px);
     flex: none;
   }
 
   @media (min-width: 768px) {
     .case-frame {
       --frame-ratio: 16 / 10;
-      width: min(72vw, 960px, calc((100svh - 32rem) * 1.6));
+      width: min(78vw, 1040px, calc((100svh - 25rem) * 1.935));
     }
   }
 }
@@ -477,6 +477,10 @@
   .standby-wave {
     animation: none;
   }
+
+  .signal-dot[data-pulse="true"]::after {
+    animation: none;
+  }
 }
 
 html[data-reduced-motion="true"] {
@@ -493,6 +497,10 @@ html[data-reduced-motion="true"] *::after {
 }
 
 html[data-reduced-motion="true"] .standby-wave {
+  animation: none;
+}
+
+html[data-reduced-motion="true"] .signal-dot[data-pulse="true"]::after {
   animation: none;
 }
 

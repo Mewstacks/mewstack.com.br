@@ -1,6 +1,6 @@
 import { useRef, type MouseEvent } from "react";
 import Logo from "../components/Logo";
-import SignalLine from "../components/SignalLine";
+import { SignalScene } from "../components/SignalJourney";
 import { NAV_CHAPTERS } from "../lib/chapters";
 import { useChapter } from "../lib/useChapter";
 import { useMagnetic } from "../lib/useMagnetic";
@@ -43,15 +43,9 @@ export default function Contact() {
       id="contato"
       className="relative scroll-mt-24 overflow-clip bg-night text-paper-on-night"
     >
-      <SignalLine
-        triggerRef={root}
-        viewBox="0 0 1200 2"
-        path="M0 1 H1200"
-        strokeWidth={1}
-        className="pointer-events-none absolute top-[46%] left-0 h-2 w-full [filter:drop-shadow(0_0_5px_var(--color-signal-ghost))]"
-      />
+      <SignalScene scene="contact" />
 
-      <div className="relative mx-auto max-w-[1200px] px-5 py-24 sm:px-8 lg:py-32">
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-24 sm:px-8 lg:py-32">
         <div className="grid gap-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div>
             <p data-reveal className="section-index section-index-dark mb-8">
@@ -109,13 +103,22 @@ export default function Contact() {
         </div>
       </div>
 
-      <footer className="relative border-t border-night-line">
+      <footer
+        data-signal-anchor="contact-horizon"
+        className="relative z-[var(--z-content)] border-t border-night-line"
+      >
         <div className="mx-auto grid max-w-[1200px] gap-8 px-5 py-8 text-paper-on-night-soft sm:px-8 lg:grid-cols-[auto_1fr_auto] lg:items-center">
-          <Logo
-            variant="horizontalDark"
-            alt="MewStack"
-            className="h-8 w-auto"
-          />
+          <div data-signal-anchor="contact-terminal" className="relative w-fit">
+            <span
+              aria-hidden
+              className="absolute -top-[35px] -right-4 h-1.5 w-1.5 rounded-full bg-signal"
+            />
+            <Logo
+              variant="horizontalDark"
+              alt="MewStack"
+              className="h-8 w-auto"
+            />
+          </div>
           <nav
             aria-label="Índice do rodapé"
             className="mono flex flex-wrap gap-x-4 gap-y-2 text-[0.62rem] lg:justify-center"

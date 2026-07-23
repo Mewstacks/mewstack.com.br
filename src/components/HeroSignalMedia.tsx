@@ -1,6 +1,4 @@
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "../lib/gsap";
+import { useEffect, useRef } from "react";
 import { MOTION, reduceMotion } from "../lib/motion";
 
 const FINAL_PATH =
@@ -25,206 +23,64 @@ const COLLECTOR_DOTS = [
   { x: 1150, y: 380, targetY: 342, radius: 2.5 },
 ] as const;
 
+/**
+ * Presentation and media loading only. SignalScene owns the single scroll
+ * timeline that drives this SVG, the outside connector and video seeking.
+ */
 export default function HeroSignalMedia() {
   const root = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
-  const veil = useRef<SVGRectElement>(null);
-  const line = useRef<SVGPathElement>(null);
-  const flow = useRef<SVGPathElement>(null);
   const reduce = reduceMotion();
 
-  useGSAP(
-    () => {
-      const media = video.current;
-      const charcoal = veil.current;
-      const finalLine = line.current;
-      const flowDots = flow.current;
-      const guides = gsap.utils.toArray<SVGPathElement>("[data-guide]", root.current);
-      const collectorDots = gsap.utils.toArray<SVGCircleElement>(
-        "[data-collector-dot]",
-        root.current,
-      );
-      if (!media || !charcoal || !finalLine || !flowDots || guides.length !== 2) {
-        return;
-      }
+  useEffect(() => {
+    const container = root.current;
+    const media = video.current;
+    if (reduce || !container || !media) return;
 
-      const length = finalLine.getTotalLength();
-
-      if (reduce) {
-        media.pause();
-        gsap.set(charcoal, { opacity: MOTION.heroSignal.veilOpacity });
-        gsap.set(guides, { opacity: 0 });
-        gsap.set(collectorDots, { opacity: 0 });
-        gsap.set(finalLine, {
-          strokeDasharray: "none",
-          strokeDashoffset: 0,
-        });
-        gsap.set(flowDots, { opacity: MOTION.heroSignal.flowOpacity });
-        return;
-      }
-
-      gsap.set(charcoal, { opacity: 0 });
-      guides.forEach((guide) => {
-        const guideLength = guide.getTotalLength();
-        gsap.set(guide, {
-          opacity: MOTION.heroSignal.guideOpacity,
-          strokeDasharray: guideLength,
-          strokeDashoffset: guideLength,
-        });
-      });
-      gsap.set(collectorDots, { opacity: MOTION.heroSignal.dotOpacity });
-      gsap.set(finalLine, {
-        strokeDasharray: length,
-        strokeDashoffset: length,
-      });
-      gsap.set(flowDots, { opacity: 0, strokeDashoffset: 0 });
-
-      const flowTween = gsap.to(flowDots, {
-        strokeDashoffset: -(MOTION.heroSignal.flowSpacing + 1),
-        duration: MOTION.heroSignal.flowDuration,
-        ease: "none",
-        repeat: -1,
-        paused: true,
-      });
-      const sequence = gsap.timeline({ paused: true });
-      const guideEnd =
-        MOTION.heroSignal.guideStart + MOTION.heroSignal.guideDuration;
-      const lineEnd = MOTION.heroSignal.lineStart + MOTION.heroSignal.lineDuration;
-
-      sequence
-        .to(
-          charcoal,
-          {
-            opacity: MOTION.heroSignal.veilOpacity,
-            duration: MOTION.heroSignal.veilDuration,
-            ease: MOTION.heroSignal.ease,
-          },
-          MOTION.heroSignal.veilStart,
-        )
-        .to(
-          guides,
-          {
-            strokeDashoffset: 0,
-            duration: MOTION.heroSignal.guideDuration,
-            ease: MOTION.heroSignal.ease,
-          },
-          MOTION.heroSignal.guideStart,
-        )
-        .to(
-          guides,
-          {
-            opacity: 0,
-            duration: MOTION.heroSignal.guideFadeDuration,
-            ease: MOTION.heroSignal.ease,
-          },
-          guideEnd,
-        )
-        .to(
-          finalLine,
-          {
-            strokeDashoffset: 0,
-            duration: MOTION.heroSignal.lineDuration,
-            ease: MOTION.heroSignal.ease,
-          },
-          MOTION.heroSignal.lineStart,
-        )
-        .set(flowDots, { opacity: MOTION.heroSignal.flowOpacity }, lineEnd)
-        .call(() => flowTween.play(0), [], lineEnd);
-
-      collectorDots.forEach((dot, index) => {
-        const config = COLLECTOR_DOTS[index];
-        if (!config) return;
-
-        const progress = config.x / 1200;
-        const guideArrival =
-          MOTION.heroSignal.guideStart + progress * MOTION.heroSignal.guideDuration;
-        const lineArrival =
-          MOTION.heroSignal.lineStart + progress * MOTION.heroSignal.lineDuration;
-        const collectAt = guideArrival - MOTION.heroSignal.dotAnticipation;
-        const collectDuration = Math.max(
-          MOTION.heroSignal.dotMinDuration,
-          lineArrival - collectAt,
-        );
-
-        sequence
-          .to(
-            dot,
-            {
-              attr: { cx: config.x + MOTION.heroSignal.dotTravelX, cy: config.targetY },
-              duration: collectDuration,
-              ease: MOTION.heroSignal.ease,
-            },
-            collectAt,
-          )
-          .to(
-            dot,
-            {
-              opacity: 0,
-              duration: MOTION.heroSignal.dotFadeDuration,
-              ease: MOTION.heroSignal.ease,
-            },
-            lineArrival - MOTION.heroSignal.dotFadeDuration,
-          );
-      });
-
-      const sync = () => {
-        if (Math.abs(sequence.time() - media.currentTime) > MOTION.heroSignal.maxDrift) {
-          sequence.time(media.currentTime, false);
-        }
-      };
-      const onPlaying = () => {
-        sequence.time(media.currentTime, false).play();
-        if (media.currentTime >= lineEnd) flowTween.play();
-      };
-      const onPause = () => {
-        sequence.pause();
-        if (!media.ended) flowTween.pause();
-      };
-      const onEnded = () => {
-        sequence.progress(1, false);
-        flowTween.play();
-      };
-
-      media.addEventListener("playing", onPlaying);
-      media.addEventListener("pause", onPause);
-      media.addEventListener("seeking", sync);
-      media.addEventListener("timeupdate", sync);
-      media.addEventListener("ended", onEnded);
-
-      if (!media.paused) onPlaying();
-
-      return () => {
-        media.removeEventListener("playing", onPlaying);
-        media.removeEventListener("pause", onPause);
-        media.removeEventListener("seeking", sync);
-        media.removeEventListener("timeupdate", sync);
-        media.removeEventListener("ended", onEnded);
-        sequence.kill();
-        flowTween.kill();
-      };
-    },
-    { scope: root },
-  );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        media.preload = "auto";
+        media.load();
+        observer.disconnect();
+      },
+      { rootMargin: "100% 0px" },
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [reduce]);
 
   return (
     <div
       ref={root}
+      data-signal-anchor="hero-media"
       role="img"
       aria-label="Duas linhas-guia recolhem pontos dispersos e os organizam em uma única linha."
       className="relative h-full w-full overflow-hidden bg-night"
     >
-      <video
-        ref={video}
-        src="/media/hero-signal.mp4"
-        poster="/media/hero-signal-poster.jpg"
-        className="h-full w-full object-cover"
-        muted
-        playsInline
-        autoPlay={!reduce}
-        preload="auto"
-        aria-hidden="true"
-        draggable={false}
-      />
+      {reduce ? (
+        <img
+          data-hero-signal-poster
+          src="/media/hero-signal-poster.jpg"
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover"
+          draggable={false}
+        />
+      ) : (
+        <video
+          ref={video}
+          data-hero-signal-video
+          src="/media/hero-signal.mp4"
+          poster="/media/hero-signal-poster.jpg"
+          className="h-full w-full object-cover"
+          muted
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          draggable={false}
+        />
+      )}
 
       <svg
         aria-hidden
@@ -233,7 +89,7 @@ export default function HeroSignalMedia() {
         className="pointer-events-none absolute inset-0 h-full w-full"
       >
         <rect
-          ref={veil}
+          data-hero-signal-veil
           x="0"
           y="0"
           width="1200"
@@ -244,7 +100,7 @@ export default function HeroSignalMedia() {
         {GUIDE_PATHS.map((path) => (
           <path
             key={path}
-            data-guide
+            data-hero-signal-guide
             d={path}
             fill="none"
             stroke="var(--color-dusk)"
@@ -260,7 +116,9 @@ export default function HeroSignalMedia() {
         {COLLECTOR_DOTS.map((dot) => (
           <circle
             key={`${dot.x}-${dot.y}`}
-            data-collector-dot
+            data-hero-signal-dot
+            data-start-x={dot.x}
+            data-start-y={dot.y}
             data-target-y={dot.targetY}
             cx={dot.x}
             cy={dot.y}
@@ -270,7 +128,7 @@ export default function HeroSignalMedia() {
           />
         ))}
         <path
-          ref={line}
+          data-hero-signal-line
           d={FINAL_PATH}
           fill="none"
           stroke="var(--color-signal)"
@@ -283,7 +141,7 @@ export default function HeroSignalMedia() {
           vectorEffect="non-scaling-stroke"
         />
         <path
-          ref={flow}
+          data-hero-signal-flow
           d={FINAL_PATH}
           fill="none"
           stroke="var(--color-signal)"

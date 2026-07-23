@@ -27,7 +27,7 @@
 
 A página é a **superfície de trabalho do estúdio**: um papel técnico claro, tonal e
 quente — anotado com hairlines, marcas de registro e legendas mono — atravessado por
-**um sinal contínuo** (o fio rosa: dado vivo viajando do ruído à clareza). Em pontos
+**um mesmo sinal recorrente** (o fio rosa: dado vivo viajando do ruído à clareza). Em pontos
 precisos, o papel se abre em **viewports escuros**: janelas para a máquina rodando
 (código, dados, mídia). O visitante não olha uma landing page; olha a bancada de um
 estúdio que transforma caos operacional em sistemas que rodam.
@@ -45,10 +45,11 @@ Três materiais, três papéis:
 - **Sentimento:** estúdio de produto maduro trabalhando de dia — luz natural sobre papel
   técnico, calma, precisão, e um pulso de energia rosa percorrendo tudo. Confiança sem
   frieza; técnica sem escuridão; brasilidade no texto, sobriedade na forma.
-- **Metáfora estrutural:** *do ruído ao sinal*. Um único fio atravessa a página inteira:
-  nasce **emaranhado** no capítulo do problema, é **domado** nos serviços, se **ordena**
-  no processo, **entra na máquina** no CodeLab, **sai como resultado** nos cases e vira
-  **horizonte aceso** no contato. O scroll conta essa história sem precisar de texto.
+- **Metáfora estrutural:** *do ruído ao sinal*. Segmentos do mesmo fio reaparecem com
+  propósito: nascem **emaranhados** no problema, são **domados** nos serviços, se
+  **ordenam** no processo, **entram na máquina** no CodeLab, **saem como resultado** nos
+  cases e viram **horizonte aceso** no contato. Cada segmento começa e termina numa
+  borda ou elemento; não há uma costura artificial atravessando a página inteira.
 - **Tensão central:** superfície clara editorial × núcleos técnicos escuros. O escuro
   nunca domina — ele é visto *através* do papel, como janelas de inspeção numa máquina.
 
@@ -439,8 +440,9 @@ mais precisão**:
   `handoffScale: 1.12 → 1.05`, magnetic `strength: 0.28 → 0.12` (só CTAs do contato)
   — valores de partida; ajustar a olho.
 - Reveals de título continuam por linha (SplitText) — é assinatura boa.
-- **Gesto novo e único do redesign: o desenho do fio** (stroke-dashoffset por scroll,
-  Hero/Problema/Processo/Contato). Um gesto por seção no máximo (§3.11).
+- **Gesto novo e único do redesign: o desenho do fio** (stroke-dashoffset por scroll),
+  em segmentos confinados aos capítulos e progressivamente mais estáveis. Um gesto
+  por seção no máximo (§3.11).
 - `prefers-reduced-motion`: tudo estático e visível — sem pin, sem split, sem desenho
   de fio (fio renderiza completo), sem autoplay, sem ping.
 
@@ -455,8 +457,8 @@ palco full-width abaixo do texto (sem sobreposição); linhas de serviço viram
 `[1fr_7fr]` com painel-instrumento abaixo do texto (aspect 16:9); galeria horizontal
 ainda pinada; equipe em 2 col.
 
-**Mobile (360–767):** tudo em 1 col, fio vertical na margem esquerda como guia
-contínuo; galeria vira scroll-snap nativo (frames 4:3); processo vertical sem pin;
+**Mobile (360–767):** tudo em 1 col, segmentos do fio usam a margem ou faixas livres
+sem atravessar conteúdo; galeria vira scroll-snap nativo (frames 4:3); processo vertical sem pin;
 tipografia respeita mínimos (corpo 16px); alvos de toque ≥44px; **zero overflow
 horizontal em 360px** (medir de verdade; lembrar `min-w-0` em filhos de flex).
 
@@ -500,8 +502,8 @@ A implementação só está pronta quando **todos** passarem, verificados na tel
 8. Contraste AA: `ink-soft` sobre os 3 papéis ≥4.5:1; `paper-on-night-soft` sobre night ≥4.5:1.
 9. `prefers-reduced-motion`: página completa e estática, sem pin/split/loop/autoplay.
 10. `npm run build` limpo (TS + bundle); sem imports de `Mascot`/`Cursor` órfãos.
-11. O fio do sinal existe e conecta Hero → Problema → Processo → Contato (visível como
-    elemento contínuo da identidade, desenhado por scroll no desktop).
+11. O sinal reaparece do Hero ao Contato em segmentos deliberados, sem emendas visíveis,
+    quinas ou trechos soltos, e evolui do orgânico ao estável pelo scroll.
 12. Nenhum utilitário morto (`.aurora`, `.text-gradient`, `.live-dot`, `.console`,
     `.eyebrow`, `.grid-lines`) remanescente no CSS ou em componentes.
 

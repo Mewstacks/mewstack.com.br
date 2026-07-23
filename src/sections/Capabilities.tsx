@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import MediaFrame from "../components/MediaFrame";
+import { SignalScene } from "../components/SignalJourney";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
 import { useChapter } from "../lib/useChapter";
@@ -59,7 +60,6 @@ function Instrument({ type }: { type: Service["instrument"] }) {
         gsap.set(carets, { autoAlpha: 0 });
         if (chip) gsap.set(chip, { autoAlpha: 0 });
 
-        master.repeat(-1).repeatDelay(0.6);
         master.set(texts, { text: "" }, 0);
         master.set(carets, { autoAlpha: 0 }, 0);
         if (chip) master.set(chip, { autoAlpha: 0, y: 4 }, 0);
@@ -128,18 +128,14 @@ function Instrument({ type }: { type: Service["instrument"] }) {
         }
         if (pulse) {
           master.to(pulse, { autoAlpha: 0.9, duration: 0.4 });
-          master.add(
-            gsap
-              .timeline({ repeat: -1 })
-              .fromTo(
-                pulse,
-                { strokeDashoffset: 0 },
-                {
-                  strokeDashoffset: -91,
-                  duration: dial.pulseDuration,
-                  ease: "none",
-                },
-              ),
+          master.fromTo(
+            pulse,
+            { strokeDashoffset: 0 },
+            {
+              strokeDashoffset: -91,
+              duration: dial.pulseDuration,
+              ease: "power1.inOut",
+            },
           );
         }
       }
@@ -167,29 +163,14 @@ function Instrument({ type }: { type: Service["instrument"] }) {
           },
           "-=0.4",
         );
-
-        const breathe = gsap.timeline();
-        bars.forEach((bar, index) => {
-          breathe.to(
-            bar,
-            {
-              scaleY: 1 + dial.breatheAmp,
-              duration: dial.breatheDuration,
-              ease: "sine.inOut",
-              yoyo: true,
-              repeat: -1,
-            },
-            index * 0.3,
-          );
-        });
-        master.add(breathe);
       }
 
       ScrollTrigger.create({
         trigger: el,
         start: dial.start,
         end: dial.end,
-        onToggle: (self) => (self.isActive ? master.play() : master.pause()),
+        once: true,
+        onEnter: () => master.play(0),
       });
     },
     { scope: root },
@@ -328,7 +309,7 @@ function Instrument({ type }: { type: Service["instrument"] }) {
 
 export default function Capabilities() {
   const root = useRef<HTMLElement>(null);
-  useChapter(root);
+  useChapter(root, { enter: false, exit: false });
 
   return (
     <section
@@ -337,7 +318,8 @@ export default function Capabilities() {
       className="relative scroll-mt-24 overflow-clip bg-paper"
     >
       <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
-      <div className="relative mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
+      <SignalScene scene="services" />
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
             <span>02</span>
@@ -354,11 +336,15 @@ export default function Capabilities() {
           </div>
         </div>
 
-        <div className="mt-14 border-t border-line-strong">
+        <div
+          data-signal-anchor="services-signal"
+          className="mt-14 border-t border-line-strong"
+        >
           {SERVICES.map((service, index) => (
             <article
               key={service.title}
               data-reveal
+              data-signal-anchor={`service-${index + 1}`}
               className="group grid min-w-0 gap-7 border-b border-line py-8 transition-[border-color] duration-200 hover:border-signal md:grid-cols-[1fr_7fr] lg:grid-cols-[1fr_6fr_5fr] lg:items-center lg:gap-8 lg:py-10"
             >
               <span className="mono text-2xl text-ink-faint lg:self-start">

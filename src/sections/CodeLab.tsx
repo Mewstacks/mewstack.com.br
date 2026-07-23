@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Play, TerminalSquare } from "lucide-react";
 import MediaFrame from "../components/MediaFrame";
+import { SignalScene } from "../components/SignalJourney";
 import { reduceMotion } from "../lib/motion";
 import { useChapter } from "../lib/useChapter";
 
@@ -113,7 +114,7 @@ export default function CodeLab() {
   const [output, setOutput] = useState<string[]>([]);
   const theme = THEMES[themeIndex];
 
-  useChapter(root, { variant: "scaleHandoff" });
+  useChapter(root, { exit: false });
 
   const clearTimers = () => {
     timers.current.forEach(window.clearTimeout);
@@ -168,7 +169,9 @@ export default function CodeLab() {
       id="rode"
       className="relative scroll-mt-24 overflow-clip bg-night text-paper-on-night"
     >
-      <div className="relative mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
+      <SignalScene scene="machine" />
+
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index section-index-dark lg:col-span-3">
             <span>04</span>
@@ -193,7 +196,7 @@ export default function CodeLab() {
           </div>
         </div>
 
-        <div data-reveal data-handoff className="mt-12 will-change-transform">
+        <div data-reveal data-signal-anchor="machine-frame" className="mt-12">
           <MediaFrame
             ratio="auto"
             captionPosition="top"

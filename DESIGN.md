@@ -8,8 +8,9 @@ anteriores. Este arquivo registra apenas a leitura operacional:
 
 - **Papel:** superfícies claras tonais (`paper`, `paper-rose`, `paper-lilac`).
 - **Máquina:** viewports e os capítulos CodeLab/Contato em violeta-noite.
-- **Sinal:** linha rosa contínua, usada como energia e estado, nunca como grande
-  bloco de preenchimento.
+- **Sinal:** linha rosa que reaparece em segmentos intencionais, sempre ancorados a
+  uma borda ou elemento; nunca atravessa capítulos como decoração contínua nem vira
+  grande bloco de preenchimento.
 
 Não existe dark mode global. O fundo reativo acompanha o campo `tone` de
 `src/lib/chapters.ts`.

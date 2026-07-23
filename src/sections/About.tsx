@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import SignalLine from "../components/SignalLine";
 import { useChapter } from "../lib/useChapter";
 
 type Member = {
@@ -29,20 +28,20 @@ const TEAM: Member[] = [
     skills: ["Django", "React", "TypeScript", "UI"],
   },
   {
-    name: "Lorenzo Facchin",
-    role: "Comercial & Social Media",
-    photo: "/brand/team-sales.jpeg",
-    objectPosition: "50% 30%",
-    bio: "Faz a ponte entre problema, produto e conversa comercial sem transformar tecnologia em jargão.",
-    skills: ["Vendas B2B", "Conteúdo", "Relacionamento"],
-  },
-  {
     name: "Vinicius Alves Motta",
     role: "DevOps & Support Manager",
     photo: "/brand/team-devops.jpeg",
     objectPosition: "50% 30%",
     bio: "Mantém deploy, infraestrutura e suporte funcionando para o sistema continuar confiável depois da entrega.",
     skills: ["DevOps", "Docker", "Cloud", "Suporte"],
+  },
+  {
+    name: "Lorenzo Facchin",
+    role: "Comercial & Social Media",
+    photo: "/brand/team-sales.jpeg",
+    objectPosition: "50% 30%",
+    bio: "Faz a ponte entre problema, produto e conversa comercial sem transformar tecnologia em jargão.",
+    skills: ["Vendas B2B", "Conteúdo", "Relacionamento"],
   },
 ];
 
@@ -57,7 +56,7 @@ export default function About() {
       className="relative scroll-mt-24 overflow-clip border-y border-line bg-paper-rose"
     >
       <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
-      <div className="relative mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
             <span>06</span>
@@ -74,16 +73,7 @@ export default function About() {
           </div>
         </div>
 
-        <div aria-hidden className="pointer-events-none relative mt-12 h-20">
-          <SignalLine
-            draw="scroll"
-            viewBox="0 0 1200 80"
-            path="M-20 40 C160 28 300 52 480 40 S820 30 1000 44 S1140 40 1220 40"
-            className="absolute inset-0 h-full w-full"
-          />
-        </div>
-
-        <div className="mt-2 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
           {TEAM.map((member) => (
             <article key={member.name} data-reveal className="min-w-0">
               <div className="relative aspect-[4/5] overflow-hidden rounded-lg border border-line-strong bg-paper-lilac">

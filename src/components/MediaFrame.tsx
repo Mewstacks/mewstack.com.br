@@ -14,6 +14,7 @@ type MediaFrameProps = {
   captionPosition?: "top" | "bottom";
   src?: string;
   videoSrc?: string;
+  fit?: "cover" | "contain";
   standbyLabel?: string;
   title?: string;
   angle?: number;
@@ -113,6 +114,7 @@ export default function MediaFrame({
   captionPosition = "bottom",
   src,
   videoSrc,
+  fit = "cover",
   standbyLabel = "CAPTURA EM PRODUÇÃO — EM BREVE",
   title = "Sinal em construção",
   angle = 1,
@@ -129,7 +131,7 @@ export default function MediaFrame({
   ) : videoSrc ? (
     <video
       src={videoSrc}
-      className="h-full w-full object-cover"
+      className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
       muted
       loop
       playsInline
@@ -142,7 +144,7 @@ export default function MediaFrame({
     <img
       src={src}
       alt={title}
-      className="h-full w-full object-cover"
+      className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
       loading="lazy"
       decoding="async"
     />
