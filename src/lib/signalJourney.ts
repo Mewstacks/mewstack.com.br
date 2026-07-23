@@ -6,6 +6,7 @@ export type SignalAnchorId =
   | "machine-frame"
   | "outcome-progress"
   | "outcome-terminal"
+  | "about-signal"
   | "contact-horizon"
   | "contact-terminal";
 
@@ -16,6 +17,7 @@ export type SignalSceneId =
   | "process"
   | "machine"
   | "outcome"
+  | "about"
   | "contact";
 
 export type SignalSegmentSpec = {
@@ -83,6 +85,11 @@ export const SIGNAL_SEGMENT_SPECS: Record<SignalSceneId, SignalSegmentSpec> = {
     layoutBreakpoint: 768,
     triggerAnchor: "outcome-progress",
   },
+  about: {
+    anchors: ["about-signal"],
+    layoutBreakpoint: 1024,
+    triggerAnchor: "about-signal",
+  },
   contact: {
     anchors: ["contact-horizon", "contact-terminal"],
     layoutBreakpoint: 1024,
@@ -135,36 +142,65 @@ export function buildSignalSceneRoute(
     };
     const mediaY = media.y + media.height * (347 / 675);
     const mediaLeft = media.x;
-    const safeRail = compact ? left : Math.max(14, left - 38);
-    const wideLoopAmplitude = Math.min(
-      28,
-      Math.max(10, left - safeRail - 10),
-    );
+    const mediaRight = media.x + media.width;
+    // Laços grandes: a linha desce BEM desalinhada, com laços que se cruzam. Ela
+    // fica atrás do conteúdo (z-wire), então pode invadir a coluna de texto. O
+    // rail é empurrado pra direita o suficiente pra os laços não vazarem à esquerda.
+    const A = compact ? 30 : 82;
+    const rail = Math.max(compact ? left : Math.max(14, left - 38), A + 8);
+
+    // Um laço que se cruza, descendo, centrado em `cy` sobre o `rail`.
+    const loop = (cy: number, span: number) =>
+      [
+        `C${n(rail - A)} ${n(cy - span * 0.5)} ${n(rail - A)} ${n(cy + span * 0.18)} ${n(rail + A * 0.5)} ${n(cy)}`,
+        `C${n(rail + A * 1.25)} ${n(cy - span * 0.12)} ${n(rail + A * 1.2)} ${n(cy - span * 0.95)} ${n(rail + A * 0.15)} ${n(cy - span * 0.78)}`,
+        `C${n(rail - A * 0.65)} ${n(cy - span * 0.62)} ${n(rail - A * 0.4)} ${n(cy + span * 0.6)} ${n(rail)} ${n(cy + span * 0.82)}`,
+      ].join(" ");
+
+    const wave = (fromY: number, toY: number, swing: number) =>
+      `C${n(rail + A * swing)} ${n(fromY + (toY - fromY) * 0.4)} ${n(rail - A * swing)} ${n(fromY + (toY - fromY) * 0.7)} ${n(rail)} ${n(toY)}`;
+
+    const descent = compact
+      ? [
+          `M${n(rail)} ${-EDGE_BLEED}`,
+          wave(0, height * 0.12, 0.7),
+          loop(height * 0.19, 90),
+          wave(height * 0.22, mediaY - 200, 0.85),
+          loop(mediaY - 150, 90),
+          wave(mediaY - 118, mediaY - 44, 0.6),
+        ]
+      : [
+          `M${n(rail)} ${-EDGE_BLEED}`,
+          wave(0, height * 0.09, 0.7),
+          loop(height * 0.16, height * 0.055),
+          wave(height * 0.21, height * 0.27, 0.9),
+          loop(height * 0.34, height * 0.055),
+          wave(height * 0.39, height * 0.45, 0.9),
+          loop(height * 0.52, height * 0.05),
+          `C${n(rail + A * 0.4)} ${n(height * 0.6)} ${n(rail)} ${n(mediaY - 94)} ${n(rail)} ${n(mediaY - 64)}`,
+        ];
+
+    // Saída ondulada: sai do vídeo (borda direita) e serpenteia até a BORDA
+    // DIREITA do site. Subpath separado, desenhado por último (createHeroTimeline).
+    const eg = width + EDGE_BLEED - mediaRight;
+    const ea = compact ? 20 : 34;
+    const exit = [
+      `M${n(mediaRight)} ${n(mediaY)}`,
+      `C${n(mediaRight + eg * 0.16)} ${n(mediaY - ea)} ${n(mediaRight + eg * 0.32)} ${n(mediaY + ea)} ${n(mediaRight + eg * 0.46)} ${n(mediaY)}`,
+      `C${n(mediaRight + eg * 0.58)} ${n(mediaY - ea * 1.3)} ${n(mediaRight + eg * 0.74)} ${n(mediaY - ea * 1.25)} ${n(mediaRight + eg * 0.82)} ${n(mediaY - ea * 0.35)}`,
+      `C${n(mediaRight + eg * 0.9)} ${n(mediaY + ea * 0.5)} ${n(mediaRight + eg * 0.98)} ${n(mediaY)} ${n(width + EDGE_BLEED)} ${n(mediaY)}`,
+    ];
 
     return {
       viewBox,
-      path: compact
-        ? [
-            `M${safeRail} ${-EDGE_BLEED}`,
-            `C${safeRail - 4} ${n(height * 0.13)} ${safeRail + 4} ${n(height * 0.28)} ${safeRail + 1} ${n(mediaY - 190)}`,
-            `C${safeRail - 12} ${n(mediaY - 171)} ${safeRail - 10} ${n(mediaY - 140)} ${safeRail + 9} ${n(mediaY - 142)}`,
-            `C${safeRail + 34} ${n(mediaY - 145)} ${safeRail + 34} ${n(mediaY - 176)} ${safeRail + 10} ${n(mediaY - 173)}`,
-            `C${safeRail - 9} ${n(mediaY - 158)} ${safeRail - 8} ${n(mediaY - 119)} ${safeRail + 8} ${n(mediaY - 118)}`,
-            `C${safeRail + 32} ${n(mediaY - 116)} ${safeRail + 30} ${n(mediaY - 145)} ${safeRail + 10} ${n(mediaY - 139)}`,
-            `C${safeRail + 2} ${n(mediaY - 112)} ${safeRail} ${n(mediaY - 76)} ${safeRail} ${n(mediaY - 54)}`,
-            `C${safeRail} ${n(mediaY - 32)} ${n(mediaLeft - 12)} ${n(mediaY)} ${n(mediaLeft)} ${n(mediaY)}`,
-          ].join(" ")
-        : [
-            `M${n(safeRail)} ${-EDGE_BLEED}`,
-            `C${n(safeRail - wideLoopAmplitude)} ${n(height * 0.05)} ${n(safeRail + wideLoopAmplitude * 0.86)} ${n(height * 0.08)} ${n(safeRail + 2)} ${n(height * 0.14)}`,
-            `C${n(safeRail - wideLoopAmplitude * 1.07)} ${n(height * 0.18)} ${n(safeRail - wideLoopAmplitude * 1.14)} ${n(height * 0.25)} ${n(safeRail + 1)} ${n(height * 0.24)}`,
-            `C${n(safeRail + wideLoopAmplitude * 1.1)} ${n(height * 0.23)} ${n(safeRail + wideLoopAmplitude * 1.07)} ${n(height * 0.16)} ${n(safeRail + 2)} ${n(height * 0.17)}`,
-            `C${n(safeRail - wideLoopAmplitude * 0.96)} ${n(height * 0.24)} ${n(safeRail - wideLoopAmplitude * 1.04)} ${n(height * 0.33)} ${n(safeRail)} ${n(height * 0.32)}`,
-            `C${n(safeRail + wideLoopAmplitude)} ${n(height * 0.31)} ${n(safeRail + wideLoopAmplitude * 0.96)} ${n(height * 0.25)} ${n(safeRail + 1)} ${n(height * 0.27)}`,
-            `C${n(safeRail - wideLoopAmplitude * 0.79)} ${n(height * 0.35)} ${n(safeRail + wideLoopAmplitude * 0.71)} ${n(height * 0.41)} ${n(safeRail)} ${n(height * 0.47)}`,
-            `C${n(safeRail - wideLoopAmplitude * 0.54)} ${n(height * 0.52)} ${n(safeRail)} ${n(mediaY - 94)} ${n(safeRail)} ${n(mediaY - 70)}`,
-            `C${n(safeRail)} ${n(mediaY - 46)} ${n(mediaLeft - 58)} ${n(mediaY - 12)} ${n(mediaLeft)} ${n(mediaY)}`,
-          ].join(" "),
+      path: [
+        ...descent,
+        // Quarto de volta suave: sai da vertical (controle reto abaixo do rail) e
+        // chega horizontal na borda esquerda do vídeo, tangente à linha interna.
+        `C${n(rail)} ${n(mediaY - (compact ? 22 : 32))} ${n(rail)} ${n(mediaY)} ${n(rail + (mediaLeft - rail) * (compact ? 0.5 : 0.36))} ${n(mediaY)}`,
+        `C${n(rail + (mediaLeft - rail) * 0.72)} ${n(mediaY)} ${n(mediaLeft - (compact ? 10 : 44))} ${n(mediaY)} ${n(mediaLeft)} ${n(mediaY)}`,
+        ...exit,
+      ].join(" "),
     };
   }
 
@@ -199,14 +235,21 @@ export function buildSignalSceneRoute(
       height: 120,
     };
     const y = stage.y;
-    const reach = Math.min(stage.x + (compact ? 86 : 132), width * 0.34);
+    const reach = Math.min(stage.x + (compact ? 110 : 180), width * 0.42);
+    // Aparece na esquerda, desce um pouco ondulando (excursão pra direita e de
+    // volta) e sai de novo pela esquerda, mais abaixo. A descida faz o traço
+    // acompanhar o scroll (não fica horizontal parado).
+    const drop = compact ? 76 : 120;
+    const a = compact ? 12 : 18;
 
     return {
       viewBox,
       path: [
-        `M${-EDGE_BLEED} ${n(y - 30)}`,
-        `C${n(stage.x * 0.42)} ${n(y - 29)} ${n(reach - 24)} ${n(y)} ${n(reach)} ${n(y)}`,
-        `C${n(reach + 20)} ${n(y)} ${n(stage.x * 0.5)} ${n(y - 12)} ${-EDGE_BLEED} ${n(y - 14)}`,
+        `M${-EDGE_BLEED} ${n(y)}`,
+        `C${n(reach * 0.28)} ${n(y + a)} ${n(reach * 0.5)} ${n(y + drop * 0.28 - a)} ${n(reach * 0.62)} ${n(y + drop * 0.4)}`,
+        `C${n(reach * 0.8)} ${n(y + drop * 0.55 + a)} ${n(reach)} ${n(y + drop * 0.5)} ${n(reach)} ${n(y + drop * 0.62)}`,
+        `C${n(reach)} ${n(y + drop * 0.75)} ${n(reach * 0.7)} ${n(y + drop * 0.7 - a)} ${n(reach * 0.5)} ${n(y + drop * 0.82)}`,
+        `C${n(reach * 0.28)} ${n(y + drop * 0.94 + a)} ${n(reach * 0.14)} ${n(y + drop - a)} ${-EDGE_BLEED} ${n(y + drop)}`,
       ].join(" "),
     };
   }
@@ -218,41 +261,63 @@ export function buildSignalSceneRoute(
       width: compact ? width - 40 : right - left,
       height: height * 0.45,
     };
-    const targetX = frame.x + frame.width - (compact ? 7 : 10);
-    const targetY = frame.y + (compact ? 37 : 40);
+    // Entra pela esquerda, mergulha na faixa do frame e cruza horizontalmente
+    // POR TRÁS do card (overlay em z-wire < z-content: o editor sólido a esconde)
+    // e emerge no outro lado, chegando reta na BORDA DIREITA do site.
+    const frameRight = frame.x + frame.width;
+    const bandY = frame.y + (compact ? 42 : 54);
 
     return {
       viewBox,
       path: [
-        `M${n(width + EDGE_BLEED)} ${n(targetY - (compact ? 34 : 58))}`,
-        `C${n(width - (compact ? 8 : 44))} ${n(targetY - 30)} ${n(right + (compact ? 0 : 18))} ${n(targetY - 16)} ${n(right - (compact ? 4 : 12))} ${n(targetY - 7)}`,
-        `C${n(right - (compact ? 7 : 28))} ${n(targetY - 3)} ${n(targetX + 16)} ${n(targetY)} ${n(targetX)} ${n(targetY)}`,
+        `M${-EDGE_BLEED} ${n(bandY - (compact ? 34 : 52))}`,
+        `C${n(left * 0.5)} ${n(bandY - 30)} ${n(frame.x - (compact ? 4 : 18))} ${n(bandY - 12)} ${n(frame.x + (compact ? 6 : 12))} ${n(bandY)}`,
+        `C${n(frame.x + frame.width * 0.33)} ${n(bandY)} ${n(frame.x + frame.width * 0.66)} ${n(bandY)} ${n(frameRight - (compact ? 6 : 12))} ${n(bandY)}`,
+        `C${n(right + (compact ? 4 : 22))} ${n(bandY)} ${n(width - (compact ? 10 : 48))} ${n(bandY)} ${n(width + EDGE_BLEED)} ${n(bandY)}`,
       ].join(" "),
     };
   }
 
   if (scene === "outcome") {
+    // Já alinhada: aparece e atravessa a seção borda a borda, só levemente
+    // ondulada, na altura da linha de progresso.
     const progress = anchors["outcome-progress"] ?? {
       x: left,
       y: height * 0.34,
       width: right - left,
       height: 20,
     };
-    const terminal = anchors["outcome-terminal"] ?? {
-      x: progress.x + (compact ? 42 : 58),
-      y: progress.y,
-      width: progress.width - (compact ? 84 : 116),
-      height: progress.height,
-    };
-    const targetX = terminal.x;
-    const targetY = centerY(terminal);
+    const y = centerY(progress);
+    const a = compact ? 8 : 12;
 
     return {
       viewBox,
       path: [
-        `M${-EDGE_BLEED} ${n(targetY + (compact ? 25 : 34))}`,
-        `C${n(targetX * 0.34)} ${n(targetY + (compact ? 24 : 33))} ${n(targetX * 0.58)} ${n(targetY + 17)} ${n(targetX - 22)} ${n(targetY + 8)}`,
-        `C${n(targetX - 12)} ${n(targetY + 4)} ${n(targetX - 7)} ${n(targetY)} ${n(targetX)} ${n(targetY)}`,
+        `M${-EDGE_BLEED} ${n(y)}`,
+        `C${n(width * 0.2)} ${n(y - a)} ${n(width * 0.32)} ${n(y + a)} ${n(width * 0.5)} ${n(y)}`,
+        `C${n(width * 0.68)} ${n(y - a)} ${n(width * 0.8)} ${n(y + a)} ${n(width + EDGE_BLEED)} ${n(y)}`,
+      ].join(" "),
+    };
+  }
+
+  if (scene === "about") {
+    // Passa POR CIMA da equipe (overlay acima do conteúdo), logo ACIMA das fotos
+    // (não no meio), só bem levemente ondulada.
+    const stage = anchors["about-signal"] ?? {
+      x: left,
+      y: height * 0.5,
+      width: right - left,
+      height: 200,
+    };
+    const y = stage.y - (compact ? 8 : 12);
+    const a = compact ? 6 : 9;
+
+    return {
+      viewBox,
+      path: [
+        `M${-EDGE_BLEED} ${n(y)}`,
+        `C${n(width * 0.22)} ${n(y - a)} ${n(width * 0.34)} ${n(y + a)} ${n(width * 0.5)} ${n(y)}`,
+        `C${n(width * 0.66)} ${n(y - a)} ${n(width * 0.78)} ${n(y + a)} ${n(width + EDGE_BLEED)} ${n(y)}`,
       ].join(" "),
     };
   }
@@ -272,12 +337,12 @@ export function buildSignalSceneRoute(
   const horizonY = horizon.y;
   const targetX = terminal.x + terminal.width + (compact ? 12 : 16);
 
+  // Chega reta no footer: horizontal limpa da borda direita até o logo.
   return {
     viewBox,
     path: [
-      `M${n(width + EDGE_BLEED)} ${n(horizonY - (compact ? 22 : 30))}`,
-      `C${n(width - (compact ? 20 : 54))} ${n(horizonY - 22)} ${n(right + (compact ? 0 : 20))} ${n(horizonY - 5)} ${n(right - (compact ? 7 : 12))} ${n(horizonY)}`,
-      `C${n(right - (compact ? 46 : 110))} ${n(horizonY)} ${n(targetX + (compact ? 70 : 210))} ${n(horizonY)} ${n(targetX)} ${n(horizonY)}`,
+      `M${n(width + EDGE_BLEED)} ${n(horizonY)}`,
+      `L${n(targetX)} ${n(horizonY)}`,
     ].join(" "),
   };
 }

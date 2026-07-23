@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { SignalScene } from "../components/SignalJourney";
 import { useChapter } from "../lib/useChapter";
 
 type Member = {
@@ -56,6 +57,7 @@ export default function About() {
       className="relative scroll-mt-24 overflow-clip border-y border-line bg-paper-rose"
     >
       <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
+      <SignalScene scene="about" above />
       <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
@@ -73,7 +75,10 @@ export default function About() {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
+        <div
+          data-signal-anchor="about-signal"
+          className="mt-12 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4"
+        >
           {TEAM.map((member) => (
             <article key={member.name} data-reveal className="min-w-0">
               <div className="relative aspect-[4/5] overflow-hidden rounded-lg border border-line-strong bg-paper-lilac">

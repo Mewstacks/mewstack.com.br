@@ -30,17 +30,23 @@ export const MOTION = {
     dotTravelX: 14,
     flowSpacing: 430,
     flowOpacity: 0.48,
-    handoffAt: 0.48,
-    veilSpan: 0.16,
-    guideSpan: 0.3,
-    guideFadeAt: 0.76,
-    guideFadeSpan: 0.12,
-    lineSpan: 0.38,
-    dotWindow: 0.28,
-    dotSpan: 0.12,
-    dotFadeSpan: 0.06,
-    flowAt: 0.88,
-    flowSpan: 0.12,
+    // Descida ocupa a primeira metade do pin (lenta, dá pra ver o traço todo);
+    // conexão/vídeo no meio; a SAÍDA pela borda direita só no fim (exitAt), bem
+    // depois de a linha chegar/atravessar o vídeo.
+    handoffAt: 0.5,
+    veilSpan: 0.14,
+    guideSpan: 0.24,
+    guideFadeAt: 0.82,
+    guideFadeSpan: 0.1,
+    lineSpan: 0.3,
+    dotWindow: 0.22,
+    dotSpan: 0.1,
+    dotFadeSpan: 0.05,
+    flowAt: 0.9,
+    flowSpan: 0.1,
+    // Saída do conector: do vídeo até a borda direita do site, no fim do pin.
+    exitAt: 0.9,
+    exitSpan: 0.1,
     seekThreshold: 1 / 30,
   },
   wipeDuration: 0.8,
@@ -65,32 +71,43 @@ export const MOTION = {
 
   signal: {
     hero: {
-      start: "top top",
-      end: "bottom top",
+      // Trigger é o próprio vídeo: fixa quando ele está enquadrado no centro da
+      // tela, para dar pra ver o vídeo completo enquanto a linha desce, conecta
+      // e sai pela borda oposta. Pin longo = desenho lento, a tela não atropela.
+      start: "center center",
+      end: "+=240%",
       initialDraw: 0.012,
     },
+    // Janela travada ao TOPO da âncora (que fica na altura da linha): o desenho
+    // acontece enquanto a linha atravessa a viewport (de ~85% a ~15% da altura),
+    // então dá pra ver o surgimento e o traço completo sem a tela atropelar.
     problem: {
-      start: "top 78%",
-      end: "bottom 42%",
+      start: "top 85%",
+      end: "top 15%",
       initialDraw: 0,
     },
     services: {
-      start: "top 82%",
-      end: "top 52%",
+      start: "top 85%",
+      end: "top 15%",
       initialDraw: 0,
     },
     machine: {
-      start: "top 82%",
-      end: "top 48%",
+      start: "top 85%",
+      end: "top 15%",
       initialDraw: 0,
     },
     outcome: {
-      start: "top 84%",
-      end: "top 55%",
+      start: "top 90%",
+      end: "top 45%",
+      initialDraw: 0,
+    },
+    about: {
+      start: "top 85%",
+      end: "top 15%",
       initialDraw: 0,
     },
     contact: {
-      start: "top 97%",
+      start: "top 90%",
       end: "bottom bottom",
       initialDraw: 0,
     },
