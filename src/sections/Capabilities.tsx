@@ -318,8 +318,9 @@ export default function Capabilities() {
       className="relative scroll-mt-24 overflow-clip bg-paper"
     >
       <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
-      <SignalScene scene="services" />
-      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
+      {/* z: intro (25) > linha (20) > cards/exemplos (10) */}
+      <SignalScene scene="services" above />
+      <div className="relative z-[25] mx-auto max-w-[1200px] px-5 pt-20 sm:px-8 lg:pt-28">
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
             <span>02</span>
@@ -335,7 +336,9 @@ export default function Capabilities() {
             </p>
           </div>
         </div>
+      </div>
 
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 pb-20 sm:px-8 lg:pb-28">
         <div
           data-signal-anchor="services-signal"
           className="mt-14 border-t border-line-strong"

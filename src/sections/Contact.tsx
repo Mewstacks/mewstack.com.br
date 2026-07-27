@@ -107,12 +107,32 @@ export default function Contact() {
         data-signal-anchor="contact-horizon"
         className="relative z-[var(--z-content)] border-t border-night-line"
       >
+        {/*
+          Ponto final ancorado na hairline (top: 0), não no logo — em desktop
+          o `items-center` desloca o terminal e o ponto ficava torto.
+        */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 z-[1]"
+        >
+          <div className="mx-auto grid max-w-[1200px] px-5 sm:px-8 lg:grid-cols-[auto_1fr_auto]">
+            <div className="relative w-fit">
+              <Logo
+                variant="horizontalDark"
+                alt=""
+                className="invisible h-8 w-auto"
+              />
+              {/*
+                absolute top:0 = padding edge (abaixo da border-t de 1px).
+                -0.5px centra no meio da hairline (= horizonY do path).
+              */}
+              <span className="absolute left-full top-[-0.5px] ml-2.5 size-1.5 -translate-y-1/2 rounded-full bg-signal" />
+            </div>
+          </div>
+        </div>
+
         <div className="mx-auto grid max-w-[1200px] gap-8 px-5 py-8 text-paper-on-night-soft sm:px-8 lg:grid-cols-[auto_1fr_auto] lg:items-center">
           <div data-signal-anchor="contact-terminal" className="relative w-fit">
-            <span
-              aria-hidden
-              className="absolute -top-[35px] -right-4 h-1.5 w-1.5 rounded-full bg-signal"
-            />
             <Logo
               variant="horizontalDark"
               alt="MewStack"
