@@ -31,7 +31,7 @@ const TEAM: Member[] = [
   {
     name: "Vinicius Alves Motta",
     role: "DevOps & Support Manager",
-    photo: "/brand/team-devops.jpeg",
+    photo: "/brand/team-devops-v2.jpeg",
     objectPosition: "55% 28%",
     bio: "Mantém deploy, infraestrutura e suporte funcionando para o sistema continuar confiável depois da entrega.",
     skills: ["DevOps", "Docker", "Cloud", "Suporte"],
