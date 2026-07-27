@@ -1,26 +1,40 @@
 import { useEffect, useRef } from "react";
 import { MOTION, reduceMotion } from "../lib/motion";
+import { HERO_SIGNAL_MEDIA } from "../lib/signalJourney";
 
-const FINAL_PATH =
-  "M-40 347 C160 347 270 317 430 325 C590 333 700 371 850 354 C995 337 1085 334 1240 344";
+const { viewWidth, viewHeight, yLeft, yRight } = HERO_SIGNAL_MEDIA;
+
+/**
+ * Inner stroke across the media plate.
+ * Entry/exit Y are locked to HERO_SIGNAL_MEDIA so outer join/exit stay flush.
+ * Mid-path dips gently (~5–6°) so scroll progress reads as vertical motion —
+ * never a long flat lateral crawl (keep flat runs ≤ ~25% of viewWidth).
+ */
+const FINAL_PATH = [
+  `M0 ${yLeft}`,
+  `C130 ${yLeft} 210 356 300 370`,
+  "C400 386 500 408 620 412",
+  "C740 416 840 386 960 358",
+  `C1060 346 1140 ${yRight} 1200 ${yRight}`,
+].join(" ");
 
 const GUIDE_PATHS = [
-  "M-60 246 C180 246 340 270 520 292 C730 318 930 326 1260 326",
-  "M-60 450 C180 450 340 421 520 395 C730 368 930 360 1260 360",
+  "M-60 246 C180 246 340 278 520 318 C730 352 930 360 1260 348",
+  "M-60 450 C180 450 340 430 520 410 C730 398 930 372 1260 350",
 ] as const;
 
 const COLLECTOR_DOTS = [
-  { x: 105, y: 345, targetY: 346, radius: 2.4 },
-  { x: 195, y: 292, targetY: 341, radius: 2.1 },
-  { x: 290, y: 410, targetY: 332, radius: 2.8 },
-  { x: 390, y: 280, targetY: 324, radius: 2.2 },
-  { x: 500, y: 400, targetY: 330, radius: 2.5 },
-  { x: 615, y: 305, targetY: 344, radius: 2.1 },
-  { x: 720, y: 415, targetY: 360, radius: 2.9 },
-  { x: 835, y: 300, targetY: 356, radius: 2.2 },
-  { x: 945, y: 395, targetY: 347, radius: 2.6 },
-  { x: 1060, y: 315, targetY: 339, radius: 2.1 },
-  { x: 1150, y: 380, targetY: 342, radius: 2.5 },
+  { x: 105, y: 345, targetY: 352, radius: 2.4 },
+  { x: 195, y: 292, targetY: 360, radius: 2.1 },
+  { x: 290, y: 410, targetY: 368, radius: 2.8 },
+  { x: 390, y: 280, targetY: 384, radius: 2.2 },
+  { x: 500, y: 400, targetY: 402, radius: 2.5 },
+  { x: 615, y: 305, targetY: 412, radius: 2.1 },
+  { x: 720, y: 415, targetY: 410, radius: 2.9 },
+  { x: 835, y: 300, targetY: 386, radius: 2.2 },
+  { x: 945, y: 395, targetY: 360, radius: 2.6 },
+  { x: 1060, y: 315, targetY: 346, radius: 2.1 },
+  { x: 1150, y: 380, targetY: 344, radius: 2.5 },
 ] as const;
 
 /**
@@ -84,7 +98,7 @@ export default function HeroSignalMedia() {
 
       <svg
         aria-hidden
-        viewBox="0 0 1200 675"
+        viewBox={`0 0 ${viewWidth} ${viewHeight}`}
         preserveAspectRatio="none"
         className="pointer-events-none absolute inset-0 h-full w-full"
       >
@@ -92,8 +106,8 @@ export default function HeroSignalMedia() {
           data-hero-signal-veil
           x="0"
           y="0"
-          width="1200"
-          height="675"
+          width={viewWidth}
+          height={viewHeight}
           fill="var(--color-night)"
           opacity={reduce ? MOTION.heroSignal.veilOpacity : 0}
         />

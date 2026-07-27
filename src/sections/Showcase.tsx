@@ -55,9 +55,10 @@ export default function Showcase() {
       className="relative scroll-mt-24 overflow-hidden bg-paper py-20 md:flex md:h-screen md:flex-col md:justify-center md:pt-10 md:pb-0"
     >
       <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
-      <SignalScene scene="outcome" />
+      {/* z: texto (25) > linha (20) > cards (10) */}
+      <SignalScene scene="outcome" above />
 
-      <div className="relative z-[var(--z-content)] mx-auto w-full max-w-[1200px] px-5 sm:px-8">
+      <div className="relative z-[25] mx-auto w-full max-w-[1200px] px-5 sm:px-8">
         <div className="grid gap-6 lg:grid-cols-12">
           <p data-reveal className="section-index lg:col-span-3">
             <span>05</span>

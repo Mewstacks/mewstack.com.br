@@ -30,23 +30,27 @@ export const MOTION = {
     dotTravelX: 14,
     flowSpacing: 430,
     flowOpacity: 0.48,
-    // Descida ocupa a primeira metade do pin (lenta, dá pra ver o traço todo);
-    // conexão/vídeo no meio; a SAÍDA pela borda direita só no fim (exitAt), bem
-    // depois de a linha chegar/atravessar o vídeo.
-    handoffAt: 0.5,
-    veilSpan: 0.14,
-    guideSpan: 0.24,
-    guideFadeAt: 0.82,
+    // Pin: join completa → só então a linha interna. Sem a interna “sair sozinha”.
+    handoffAt: 0.38,
+    veilSpan: 0.12,
+    guideSpan: 0.2,
+    guideFadeAt: 0.62,
     guideFadeSpan: 0.1,
-    lineSpan: 0.3,
+    lineSpan: 0.32,
+    // Plug-in na borda do vídeo (path de join separado).
+    joinAt: 0,
+    joinSpan: 0.22,
+    // Travessia começa depois do join fechar (evita gap no frame).
+    innerAt: 0.2,
+    innerSpan: 0.36,
     dotWindow: 0.22,
     dotSpan: 0.1,
     dotFadeSpan: 0.05,
-    flowAt: 0.9,
-    flowSpan: 0.1,
-    // Saída do conector: do vídeo até a borda direita do site, no fim do pin.
-    exitAt: 0.9,
-    exitSpan: 0.1,
+    flowAt: 0.72,
+    flowSpan: 0.2,
+    // Saída logo após a travessia interna.
+    exitAt: 0.55,
+    exitSpan: 0.34,
     seekThreshold: 1 / 30,
   },
   wipeDuration: 0.8,
@@ -71,12 +75,12 @@ export const MOTION = {
 
   signal: {
     hero: {
-      // Trigger é o próprio vídeo: fixa quando ele está enquadrado no centro da
-      // tela, para dar pra ver o vídeo completo enquanto a linha desce, conecta
-      // e sai pela borda oposta. Pin longo = desenho lento, a tela não atropela.
+      // Vídeo no centro: join + travessia + saída num pin enxuto.
       start: "center center",
-      end: "+=240%",
+      end: "+=120%",
       initialDraw: 0.012,
+      // Lag leve no scrub: suaviza tip-lag sem “segurar” o pin.
+      scrub: 0.85,
     },
     // Janela travada ao TOPO da âncora (que fica na altura da linha): o desenho
     // acontece enquanto a linha atravessa a viewport (de ~85% a ~15% da altura),
@@ -86,19 +90,21 @@ export const MOTION = {
       end: "top 15%",
       initialDraw: 0,
     },
+    // Trilho vertical: o desenho precisa TERMINAR com a saída ainda na
+    // viewport. `bottom 12%` completava o traço com endY já fora da tela.
     services: {
-      start: "top 85%",
-      end: "top 15%",
+      start: "top 78%",
+      end: "bottom 68%",
       initialDraw: 0,
     },
     machine: {
-      start: "top 85%",
-      end: "top 15%",
+      start: "top 80%",
+      end: "top 20%",
       initialDraw: 0,
     },
     outcome: {
       start: "top 90%",
-      end: "top 45%",
+      end: "top 40%",
       initialDraw: 0,
     },
     about: {
@@ -107,8 +113,11 @@ export const MOTION = {
       initialDraw: 0,
     },
     contact: {
-      start: "top 90%",
-      end: "bottom bottom",
+      // Footer no fim da página: a hairline só sobe até ~88–90vh. Janela
+      // larga (entra abaixo da viewport → pousa no rodapé) pra não estalar,
+      // e ainda completar antes do limite do Lenis.
+      start: "top 135%",
+      end: "top 92%",
       initialDraw: 0,
     },
   },

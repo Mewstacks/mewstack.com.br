@@ -16,12 +16,22 @@ import {
 type LocalSignalScene = Exclude<SignalSceneId, "process">;
 
 const sameRoute = (current: BuiltSignalRoute | null, next: BuiltSignalRoute) =>
-  current?.path === next.path && current.viewBox === next.viewBox ? current : next;
+  current?.path === next.path &&
+  current.joinPath === next.joinPath &&
+  current.exitPath === next.exitPath &&
+  current.viewBox === next.viewBox
+    ? current
+    : next;
 
 const numberData = (element: HTMLElement | SVGElement, key: string) =>
   Number.parseFloat(element.getAttribute(key) ?? "0");
 
-function setupStaticHero(section: HTMLElement, outerPath: SVGPathElement) {
+function setupStaticHero(
+  section: HTMLElement,
+  outerPath: SVGPathElement,
+  joinPath: SVGPathElement | null,
+  exitPath: SVGPathElement,
+) {
   const veil = section.querySelector<SVGRectElement>("[data-hero-signal-veil]");
   const guides = gsap.utils.toArray<SVGPathElement>(
     "[data-hero-signal-guide]",
@@ -35,6 +45,10 @@ function setupStaticHero(section: HTMLElement, outerPath: SVGPathElement) {
   const flow = section.querySelector<SVGPathElement>("[data-hero-signal-flow]");
 
   gsap.set(outerPath, { strokeDasharray: "none", strokeDashoffset: 0, opacity: 1 });
+  if (joinPath) {
+    gsap.set(joinPath, { strokeDasharray: "none", strokeDashoffset: 0, opacity: 1 });
+  }
+  gsap.set(exitPath, { strokeDasharray: "none", strokeDashoffset: 0, opacity: 1 });
   if (veil) gsap.set(veil, { opacity: MOTION.heroSignal.veilOpacity });
   gsap.set(guides, { opacity: 0 });
   gsap.set(dots, { opacity: 0 });
@@ -49,7 +63,12 @@ function setupStaticHero(section: HTMLElement, outerPath: SVGPathElement) {
   }
 }
 
-function createHeroTimeline(section: HTMLElement, outerPath: SVGPathElement) {
+function createHeroTimeline(
+  section: HTMLElement,
+  outerPath: SVGPathElement,
+  joinPath: SVGPathElement | null,
+  exitPath: SVGPathElement,
+) {
   const video = section.querySelector<HTMLVideoElement>("[data-hero-signal-video]");
   const veil = section.querySelector<SVGRectElement>("[data-hero-signal-veil]");
   const guides = gsap.utils.toArray<SVGPathElement>(
@@ -68,22 +87,27 @@ function createHeroTimeline(section: HTMLElement, outerPath: SVGPathElement) {
   const mediaEl =
     section.querySelector<HTMLElement>('[data-signal-anchor="hero-media"]') ??
     section;
-  // Fração do path onde começa o subpath de saída (borda direita do vídeo → borda
-  // direita do site). O outer é desenhado em duas etapas: descida até o vídeo e,
-  // no fim, a saída — para a linha "sair do vídeo e encontrar a outra borda".
-  const secBox = section.getBoundingClientRect();
-  const mediaRightX = mediaEl.getBoundingClientRect().right - secBox.left;
-  const { length: outerLength, fractions: outerFractions } = measurePath(
-    outerPath,
-    [mediaRightX],
-  );
-  const exitLength = outerLength * (1 - (outerFractions[0] ?? 1));
+  const outerLength = measurePath(outerPath).length;
+  const joinLength = joinPath ? measurePath(joinPath).length : 0;
+  const exitLength = measurePath(exitPath).length;
   const innerLength = measurePath(innerLine).length;
   video.pause();
 
   gsap.set(outerPath, {
     strokeDasharray: outerLength,
     strokeDashoffset: outerLength * (1 - MOTION.signal.hero.initialDraw),
+    opacity: 1,
+  });
+  if (joinPath) {
+    gsap.set(joinPath, {
+      strokeDasharray: joinLength,
+      strokeDashoffset: joinLength,
+      opacity: 1,
+    });
+  }
+  gsap.set(exitPath, {
+    strokeDasharray: exitLength,
+    strokeDashoffset: exitLength,
     opacity: 1,
   });
   gsap.set(veil, { opacity: 0 });
@@ -128,10 +152,10 @@ function createHeroTimeline(section: HTMLElement, outerPath: SVGPathElement) {
     if (!seekFrame) seekFrame = window.requestAnimationFrame(applySeek);
   };
 
-  // FASE 1 — a descida desenha junto com o scroll natural (SEM pin), enquanto o
-  // vídeo sobe até o centro da tela. A linha "vem descendo" desde o topo e a tela
-  // não atropela o início. Desenha o outer só até a conexão (a saída fica
-  // escondida em exitLength).
+  const heroScrub = MOTION.signal.hero.scrub;
+
+  // FASE 1 — descida com loops (SEM pin), até o gutter ao lado do vídeo.
+  // O join fica em path próprio e só desenha no pin.
   const descentTl = gsap.timeline({
     defaults: { ease: "none" },
     scrollTrigger: {
@@ -139,19 +163,18 @@ function createHeroTimeline(section: HTMLElement, outerPath: SVGPathElement) {
       trigger: mediaEl,
       start: "top 75%",
       end: "center center",
-      scrub: true,
+      scrub: heroScrub,
       invalidateOnRefresh: true,
     },
   });
   descentTl.fromTo(
     outerPath,
     { strokeDashoffset: outerLength },
-    { strokeDashoffset: exitLength, duration: 1 },
+    { strokeDashoffset: 0, duration: 1 },
     0,
   );
 
-  // FASE 2 — pin: segura a tela com o vídeo enquadrado e toca a conexão, a
-  // travessia interna do vídeo e, SÓ NO FIM, a saída pela borda direita.
+  // FASE 2 — pin: join fluido → travessia interna → saída. Sem travar o frame.
   const timeline = gsap.timeline({
     defaults: { ease: "none" },
     scrollTrigger: {
@@ -159,7 +182,7 @@ function createHeroTimeline(section: HTMLElement, outerPath: SVGPathElement) {
       trigger: mediaEl,
       start: "center center",
       end: MOTION.signal.hero.end,
-      scrub: true,
+      scrub: heroScrub,
       pin: section,
       pinSpacing: true,
       refreshPriority: 20,
@@ -169,22 +192,32 @@ function createHeroTimeline(section: HTMLElement, outerPath: SVGPathElement) {
   });
 
   timeline
-    .to(veil, { opacity: dial.veilOpacity, duration: 0.24 }, 0)
-    .to(guides, { strokeDashoffset: 0, duration: 0.42 }, 0.04)
-    // Linha interna atravessa o vídeo cedo (termina ~0.58).
-    .to(innerLine, { strokeDashoffset: 0, duration: 0.5 }, 0.08)
-    .to(guides, { opacity: 0, duration: 0.18 }, 0.6)
-    // SAÍDA pela borda direita só depois da travessia interna terminar — nunca
-    // antes de a linha chegar/atravessar o vídeo.
-    .to(outerPath, { strokeDashoffset: 0, duration: 0.24 }, 0.74)
+    .to(veil, { opacity: dial.veilOpacity, duration: dial.veilSpan }, 0)
+    .to(guides, { strokeDashoffset: 0, duration: dial.guideSpan }, 0.02);
+  if (joinPath) {
+    timeline.to(
+      joinPath,
+      { strokeDashoffset: 0, duration: dial.joinSpan },
+      dial.joinAt,
+    );
+  }
+  timeline
+    // Travessia SÓ depois do join fechar — senão a linha do vídeo “sai sozinha”.
+    .to(innerLine, { strokeDashoffset: 0, duration: dial.innerSpan }, dial.innerAt)
+    .to(guides, { opacity: 0, duration: dial.guideFadeSpan }, dial.guideFadeAt)
+    .to(
+      exitPath,
+      { strokeDashoffset: 0, duration: dial.exitSpan },
+      dial.exitAt,
+    )
     .to(
       flow,
       {
         opacity: dial.flowOpacity,
         strokeDashoffset: -(dial.flowSpacing + 1),
-        duration: 0.26,
+        duration: dial.flowSpan,
       },
-      0.72,
+      dial.flowAt,
     );
 
   dots.forEach((dot) => {
@@ -240,6 +273,8 @@ export function SignalScene({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const line = useRef<SVGPathElement>(null);
+  const heroJoin = useRef<SVGPathElement>(null);
+  const heroExit = useRef<SVGPathElement>(null);
   const [route, setRoute] = useState<BuiltSignalRoute | null>(null);
 
   useLayoutEffect(() => {
@@ -250,6 +285,8 @@ export function SignalScene({
     const spec = SIGNAL_SEGMENT_SPECS[scene];
     let frame = 0;
     const measure = () => {
+      // Overlay is absolute inset-0 on the section, so section offset size matches
+      // the SVG viewBox. Anchors are measured with offset* (ignores transforms).
       if (!section.offsetWidth || !section.offsetHeight) return;
       const anchors: SignalRouteAnchors = {};
 
@@ -285,9 +322,12 @@ export function SignalScene({
     window.addEventListener("resize", scheduleMeasure);
     ScrollTrigger.addEventListener("refresh", scheduleMeasure);
     void document.fonts.ready.then(scheduleMeasure);
+    // Remeasure after hero entrance settles (GSAP from-y must not stay in path).
+    const settle = window.setTimeout(scheduleMeasure, 1200);
 
     return () => {
       window.cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
       observer.disconnect();
       window.removeEventListener("resize", scheduleMeasure);
       ScrollTrigger.removeEventListener("refresh", scheduleMeasure);
@@ -308,8 +348,14 @@ export function SignalScene({
       if (!overlay || !section || !path || !route) return;
 
       if (reduceMotion()) {
-        if (scene === "hero") setupStaticHero(section, path);
-        else {
+        if (scene === "hero" && heroExit.current) {
+          setupStaticHero(
+            section,
+            path,
+            heroJoin.current,
+            heroExit.current,
+          );
+        } else {
           gsap.set(path, {
             strokeDasharray: "none",
             strokeDashoffset: 0,
@@ -319,7 +365,14 @@ export function SignalScene({
         return;
       }
 
-      if (scene === "hero") return createHeroTimeline(section, path);
+      if (scene === "hero" && heroExit.current) {
+        return createHeroTimeline(
+          section,
+          path,
+          heroJoin.current,
+          heroExit.current,
+        );
+      }
 
       const spec = SIGNAL_SEGMENT_SPECS[scene];
       const trigger = spec.triggerAnchor
@@ -343,7 +396,8 @@ export function SignalScene({
           trigger,
           start: config.start,
           end: config.end,
-          scrub: true,
+          // Contato: lag leve pra o traço “chegar” sem estalo no fim da página.
+          scrub: scene === "contact" ? 1.15 : true,
           invalidateOnRefresh: true,
         },
       });
@@ -357,7 +411,7 @@ export function SignalScene({
     },
     {
       scope: root,
-      dependencies: [route?.path, scene],
+      dependencies: [route?.path, route?.joinPath, route?.exitPath, scene],
       revertOnUpdate: true,
     },
   );
@@ -372,16 +426,36 @@ export function SignalScene({
       }`}
     >
       {route && (
-        <SignalLine
-          ref={line}
-          path={route.path}
-          viewBox={route.viewBox}
-          // opacity 0 por atributo: esconde a linha até o GSAP assumir o desenho
-          // (e durante reverts do ScrollTrigger). Sem isso, o path aparece 100%
-          // desenhado por um frame — a "saída" surgia antes da linha chegar.
-          pathProps={{ "data-signal-route": scene, opacity: 0 }}
-          className="absolute inset-0 h-full w-full"
-        />
+        <>
+          <SignalLine
+            ref={line}
+            path={route.path}
+            viewBox={route.viewBox}
+            // opacity 0 por atributo: esconde a linha até o GSAP assumir o desenho
+            // (e durante reverts do ScrollTrigger). Sem isso, o path aparece 100%
+            // desenhado por um frame — a "saída" surgia antes da linha chegar.
+            pathProps={{ "data-signal-route": scene, opacity: 0 }}
+            className="absolute inset-0 h-full w-full"
+          />
+          {scene === "hero" && route.joinPath && (
+            <SignalLine
+              ref={heroJoin}
+              path={route.joinPath}
+              viewBox={route.viewBox}
+              pathProps={{ "data-hero-signal-join": true, opacity: 0 }}
+              className="absolute inset-0 h-full w-full"
+            />
+          )}
+          {scene === "hero" && route.exitPath && (
+            <SignalLine
+              ref={heroExit}
+              path={route.exitPath}
+              viewBox={route.viewBox}
+              pathProps={{ "data-hero-signal-exit": true, opacity: 0 }}
+              className="absolute inset-0 h-full w-full"
+            />
+          )}
+        </>
       )}
     </div>
   );
