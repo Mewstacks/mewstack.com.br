@@ -128,15 +128,15 @@ export default function Process() {
         gsap.set(labels, { color: "var(--color-ink-faint)" });
         gsap.set(steps, { y: 24, opacity: 0.28 });
 
+        // Sem pin: o trilho desenha enquanto a seção rola naturalmente.
+        // Trigger no track (quando existe) pra a curva inteira ficar na viewport.
+        const processTrigger = track.current ?? section;
         const timeline = gsap.timeline({
           scrollTrigger: {
-            trigger: section,
-            start: "top 12%",
+            trigger: processTrigger,
+            start: MOTION.process.start,
             end: MOTION.process.end,
             scrub: MOTION.process.scrub,
-            pin: true,
-            pinSpacing: true,
-            refreshPriority: 10,
             invalidateOnRefresh: true,
           },
         });
@@ -169,16 +169,7 @@ export default function Process() {
         });
         timeline.to({}, { duration: MOTION.process.settle }, drawDuration);
 
-        // The process pin contributes spacing before the downstream Cases pin.
-        // Sort and refresh only after this trigger exists so every later start
-        // includes the spacer introduced here.
-        const refreshFrame = window.requestAnimationFrame(() => {
-          ScrollTrigger.sort();
-          ScrollTrigger.refresh();
-        });
-
         return () => {
-          window.cancelAnimationFrame(refreshFrame);
           timeline.scrollTrigger?.kill();
           timeline.kill();
         };

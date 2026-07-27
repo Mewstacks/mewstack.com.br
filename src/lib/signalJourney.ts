@@ -44,7 +44,7 @@ export type SignalRouteAnchors = Partial<Record<SignalAnchorId, SignalRect>>;
 export type BuiltSignalRoute = {
   path: string;
   viewBox: string;
-  /** Hero only: quarter-turn into the media left edge (drawn during pin). */
+  /** Hero only: quarter-turn into the media left edge (scrubbed after descent). */
   joinPath?: string;
   exitPath?: string;
 };
@@ -731,7 +731,7 @@ export function measureElementWithin(
   element: HTMLElement,
   ancestor: HTMLElement,
 ): SignalRect {
-  // Offset geometry ignores transforms (hero entrance translateY, GSAP pin).
+  // Offset geometry ignores transforms (hero entrance translateY).
   // getBoundingClientRect was baking the entrance y:28 into the hero join.
   let x = 0;
   let y = 0;

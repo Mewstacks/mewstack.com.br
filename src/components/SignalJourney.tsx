@@ -84,9 +84,6 @@ function createHeroTimeline(
   if (!video || !veil || !innerLine || !flow || guides.length !== 2) return;
 
   const dial = MOTION.heroSignal;
-  const mediaEl =
-    section.querySelector<HTMLElement>('[data-signal-anchor="hero-media"]') ??
-    section;
   const outerLength = measurePath(outerPath).length;
   const joinLength = joinPath ? measurePath(joinPath).length : 0;
   const exitLength = measurePath(exitPath).length;
@@ -140,8 +137,11 @@ function createHeroTimeline(
   const applySeek = () => {
     seekFrame = 0;
     if (video.readyState < 1 || !Number.isFinite(video.duration)) return;
-    // pendingProgress é o progresso da FASE 2 (pin), já mapeado direto no vídeo.
-    const mediaProgress = Math.max(0, Math.min(1, pendingProgress));
+    // Mapeia só a janela pós-descida (join → saída) no seek do vídeo.
+    const mediaProgress = Math.max(
+      0,
+      Math.min(1, (pendingProgress - dial.mediaFrom) / (1 - dial.mediaFrom)),
+    );
     const target = Math.min(video.duration, mediaProgress * video.duration);
     if (Math.abs(video.currentTime - target) >= dial.seekThreshold) {
       video.currentTime = target;
@@ -152,48 +152,34 @@ function createHeroTimeline(
     if (!seekFrame) seekFrame = window.requestAnimationFrame(applySeek);
   };
 
-  const heroScrub = MOTION.signal.hero.scrub;
+  const heroConfig = MOTION.signal.hero;
 
-  // FASE 1 — descida com loops (SEM pin), até o gutter ao lado do vídeo.
-  // O join fica em path próprio e só desenha no pin.
-  const descentTl = gsap.timeline({
-    defaults: { ease: "none" },
-    scrollTrigger: {
-      id: "signal:hero-descent",
-      trigger: mediaEl,
-      start: "top 75%",
-      end: "center center",
-      scrub: heroScrub,
-      invalidateOnRefresh: true,
-    },
-  });
-  descentTl.fromTo(
-    outerPath,
-    { strokeDashoffset: outerLength },
-    { strokeDashoffset: 0, duration: 1 },
-    0,
-  );
-
-  // FASE 2 — pin: join fluido → travessia interna → saída. Sem travar o frame.
+  // Uma timeline só, scrubada no scroll natural — sem pin. Trigger na seção
+  // (não no media): em viewports altos o vídeo já nasce na tela; amarrar ao
+  // media fazia a linha avançar no load. Aqui progresso 0 = topo do hero.
   const timeline = gsap.timeline({
     defaults: { ease: "none" },
     scrollTrigger: {
       id: "signal:hero",
-      trigger: mediaEl,
-      start: "center center",
-      end: MOTION.signal.hero.end,
-      scrub: heroScrub,
-      pin: section,
-      pinSpacing: true,
-      refreshPriority: 20,
+      trigger: section,
+      start: heroConfig.start,
+      end: heroConfig.end,
+      scrub: heroConfig.scrub,
       invalidateOnRefresh: true,
       onUpdate: (self) => scheduleSeek(self.progress),
     },
   });
 
+  timeline.fromTo(
+    outerPath,
+    { strokeDashoffset: outerLength },
+    { strokeDashoffset: 0, duration: dial.descentSpan },
+    0,
+  );
+
   timeline
-    .to(veil, { opacity: dial.veilOpacity, duration: dial.veilSpan }, 0)
-    .to(guides, { strokeDashoffset: 0, duration: dial.guideSpan }, 0.02);
+    .to(veil, { opacity: dial.veilOpacity, duration: dial.veilSpan }, dial.veilAt)
+    .to(guides, { strokeDashoffset: 0, duration: dial.guideSpan }, dial.guideAt);
   if (joinPath) {
     timeline.to(
       joinPath,
@@ -202,7 +188,7 @@ function createHeroTimeline(
     );
   }
   timeline
-    // Travessia SÓ depois do join fechar — senão a linha do vídeo “sai sozinha”.
+    // Travessia só depois do join fechar — senão a linha do vídeo “sai sozinha”.
     .to(innerLine, { strokeDashoffset: 0, duration: dial.innerSpan }, dial.innerAt)
     .to(guides, { opacity: 0, duration: dial.guideFadeSpan }, dial.guideFadeAt)
     .to(
@@ -223,19 +209,19 @@ function createHeroTimeline(
   dots.forEach((dot) => {
     const startX = numberData(dot, "data-start-x");
     const targetY = numberData(dot, "data-target-y");
-    const collectAt = 0.04 + (startX / 1200) * 0.4;
+    const collectAt = dial.joinAt + 0.02 + (startX / 1200) * 0.18;
 
     timeline
       .to(
         dot,
         {
           attr: { cx: startX + dial.dotTravelX, cy: targetY },
-          duration: 0.2,
+          duration: 0.12,
           ease: "sine.inOut",
         },
         collectAt,
       )
-      .to(dot, { opacity: 0, duration: 0.1 }, collectAt + 0.1);
+      .to(dot, { opacity: 0, duration: 0.08 }, collectAt + 0.08);
   });
 
   const trigger = timeline.scrollTrigger;
@@ -243,21 +229,10 @@ function createHeroTimeline(
   video.addEventListener("loadedmetadata", onMetadata);
   scheduleSeek(trigger?.progress ?? 0);
 
-  // O pin do hero introduz espaçamento antes de todas as seções seguintes.
-  // Ordena e recalcula só depois deste trigger existir para que os starts/ends
-  // a jusante incluam o spacer.
-  const refreshFrame = window.requestAnimationFrame(() => {
-    ScrollTrigger.sort();
-    ScrollTrigger.refresh();
-  });
-
   return () => {
     window.cancelAnimationFrame(seekFrame);
-    window.cancelAnimationFrame(refreshFrame);
     video.removeEventListener("loadedmetadata", onMetadata);
     video.pause();
-    descentTl.scrollTrigger?.kill();
-    descentTl.kill();
     timeline.scrollTrigger?.kill();
     timeline.kill();
   };

@@ -30,27 +30,25 @@ export const MOTION = {
     dotTravelX: 14,
     flowSpacing: 430,
     flowOpacity: 0.48,
-    // Pin: join completa → só então a linha interna. Sem a interna “sair sozinha”.
-    handoffAt: 0.38,
-    veilSpan: 0.12,
-    guideSpan: 0.2,
-    guideFadeAt: 0.62,
-    guideFadeSpan: 0.1,
-    lineSpan: 0.32,
-    // Plug-in na borda do vídeo (path de join separado).
-    joinAt: 0,
-    joinSpan: 0.22,
-    // Travessia começa depois do join fechar (evita gap no frame).
-    innerAt: 0.2,
-    innerSpan: 0.36,
-    dotWindow: 0.22,
-    dotSpan: 0.1,
-    dotFadeSpan: 0.05,
+    // Timeline única no scroll natural (sem pin). Pesos relativos ao progresso 0→1.
+    // Descida ocupa a primeira metade; join/travessia/saída fecham com o vídeo ainda na tela.
+    descentSpan: 0.42,
+    veilAt: 0.4,
+    veilSpan: 0.07,
+    guideAt: 0.4,
+    guideSpan: 0.1,
+    guideFadeAt: 0.68,
+    guideFadeSpan: 0.06,
+    joinAt: 0.4,
+    joinSpan: 0.09,
+    innerAt: 0.48,
+    innerSpan: 0.18,
     flowAt: 0.72,
-    flowSpan: 0.2,
-    // Saída logo após a travessia interna.
-    exitAt: 0.55,
-    exitSpan: 0.34,
+    flowSpan: 0.12,
+    exitAt: 0.62,
+    exitSpan: 0.2,
+    // Progresso a partir do qual o vídeo acompanha o scrub (após a descida).
+    mediaFrom: 0.4,
     seekThreshold: 1 / 30,
   },
   wipeDuration: 0.8,
@@ -75,23 +73,21 @@ export const MOTION = {
 
   signal: {
     hero: {
-      // Vídeo no centro: join + travessia + saída num pin enxuto.
-      start: "center center",
-      end: "+=120%",
+      // Scroll natural na própria seção: progresso 0 no topo (sem pin).
+      // Fecha a saída antes do hero sumir — bottom 40% mantém o frame na viewport.
+      start: "top top",
+      end: "bottom 40%",
       initialDraw: 0.012,
-      // Lag leve no scrub: suaviza tip-lag sem “segurar” o pin.
-      scrub: 0.85,
+      // Lag mínimo: tip suave sem “segurar” o scroll.
+      scrub: 0.3,
     },
-    // Janela travada ao TOPO da âncora (que fica na altura da linha): o desenho
-    // acontece enquanto a linha atravessa a viewport (de ~85% a ~15% da altura),
-    // então dá pra ver o surgimento e o traço completo sem a tela atropelar.
+    // Janela no TOPO da âncora: desenho enquanto a linha atravessa a viewport.
     problem: {
       start: "top 85%",
       end: "top 15%",
       initialDraw: 0,
     },
-    // Trilho vertical: o desenho precisa TERMINAR com a saída ainda na
-    // viewport. `bottom 12%` completava o traço com endY já fora da tela.
+    // Trilho vertical: o desenho precisa TERMINAR com a saída ainda na viewport.
     services: {
       start: "top 78%",
       end: "bottom 68%",
@@ -113,9 +109,7 @@ export const MOTION = {
       initialDraw: 0,
     },
     contact: {
-      // Footer no fim da página: a hairline só sobe até ~88–90vh. Janela
-      // larga (entra abaixo da viewport → pousa no rodapé) pra não estalar,
-      // e ainda completar antes do limite do Lenis.
+      // Footer no fim da página: janela larga pra completar antes do limite do Lenis.
       start: "top 135%",
       end: "top 92%",
       initialDraw: 0,
@@ -123,12 +117,13 @@ export const MOTION = {
   },
 
   process: {
-    scrub: true,
-    end: "+=105%",
+    scrub: 0.35,
+    // Desktop sem pin: janela larga o bastante pra ver a curva inteira e os nós.
+    start: "top 78%",
+    end: "top 22%",
     stepSpan: 0.13,
-    // A linha precisa cruzar o último nó (RODAR) bem antes do fim do pin: com
-    // settle curto o scrub ainda estava desenhando quando a seção soltava.
-    settle: 0.26,
+    // Folga no fim pra o último nó (RODAR) acender com a linha ainda visível.
+    settle: 0.12,
   },
 
   instrument: {
