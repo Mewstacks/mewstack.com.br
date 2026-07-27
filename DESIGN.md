@@ -1,67 +1,45 @@
 # Design
 
-## Theme
+## Direção
 
-Bold & playful brand one-pager. Clean light world (official #F2F2F2) with charcoal "machine
-room" sections punched in for rhythm. Hot pink is the live wire through both. The headset-cat
-mascot (official logo art) is the recurring character. Color strategy: **Committed** — light +
-charcoal carry large surfaces, hot pink is the high-energy accent.
+O sistema atual é **Sinal & Papel**. A especificação completa e os critérios de
+aceite vivem em `REDESIGN-PLAN.md`, que tem precedência visual sobre documentos
+anteriores. Este arquivo registra apenas a leitura operacional:
 
-Official palette (source: `cor da mew.jpeg`): **#FF7BAC pink · #262626 charcoal · #F2F2F2
-light**. Token names stay `--color-cream*` for legacy reasons but hold the official light grey,
-NOT a butter cream.
+- **Papel:** superfícies claras tonais (`paper`, `paper-rose`, `paper-lilac`).
+- **Máquina:** viewports e os capítulos CodeLab/Contato em violeta-noite.
+- **Sinal:** linha rosa que reaparece em segmentos intencionais, sempre ancorados a
+  uma borda ou elemento; nunca atravessa capítulos como decoração contínua nem vira
+  grande bloco de preenchimento.
 
-## Color (OKLCH)
+Não existe dark mode global. O fundo reativo acompanha o campo `tone` de
+`src/lib/chapters.ts`.
 
-- `--color-cream` body bg — `oklch(0.953 0 0)` (#F2F2F2 official light)
-- `--color-cream-deep` raised white surface — `oklch(1 0 0)`; `--color-cream-line` `oklch(0.875 0 0)`
-- `--color-ink` / `--color-night` text + charcoal sections — `oklch(0.268 0 0)` (#262626)
-- `--color-ink-soft` secondary text on light — `oklch(0.44 0 0)` (≥4.5:1 on #F2F2F2)
-- `--color-pink` brand hot pink, fills — `oklch(0.745 0.155 356)` (#FF7BAC)
-- `--color-pink-bright` pink text on charcoal (AA large) — `oklch(0.80 0.14 354)`
-- `--color-pink-deep` accessible pink text on light (large/semibold) — `oklch(0.555 0.205 356)`
-- `--color-paper` text on charcoal — `oklch(0.953 0 0)`; `--color-paper-soft` `oklch(0.78 0 0)`
+## Tipografia
 
-Contrast rules: ink-on-light ✔, paper-on-charcoal ✔. Brand #FF7BAC is NEVER text on light
-(fails AA — use `--color-pink-deep`); `--color-pink-bright` for pink text on charcoal only.
+- **Fraunces variável:** títulos; `opsz` alto e `WONK` apenas na palavra-assinatura.
+- **Switzer:** corpo, UI e controles.
+- **Geist Mono:** código, índices e leituras técnicas.
 
-## Typography
+As três famílias são self-hosted em `public/fonts/`. Tamanhos e cores são tokens
+do `@theme` em `src/index.css`; não hardcode valores nos componentes.
 
-- Display: **Clash Display** (Fontshare) 600/700 — chunky, slightly idiosyncratic geometric;
-  matches the brand's heavy wordmark, reads playful-bold not corporate.
-- Body/UI: **Satoshi** (Fontshare) 400/500 — clean humanist neutral, contrast against the
-  geometric display.
-- Pairing axis: geometric-display vs humanist-body (deliberate, not two lookalike sans).
-- Scale: fluid `clamp()`, ratio ≥1.25. Hero ≤ ~6rem. Display letter-spacing -0.03 to -0.04em.
+## Componentes e materiais
 
-## Components / Motifs
+- `MediaFrame.tsx` é o bezel único para hero, instrumentos, CodeLab e cases.
+- `SignalLine.tsx` desenha o fio e entrega fallback estático em reduced-motion.
+- `Logo.tsx` é o único lugar onde o mascote aparece, além do favicon.
+- Índices editoriais substituem eyebrows; hairlines substituem cards genéricos.
+- Slots sem mídia mostram fallbacks gráficos honestos. Não criar mock de produto
+  ou pessoa por IA.
 
-- Headset-cat mascot: the OFFICIAL logo PNGs (`public/brand/`: logo-horizontal, logo-stacked,
-  icon, logo-white) via `Logo.tsx`. Favicon = `icon-profile.png`. White variant for charcoal
-  sections. (An earlier hand-drawn SVG mascot was dropped in favor of the real marks.)
-- "Machine" motifs: animated data pipeline, monospace-flavored data chips/tickers (sparingly,
-  justified — this studio literally processes data), counters.
-- Pink "live wire" hairlines and a pulsing status dot as a recurring brand tell.
+## Layout e motion
 
-## Layout
+Grid mestre de 12 colunas, `max-width: 1200px`, gutters `px-5 sm:px-8`.
+Ordem narrativa:
 
-- Sticky slim nav. Single long scroll: Hero → Capabilities → Process (the machine) → Data
-  manifesto (charcoal) → About Germano → Contact → Footer.
-- Fluid `clamp()` spacing, asymmetric where it earns emphasis. No identical card grids.
+`Hero → Problema → Serviços → Processo → CodeLab → Cases → Equipe → Contato`
 
-## Motion
-
-Cinematic scroll (Leclerc-inspired, dev identity). Stack: **GSAP + ScrollTrigger + SplitText
-+ Lenis** (no framer-motion). One dial: `src/lib/motion.ts` (`MOTION`).
-
-- **Chapters** (`useChapter`): each section enters → holds → exits as one scrubbed scene
-  (recede / scaleHandoff / wipe), so leaving chapters recede with depth and the next rises over.
-- **Reactive background** (`useSceneBackground`): the page tone crossfades cream↔charcoal as
-  the centered chapter's `theme` changes — the light↔"machine room" rhythm is the main beat
-  (CodeLab + Contact are charcoal). The nav flips contrast over dark chapters (`useChapterTheme`).
-- **Editorial titles**: `data-reveal-title` masks in **line by line** (SplitText); body in
-  staggered `data-reveal`. Hero entrance orchestrated; mascot float; pink "live wire" accents.
-- **Depth & microinteractions**: parallax layers, magnetic hover (`useMagnetic`, desktop/fine
-  pointer), pinned scenes (Process timeline, Showcase horizontal gallery).
-- All transform/opacity/clip-path, GPU-friendly. Full `prefers-reduced-motion` fallback —
-  content visible, no pin, no split, no crossfade, no infinite loops.
+GSAP, ScrollTrigger, SplitText e Lenis permanecem. `MOTION` é o dial único.
+Títulos revelam por linha; o fio é o gesto principal; Processo e Cases pinam no
+desktop. Em `prefers-reduced-motion`, não há pin, split, loop ou autoplay.

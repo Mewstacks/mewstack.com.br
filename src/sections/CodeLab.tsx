@@ -1,76 +1,91 @@
 import { useEffect, useRef, useState } from "react";
-import { Play, Loader2, Check, ChevronDown, TerminalSquare } from "lucide-react";
+import { Check, ChevronDown, Loader2, Play, TerminalSquare } from "lucide-react";
+import MediaFrame from "../components/MediaFrame";
+import { SignalScene } from "../components/SignalJourney";
+import { reduceMotion } from "../lib/motion";
 import { useChapter } from "../lib/useChapter";
 
-/* Linear-style "code in the marketing page", taken further: a real-feeling
-   VS Code editor the visitor can actually RUN. Pressing ▶ types a terminal
-   output and then opens MewStack's Instagram — a playful payoff that also
-   shows, concretely, the kind of routine the studio builds. Light page,
-   dark IDE (the Linear/Supabase pattern). */
-const INSTAGRAM = "https://instagram.com/meewstack";
+type TokenType = "keyword" | "function" | "string" | "comment" | "operator" | "plain";
+type CodeLine = [string, TokenType][];
 
-type TokType = "kw" | "fn" | "str" | "num" | "com" | "op" | "builtin" | "fg";
-type Line = [string, TokType][];
-
-type Theme = {
+type EditorTheme = {
   name: string;
-  bg: string;
-  fg: string;
-  gutter: string;
+  background: string;
+  foreground: string;
+  muted: string;
   border: string;
   tab: string;
-  caret: string;
-  tok: Record<Exclude<TokType, "fg">, string>;
+  colors: Record<TokenType, string>;
 };
 
-const THEMES: Theme[] = [
+const THEMES: EditorTheme[] = [
   {
     name: "MewStack",
-    bg: "#1f1d22",
-    fg: "#e8e4ec",
-    gutter: "#6b6573",
-    border: "#322e38",
-    tab: "#28252d",
-    caret: "#ff7bac",
-    tok: { kw: "#ff7bac", builtin: "#c4a7ff", fn: "#6cc6ff", str: "#8fd98f", num: "#f0b860", com: "#6b6573", op: "#b9b3c2" },
+    background: "var(--color-night)",
+    foreground: "var(--color-paper-on-night)",
+    muted: "var(--color-code-muted)",
+    border: "var(--color-night-line)",
+    tab: "var(--color-night-2)",
+    colors: {
+      keyword: "var(--color-signal-bright)",
+      function: "var(--color-code-blue)",
+      string: "var(--color-code-green)",
+      comment: "var(--color-code-muted)",
+      operator: "var(--color-paper-on-night-soft)",
+      plain: "var(--color-paper-on-night)",
+    },
   },
   {
-    name: "Rosé Pine",
-    bg: "#191724",
-    fg: "#e0def4",
-    gutter: "#6e6a86",
-    border: "#26233a",
-    tab: "#1f1d2e",
-    caret: "#ebbcba",
-    tok: { kw: "#c4a7e7", builtin: "#9ccfd8", fn: "#ebbcba", str: "#f6c177", num: "#f6c177", com: "#6e6a86", op: "#908caa" },
+    name: "Violeta",
+    background: "var(--color-night-2)",
+    foreground: "var(--color-paper-on-night)",
+    muted: "var(--color-paper-on-night-soft)",
+    border: "var(--color-night-line)",
+    tab: "var(--color-night)",
+    colors: {
+      keyword: "var(--color-code-violet)",
+      function: "var(--color-signal-bright)",
+      string: "var(--color-code-amber)",
+      comment: "var(--color-code-muted)",
+      operator: "var(--color-paper-on-night-soft)",
+      plain: "var(--color-paper-on-night)",
+    },
   },
   {
     name: "Mono",
-    bg: "#1b1a1d",
-    fg: "#d9d6dd",
-    gutter: "#58555f",
-    border: "#2b292f",
-    tab: "#232227",
-    caret: "#ff7bac",
-    tok: { kw: "#ff7bac", builtin: "#d9d6dd", fn: "#d9d6dd", str: "#9b97a1", num: "#d9d6dd", com: "#58555f", op: "#85818b" },
+    background: "var(--color-night)",
+    foreground: "var(--color-paper-on-night)",
+    muted: "var(--color-code-muted)",
+    border: "var(--color-night-line)",
+    tab: "var(--color-night-2)",
+    colors: {
+      keyword: "var(--color-paper-on-night)",
+      function: "var(--color-paper-on-night)",
+      string: "var(--color-paper-on-night-soft)",
+      comment: "var(--color-code-muted)",
+      operator: "var(--color-paper-on-night-soft)",
+      plain: "var(--color-paper-on-night)",
+    },
   },
 ];
 
-const CODE: Line[] = [
-  [["from ", "kw"], ["mewstack ", "fg"], ["import ", "kw"], ["automatizar", "builtin"]],
+const INSTAGRAM = "https://instagram.com/meewstack";
+
+const CODE: CodeLine[] = [
+  [["from ", "keyword"], ["mewstack ", "plain"], ["import ", "keyword"], ["automatizar", "function"]],
   [],
-  [["# tarefas chatas que ninguém merece fazer na mão", "com"]],
-  [["tarefas ", "fg"], ["= ", "op"], ["[", "op"], ['"digitar notas"', "str"], [", ", "op"], ['"consultar ecac"', "str"], [", ", "op"], ['"conciliar extratos"', "str"], ["]", "op"]],
+  [["# tarefas chatas que ninguém merece fazer na mão", "comment"]],
+  [["tarefas ", "plain"], ["= ", "operator"], ["[", "operator"], ['"digitar notas"', "string"], [", ", "operator"], ['"consultar ecac"', "string"], [", ", "operator"], ['"conciliar extratos"', "string"], ["]", "operator"]],
   [],
-  [["@automatizar", "fn"], ["(", "op"], ["quando", "fg"], ["=", "op"], ['"toda segunda às 08:00"', "str"], [")", "op"]],
-  [["def ", "kw"], ["liberar_meu_tempo", "fn"], ["():", "op"]],
-  [["    for ", "kw"], ["tarefa ", "fg"], ["in ", "kw"], ["tarefas", "fg"], [":", "op"]],
-  [["        print", "builtin"], ["(", "op"], ['f"✓ {tarefa} agora roda sozinho"', "str"], [")", "op"]],
-  [["    return ", "kw"], ['"tempo livre desbloqueado ✨"', "str"]],
+  [["@automatizar", "function"], ["(", "operator"], ["quando", "plain"], ["=", "operator"], ['"toda segunda às 08:00"', "string"], [")", "operator"]],
+  [["def ", "keyword"], ["liberar_meu_tempo", "function"], ["():", "operator"]],
+  [["    for ", "keyword"], ["tarefa ", "plain"], ["in ", "keyword"], ["tarefas", "plain"], [":", "operator"]],
+  [["        print", "function"], ["(", "operator"], ['f"✓ {tarefa} agora roda sozinho"', "string"], [")", "operator"]],
+  [["    return ", "keyword"], ['"tempo livre desbloqueado ✨"', "string"]],
   [],
-  [["if ", "kw"], ["__name__ ", "builtin"], ["== ", "op"], ['"__main__"', "str"], [":", "op"]],
-  [["    liberar_meu_tempo", "fn"], ["()", "op"]],
-  [["    abrir", "builtin"], ["(", "op"], ['"instagram.com/meewstack"', "str"], [")  ", "op"], ["# ▶ vem ver mais", "com"]],
+  [["if ", "keyword"], ["__name__ ", "plain"], ["== ", "operator"], ['"__main__"', "string"], [":", "operator"]],
+  [["    liberar_meu_tempo", "function"], ["()", "operator"]],
+  [["    abrir", "function"], ["(", "operator"], ['"instagram.com/meewstack"', "string"], [")  ", "operator"], ["# ▶ vem ver mais", "comment"]],
 ];
 
 const OUTPUT = [
@@ -82,40 +97,38 @@ const OUTPUT = [
   "→ abrindo instagram.com/meewstack …",
 ];
 
-const tokColor = (t: Theme, type: TokType) => (type === "fg" ? t.fg : t.tok[type]);
-const termColor = (l: string, t: Theme) =>
-  l.startsWith("$") ? t.gutter : l.startsWith("✓") ? "#7fd98f" : l.startsWith("→") ? t.tok.kw : t.fg;
+const outputColor = (line: string, theme: EditorTheme) => {
+  if (line.startsWith("$")) return theme.muted;
+  if (line.startsWith("✓")) return "var(--color-code-green)";
+  if (line.startsWith("→")) return "var(--color-signal-bright)";
+  return theme.foreground;
+};
 
 export default function CodeLab() {
-  const reduce =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-  const [themeIdx, setThemeIdx] = useState(0);
+  const root = useRef<HTMLElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
+  const [themeIndex, setThemeIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [running, setRunning] = useState(false);
-  const [done, setDone] = useState(false);
-  const [showTerm, setShowTerm] = useState(false);
-  const [lines, setLines] = useState<string[]>([]);
-  const timers = useRef<number[]>([]);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const root = useRef<HTMLElement>(null);
-  const theme = THEMES[themeIdx];
+  const [output, setOutput] = useState<string[]>([]);
+  const theme = THEMES[themeIndex];
 
-  // Scene exit: the IDE mockup scales up and dissolves into the next chapter
-  // (a depth hand-off), instead of the section simply receding.
-  useChapter(root, { variant: "scaleHandoff" });
+  useChapter(root, { exit: false });
 
   const clearTimers = () => {
-    timers.current.forEach(clearTimeout);
+    timers.current.forEach(window.clearTimeout);
     timers.current = [];
   };
+
   useEffect(() => () => clearTimers(), []);
 
   useEffect(() => {
     if (!menuOpen) return;
-    const close = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    const close = (event: MouseEvent) => {
+      if (menu.current && !menu.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -124,217 +137,204 @@ export default function CodeLab() {
   const finish = () => {
     window.open(INSTAGRAM, "_blank", "noopener,noreferrer");
     setRunning(false);
-    setDone(true);
   };
 
   const run = () => {
     if (running) return;
     clearTimers();
-    setLines([]);
-    setDone(false);
+    setOutput([]);
     setRunning(true);
-    setShowTerm(true);
 
-    if (reduce) {
-      setLines(OUTPUT);
+    if (reduceMotion()) {
+      setOutput(OUTPUT);
       timers.current.push(window.setTimeout(finish, 550));
       return;
     }
-    OUTPUT.forEach((l, i) => {
-      timers.current.push(window.setTimeout(() => setLines((p) => [...p, l]), 320 + i * 340));
+
+    OUTPUT.forEach((line, index) => {
+      timers.current.push(
+        window.setTimeout(() => {
+          setOutput((current) => [...current, line]);
+        }, 220 + index * 320),
+      );
     });
-    timers.current.push(window.setTimeout(finish, 320 + OUTPUT.length * 340 + 550));
+    timers.current.push(
+      window.setTimeout(finish, 220 + OUTPUT.length * 320 + 480),
+    );
   };
 
   return (
     <section
       ref={root}
       id="rode"
-      className="relative scroll-mt-24 overflow-clip bg-night text-paper"
+      className="relative scroll-mt-24 overflow-clip bg-night text-paper-on-night"
     >
-      {/* ── machine-room ambience: a faint technical grid + a pink "live wire"
-          glow. The dark page tone is driven by the reactive background
-          (chapter theme "dark"); this section also carries its own charcoal so
-          the copy is always readable regardless of crossfade timing. ── */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_80%_60%_at_50%_38%,black,transparent_76%)]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, oklch(1 0 0 / 0.045) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.045) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-        }}
-      />
-      <div
-        aria-hidden
-        data-parallax="1.1"
-        className="pointer-events-none absolute -top-10 left-1/2 -z-10 h-[42vh] w-[120vw] max-w-[1100px] -translate-x-1/2 rounded-full opacity-30 blur-[130px]"
-        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, var(--color-pink) 0%, transparent 70%)" }}
-      />
+      <SignalScene scene="machine" />
 
-      <div className="mx-auto max-w-5xl px-5 py-14 sm:px-8 lg:py-20">
-        <div className="max-w-2xl">
-          <p data-reveal className="eyebrow mb-6 text-paper-soft">experimente</p>
-          <h2 data-reveal-title className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.035em] text-paper">
-            Não acredita que roda sozinho? Roda você mesmo.
-          </h2>
-          <p data-reveal className="mt-5 max-w-[48ch] text-paper-soft">
-            Aperta <span className="font-medium text-paper">▶ Executar</span>. É Python de
-            verdade, curtinho, o mesmo tipo de rotina que a gente monta pra tirar o
-            trabalho repetitivo das suas costas.
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-28">
+        <div className="grid gap-6 lg:grid-cols-12">
+          <p data-reveal className="section-index section-index-dark lg:col-span-3">
+            <span>04</span>
+            <span>dentro da máquina</span>
           </p>
+          <div className="lg:col-span-8 lg:col-start-5">
+            <h2
+              data-reveal-title
+              className="max-w-[13ch] text-h2 leading-[1.04] text-paper-on-night"
+            >
+              A rotina deixa de ser promessa quando você aperta executar.
+            </h2>
+            <p
+              data-reveal
+              className="mt-6 max-w-[56ch] text-paper-on-night-soft"
+            >
+              Aperta <span className="font-medium text-paper-on-night">Executar</span>. É
+              Python de verdade, curtinho, o mesmo tipo de rotina que a gente monta pra
+              tirar o trabalho repetitivo das suas costas. No fim, ele abre o nosso
+              Instagram.
+            </p>
+          </div>
         </div>
 
-        <div data-reveal data-handoff className="mt-8 will-change-transform">
-        <div
-          className="overflow-hidden rounded-2xl shadow-[0_40px_90px_-50px_rgba(40,30,40,0.55)] ring-1 ring-black/5"
-          style={{ background: theme.bg, border: `1px solid ${theme.border}` }}
-        >
-          {/* title bar */}
-          <div
-            className="flex items-center gap-3 px-4 py-2.5"
-            style={{ borderBottom: `1px solid ${theme.border}` }}
+        <div data-reveal data-signal-anchor="machine-frame" className="mt-12">
+          <MediaFrame
+            ratio="auto"
+            captionPosition="top"
+            onNight
+            caption={{
+              name: "LAB — EXECUTÁVEL",
+              detail: "Python 3 · liberar_meu_tempo.py",
+              type: "ATIVO",
+            }}
           >
-            <div className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full" style={{ background: "#ff5f57" }} />
-              <span className="h-3 w-3 rounded-full" style={{ background: "#febc2e" }} />
-              <span className="h-3 w-3 rounded-full" style={{ background: "#28c840" }} />
-            </div>
             <div
-              className="ml-2 hidden items-center gap-2 rounded-lg px-3 py-1 text-[0.78rem] sm:flex"
-              style={{ background: theme.tab, color: theme.fg }}
+              className="min-w-0 overflow-hidden"
+              style={{ background: theme.background, color: theme.foreground }}
             >
-              <TerminalSquare className="h-3.5 w-3.5" strokeWidth={1.8} style={{ color: theme.tok.kw }} />
-              liberar_meu_tempo.py
-            </div>
-
-            <div className="ml-auto flex items-center gap-2">
-              {/* theme switcher (Linear-style, top-right) */}
-              <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((v) => !v)}
-                  aria-haspopup="listbox"
-                  aria-expanded={menuOpen}
-                  className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.74rem] transition-colors"
-                  style={{ color: theme.gutter, border: `1px solid ${theme.border}` }}
-                >
-                  {theme.name}
-                  <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
-                </button>
-                {menuOpen && (
-                  <ul
-                    role="listbox"
-                    className="absolute right-0 z-10 mt-1.5 w-36 overflow-hidden rounded-lg py-1 text-[0.78rem] shadow-xl"
-                    style={{ background: theme.tab, border: `1px solid ${theme.border}` }}
-                  >
-                    {THEMES.map((t, i) => (
-                      <li key={t.name}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setThemeIdx(i);
-                            setMenuOpen(false);
-                          }}
-                          className="flex w-full items-center justify-between px-3 py-1.5 text-left transition-colors hover:bg-white/5"
-                          style={{ color: theme.fg }}
-                        >
-                          {t.name}
-                          {i === themeIdx && <Check className="h-3.5 w-3.5" strokeWidth={2.4} style={{ color: theme.tok.kw }} />}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              {/* run */}
-              <button
-                type="button"
-                onClick={run}
-                disabled={running}
-                className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[0.78rem] font-semibold text-[#0b2912] transition-[transform,filter] duration-200 hover:brightness-105 active:translate-y-px disabled:opacity-70"
-                style={{ background: "#4ade80" }}
-              >
-                {running ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.4} />
-                    Rodando…
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
-                    Executar
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* editor */}
-          <div className="flex font-mono text-[0.74rem] leading-[1.65] sm:text-[0.84rem]">
-            {/* gutter */}
-            <div
-              className="select-none px-3 py-4 text-right sm:px-4"
-              style={{ color: theme.gutter, borderRight: `1px solid ${theme.border}` }}
-            >
-              {CODE.map((_, i) => (
-                <div key={i}>{String(i + 1).padStart(2, "0")}</div>
-              ))}
-            </div>
-            {/* code */}
-            <pre className="min-w-0 flex-1 overflow-x-auto px-4 py-4" style={{ color: theme.fg }}>
-              <code>
-                {CODE.map((line, i) => (
-                  <div key={i} className="whitespace-pre min-h-[1.65em]">
-                    {line.map(([txt, type], j) => (
-                      <span key={j} style={{ color: tokColor(theme, type) }}>
-                        {txt}
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </code>
-            </pre>
-          </div>
-
-          {/* terminal */}
-          {showTerm && (
-            <div style={{ borderTop: `1px solid ${theme.border}` }}>
               <div
-                className="flex items-center gap-2 px-4 py-2 text-[0.7rem] font-medium uppercase tracking-[0.14em]"
-                style={{ color: theme.gutter }}
+                className="flex min-h-14 min-w-0 items-center gap-3 px-3 sm:px-4"
+                style={{ borderBottom: `1px solid ${theme.border}` }}
               >
-                <TerminalSquare className="h-3.5 w-3.5" strokeWidth={1.8} />
-                Terminal
-              </div>
-              <pre
-                className="overflow-x-auto px-4 pb-4 font-mono text-[0.74rem] leading-relaxed sm:text-[0.82rem]"
-                aria-live="polite"
-              >
-                {lines.map((l, i) => (
-                  <div key={i} style={{ color: termColor(l, theme) }}>
-                    {l}
-                    {running && i === lines.length - 1 && (
-                      <span className="ml-0.5 inline-block animate-pulse" style={{ color: theme.caret }}>
-                        ▋
-                      </span>
+                <div
+                  className="mono hidden min-w-0 items-center gap-2 rounded-md px-3 py-1.5 text-[0.72rem] sm:flex"
+                  style={{ background: theme.tab, color: theme.foreground }}
+                >
+                  <TerminalSquare
+                    aria-hidden
+                    className="h-3.5 w-3.5 shrink-0 text-signal-bright"
+                  />
+                  <span className="truncate">liberar_meu_tempo.py</span>
+                </div>
+
+                <div className="ml-auto flex items-center gap-2">
+                  <div ref={menu} className="relative">
+                    <button
+                      type="button"
+                      aria-haspopup="listbox"
+                      aria-expanded={menuOpen}
+                      onClick={() => setMenuOpen((value) => !value)}
+                      className="mono flex min-h-11 items-center gap-1.5 rounded-md border border-night-line px-2.5 text-[0.68rem]"
+                      style={{ color: theme.muted }}
+                    >
+                      {theme.name}
+                      <ChevronDown aria-hidden className="h-3.5 w-3.5" />
+                    </button>
+                    {menuOpen && (
+                      <ul
+                        role="listbox"
+                        className="absolute right-0 z-20 mt-1 w-36 overflow-hidden rounded-md border border-night-line bg-night-2 py-1 text-[0.76rem] shadow-[var(--shadow-viewport)]"
+                      >
+                        {THEMES.map((item, index) => (
+                          <li key={item.name}>
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={index === themeIndex}
+                              onClick={() => {
+                                setThemeIndex(index);
+                                setMenuOpen(false);
+                              }}
+                              className="flex min-h-11 w-full items-center justify-between px-3 text-left text-paper-on-night transition-colors hover:bg-signal-ghost"
+                            >
+                              {item.name}
+                              {index === themeIndex && (
+                                <Check
+                                  aria-hidden
+                                  className="h-4 w-4 text-signal-bright"
+                                />
+                              )}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
                     )}
                   </div>
-                ))}
-                {running && lines.length === 0 && (
-                  <span className="inline-block animate-pulse" style={{ color: theme.caret }}>
-                    ▋
-                  </span>
-                )}
-              </pre>
-            </div>
-          )}
-        </div>
+                  <button
+                    type="button"
+                    onClick={run}
+                    disabled={running}
+                    aria-label={running ? "Automação em execução" : "Executar automação"}
+                    className="flex min-h-11 items-center gap-2 rounded-md bg-paper-on-night px-3 text-[0.76rem] font-semibold text-night transition-colors hover:bg-paper-high disabled:opacity-60"
+                  >
+                    {running ? (
+                      <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Play aria-hidden className="h-4 w-4 fill-current" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {running ? "Rodando…" : "Executar"}
+                    </span>
+                  </button>
+                </div>
+              </div>
 
-          <p className="mt-3 text-center text-[0.8rem] text-paper-soft">
-            {done ? "Aberto! 🐱 (se o navegador bloqueou o pop-up, é só liberar)" : "Sim, ao executar ele abre nosso Instagram. Pode rodar sem medo. 🐱"}
-          </p>
+              <div className="flex min-w-0 font-mono text-[0.7rem] leading-[1.7] sm:text-[0.8rem]">
+                <div
+                  aria-hidden
+                  className="select-none px-3 py-5 text-right sm:px-4"
+                  style={{ color: theme.muted, borderRight: `1px solid ${theme.border}` }}
+                >
+                  {CODE.map((_, index) => (
+                    <div key={index}>{String(index + 1).padStart(2, "0")}</div>
+                  ))}
+                </div>
+                <pre className="min-w-0 flex-1 overflow-x-auto px-4 py-5">
+                  <code>
+                    {CODE.map((line, index) => (
+                      <div key={index} className="min-h-[1.7em] whitespace-pre">
+                        {line.map(([text, type], tokenIndex) => (
+                          <span key={tokenIndex} style={{ color: theme.colors[type] }}>
+                            {text}
+                          </span>
+                        ))}
+                      </div>
+                    ))}
+                  </code>
+                </pre>
+              </div>
+
+              {(output.length > 0 || running) && (
+                <div
+                  className="min-h-36 px-4 py-4 font-mono text-[0.72rem] leading-relaxed sm:text-[0.8rem]"
+                  style={{ borderTop: `1px solid ${theme.border}` }}
+                  aria-live="polite"
+                >
+                  <p className="mono mb-2 text-[0.62rem]" style={{ color: theme.muted }}>
+                    TERMINAL
+                  </p>
+                  {output.map((line) => (
+                    <p
+                      key={line}
+                      style={{ color: outputColor(line, theme) }}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                  {running && <span className="inline-block h-3 w-1.5 bg-signal" />}
+                </div>
+              )}
+            </div>
+          </MediaFrame>
         </div>
       </div>
     </section>

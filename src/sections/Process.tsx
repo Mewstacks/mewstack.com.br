@@ -1,196 +1,322 @@
-import { useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
+import SignalLine from "../components/SignalLine";
 import { gsap, ScrollTrigger } from "../lib/gsap";
 import { MOTION, reduceMotion } from "../lib/motion";
+import { measurePath } from "../lib/pathMetrics";
+import {
+  buildProcessRoute,
+  measureElementWithin,
+  type BuiltProcessRoute,
+} from "../lib/signalJourney";
+import { useChapter } from "../lib/useChapter";
 
-/* ── Process: o capítulo-assinatura. No desktop a timeline é "scrubada" pelo
-   scroll: a live wire rosa preenche o trilho e cada nó acende com seu texto, em
-   sequência, conforme a seção sobe pela tela. Sem pin — assim, pular pra cá por
-   um anchor cai numa timeline já preenchida (o scrub reflete a posição), em vez
-   de um frame vazio pré-pin. No mobile, timeline vertical com reveal em stagger.
-   Título por mask reveal. Tudo transform/opacity (+ clip pontual). */
 const STEPS = [
   {
-    n: "01",
     title: "Diagnóstico",
-    desc: "Entendo seu processo de ponta a ponta e mapeio exatamente onde o seu tempo e o seu dinheiro escapam.",
+    label: "ENTENDER",
+    description:
+      "A gente acompanha o processo de ponta a ponta e encontra onde o tempo, o dado e a responsabilidade se perdem.",
   },
   {
-    n: "02",
     title: "Construção",
-    desc: "Software e rotinas sob medida, conectados às ferramentas que você já usa. Nada de retrabalho.",
+    label: "ORGANIZAR",
+    description:
+      "O fluxo vira software conectado às ferramentas que já fazem parte da rotina do time.",
   },
   {
-    n: "03",
     title: "Operação",
-    desc: "Roda sozinho e monitorado. Você não recebe planilha, recebe a decisão já pronta para aplicar.",
+    label: "RODAR",
+    description:
+      "A entrega entra em produção com monitoramento, alerta e suporte para continuar útil depois do lançamento.",
   },
 ];
 
 export default function Process() {
   const root = useRef<HTMLElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const line = useRef<SVGPathElement>(null);
+  const [route, setRoute] = useState<BuiltProcessRoute | null>(null);
+  useChapter(root, { enter: false, exit: false });
+
+  useLayoutEffect(() => {
+    const section = root.current;
+    if (!section) return;
+
+    let frame = 0;
+    const measure = () => {
+      const trackElement = track.current;
+      const mobileNodes = Array.from(
+        section.querySelectorAll<HTMLElement>("[data-process-mobile-node]"),
+      );
+      const next = buildProcessRoute({
+        width: section.offsetWidth,
+        height: section.offsetHeight,
+        track:
+          trackElement && trackElement.offsetWidth
+            ? measureElementWithin(trackElement, section)
+            : undefined,
+        mobileStepYs: mobileNodes.map((node) => {
+          const rect = measureElementWithin(node, section);
+          return rect.y + rect.height / 2;
+        }),
+      });
+
+      setRoute((current) =>
+        current?.path === next.path && current.viewBox === next.viewBox
+          ? current
+          : next,
+      );
+    };
+    const scheduleMeasure = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(measure);
+    };
+
+    measure();
+    const observer = new ResizeObserver(scheduleMeasure);
+    observer.observe(section);
+    if (track.current) observer.observe(track.current);
+    section
+      .querySelectorAll<HTMLElement>("[data-process-step], [data-process-mobile-node]")
+      .forEach((element) => observer.observe(element));
+    window.addEventListener("resize", scheduleMeasure);
+    ScrollTrigger.addEventListener("refresh", scheduleMeasure);
+    void document.fonts.ready.then(scheduleMeasure);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleMeasure);
+      ScrollTrigger.removeEventListener("refresh", scheduleMeasure);
+    };
+  }, []);
 
   useGSAP(
     () => {
-      const el = root.current;
-      if (!el) return;
-      const q = gsap.utils.selector(el);
-      const eyebrow = q("[data-pro='eyebrow']");
-      const title = q("[data-pro='title']");
-      const rail = q("[data-pro='rail']");
-      const nodes = q("[data-pro='node']");
-      const steps = q("[data-pro='step']");
+      const section = root.current;
+      const path = line.current;
+      if (!section || !path || !route) return;
+      const nodes = gsap.utils.toArray<HTMLElement>("[data-process-node]", section);
+      const labels = gsap.utils.toArray<HTMLElement>("[data-process-label]", section);
+      const steps = gsap.utils.toArray<HTMLElement>("[data-process-step]", section);
+      const mobileNodes = gsap.utils.toArray<HTMLElement>(
+        "[data-process-mobile-node]",
+        section,
+      );
 
       if (reduceMotion()) {
-        gsap.set([...eyebrow, ...title, ...steps, ...nodes], {
+        gsap.set(path, { strokeDasharray: "none", strokeDashoffset: 0 });
+        gsap.set([...nodes, ...labels, ...steps, ...mobileNodes], {
+          clearProps: "all",
           opacity: 1,
-          y: 0,
-          scale: 1,
-          clipPath: "none",
         });
-        gsap.set(rail, { scaleX: 1 });
         return;
       }
 
       const mm = gsap.matchMedia();
-
-      // Header reveal — eyebrow rises, title masks in. Both breakpoints.
-      gsap.set(eyebrow, { opacity: 0, y: MOTION.revealY * 0.5 });
-      gsap.set(title, { clipPath: "inset(0 0 100% 0)", y: MOTION.revealY * 0.5, opacity: 1 });
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 78%",
-        once: true,
-        onEnter: () => {
-          gsap.to(eyebrow, { opacity: 1, y: 0, duration: MOTION.duration, ease: MOTION.ease });
-          gsap.to(title, {
-            clipPath: "inset(0 0 0% 0)",
-            y: 0,
-            duration: MOTION.duration + 0.2,
-            ease: MOTION.easeTitle,
-          });
-        },
-      });
-
-      // Desktop: the signature beat — the section PINS and the timeline is
-      // scrubbed in place: the pink wire fills the rail and each node ignites
-      // with its step, one after another, as the user scrolls. pinSpacing keeps
-      // the document height intact, so the #processo anchor still lands at the
-      // start of the pinned beat (LenisAnchors resolves to the pin-spacer top).
       mm.add(MOTION.desktop, () => {
-        gsap.set(rail, { scaleX: 0, transformOrigin: "left center" });
-        gsap.set(nodes, { scale: 0.5, opacity: 0.25 });
-        gsap.set(steps, { opacity: 0, y: 36 });
+        const { length: pathLength, fractions } = measurePath(
+          path,
+          route.nodeTargets.map((point) => point.x),
+        );
+        gsap.set(path, {
+          strokeDasharray: pathLength,
+          strokeDashoffset: pathLength,
+        });
+        gsap.set(nodes, { scale: 0.7, opacity: 0.28 });
+        gsap.set(labels, { color: "var(--color-ink-faint)" });
+        gsap.set(steps, { y: 24, opacity: 0.28 });
 
-        const tl = gsap.timeline({
+        const timeline = gsap.timeline({
           scrollTrigger: {
-            trigger: el,
-            start: "top 16%",
-            end: "+=120%",
-            scrub: true,
+            trigger: section,
+            start: "top 12%",
+            end: MOTION.process.end,
+            scrub: MOTION.process.scrub,
             pin: true,
             pinSpacing: true,
-            anticipatePin: 1,
+            refreshPriority: 10,
+            invalidateOnRefresh: true,
+          },
+        });
+        const drawDuration = 1 - MOTION.process.settle;
+        const { stepSpan } = MOTION.process;
+
+        timeline.to(
+          path,
+          { strokeDashoffset: 0, ease: "none", duration: drawDuration },
+          0,
+        );
+        STEPS.forEach((_, index) => {
+          const at = Math.min(fractions[index] * drawDuration, 1 - stepSpan);
+          timeline
+            .to(
+              nodes[index],
+              { scale: 1, opacity: 1, duration: stepSpan, ease: "power1.out" },
+              at,
+            )
+            .to(
+              labels[index],
+              { color: "var(--color-ink)", duration: stepSpan, ease: "none" },
+              at,
+            )
+            .to(
+              steps[index],
+              { y: 0, opacity: 1, duration: stepSpan, ease: "power1.out" },
+              at,
+            );
+        });
+        timeline.to({}, { duration: MOTION.process.settle }, drawDuration);
+
+        // The process pin contributes spacing before the downstream Cases pin.
+        // Sort and refresh only after this trigger exists so every later start
+        // includes the spacer introduced here.
+        const refreshFrame = window.requestAnimationFrame(() => {
+          ScrollTrigger.sort();
+          ScrollTrigger.refresh();
+        });
+
+        return () => {
+          window.cancelAnimationFrame(refreshFrame);
+          timeline.scrollTrigger?.kill();
+          timeline.kill();
+        };
+      });
+
+      mm.add(MOTION.mobile, () => {
+        const { length: pathLength } = measurePath(path);
+        gsap.set(path, {
+          strokeDasharray: pathLength,
+          strokeDashoffset: pathLength,
+        });
+        gsap.set(mobileNodes, { scale: 0.72, opacity: 0.28 });
+        gsap.set(steps, { y: 18, opacity: 0.32 });
+
+        const timeline = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            trigger: section,
+            start: "top 84%",
+            end: "bottom 30%",
+            scrub: true,
+            invalidateOnRefresh: true,
           },
         });
 
-        tl.to(rail, { scaleX: 1, ease: "none", duration: 3 }, 0);
-        [0, 1, 2].forEach((i) => {
-          const at = 0.3 + i * 0.85;
-          tl.to(nodes[i], { scale: 1, opacity: 1, ease: "back.out(1.7)", duration: 0.5 }, at).to(
-            steps[i],
-            { opacity: 1, y: 0, ease: "power3.out", duration: 0.6 },
-            at,
-          );
+        timeline.to(path, { strokeDashoffset: 0, duration: 0.86 }, 0);
+        [0.2, 0.46, 0.69].forEach((at, index) => {
+          timeline
+            .to(
+              mobileNodes[index],
+              { scale: 1, opacity: 1, duration: 0.12 },
+              at,
+            )
+            .to(
+              steps[index],
+              { y: 0, opacity: 1, duration: 0.12 },
+              at,
+            );
         });
-        // tail hold so the finished timeline lingers a touch before unpinning.
-        tl.to({}, { duration: 0.6 });
-      });
 
-      // Mobile: no pin — reveal steps as they enter.
-      mm.add(MOTION.mobile, () => {
-        gsap.set(nodes, { scale: 1, opacity: 1 });
-        gsap.set(steps, { opacity: 0, y: MOTION.revealYMobile });
-        ScrollTrigger.batch(steps, {
-          start: "top 85%",
-          onEnter: (batch) =>
-            gsap.to(batch, {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              ease: "power3.out",
-              stagger: MOTION.stagger,
-              overwrite: true,
-            }),
-        });
+        return () => {
+          timeline.scrollTrigger?.kill();
+          timeline.kill();
+        };
       });
 
       return () => mm.revert();
     },
-    { scope: root },
+    {
+      scope: root,
+      dependencies: [
+        route?.path,
+        route?.nodeTargets.map((point) => `${point.x}:${point.y}`).join("|"),
+      ],
+      revertOnUpdate: true,
+    },
   );
 
   return (
     <section
       ref={root}
       id="processo"
-      className="mx-auto max-w-5xl scroll-mt-24 px-5 py-14 sm:px-8 lg:py-20"
+      className="relative scroll-mt-24 overflow-clip border-y border-line bg-paper-lilac"
     >
-      <div className="max-w-2xl">
-        <p data-pro="eyebrow" className="eyebrow mb-6">
-          processo
-        </p>
-        <h2
-          data-pro="title"
-          className="font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.02] font-semibold tracking-[-0.035em]"
+      <div aria-hidden className="paper-vignette pointer-events-none absolute inset-0" />
+      {route && (
+        <SignalLine
+          ref={line}
+          viewBox={route.viewBox}
+          path={route.path}
+          pathProps={{
+            "data-process-path": true,
+            "data-signal-route": "process",
+          }}
+          className="pointer-events-none absolute inset-0 z-[var(--z-wire)] h-full w-full"
+        />
+      )}
+
+      <div className="relative z-[var(--z-content)] mx-auto max-w-[1200px] px-5 py-20 sm:px-8 lg:py-24">
+        <div className="grid gap-6 lg:grid-cols-12">
+          <p data-reveal className="section-index lg:col-span-3">
+            <span>03</span>
+            <span>processo</span>
+          </p>
+          <div className="lg:col-span-8 lg:col-start-5">
+            <h2 data-reveal-title className="max-w-[12ch] text-h2 leading-[1.04]">
+              Do processo vivido ao processo que roda.
+            </h2>
+            <p data-reveal className="mt-5 max-w-[56ch] text-ink-soft">
+              Três etapas, uma linha de responsabilidade. Sem desaparecer depois
+              do deploy e sem entregar uma caixa-preta.
+            </p>
+          </div>
+        </div>
+
+        <div
+          ref={track}
+          data-signal-anchor="process-track"
+          className="relative mt-16 hidden h-36 md:block"
         >
-          Da bagunça ao botão que roda sozinho.
-        </h2>
-      </div>
-
-      {/* ── timeline ── */}
-      <div className="relative mt-14 lg:mt-16">
-        {/* faint editorial grid — reinforces the "precision" of the machine */}
-        <div
-          aria-hidden
-          className="grid-lines pointer-events-none absolute -inset-x-6 -top-8 bottom-0 -z-10 opacity-60 [mask-image:radial-gradient(ellipse_72%_82%_at_28%_24%,black,transparent_82%)]"
-        />
-        {/* desktop rail behind the nodes: hairline base + pink live wire (scrubbed) */}
-        <div
-          aria-hidden
-          className="absolute top-6 right-0 left-6 hidden h-px bg-cream-line md:block"
-        />
-        <div
-          aria-hidden
-          data-pro="rail"
-          className="absolute top-6 right-0 left-6 hidden h-px origin-left scale-x-0 bg-pink md:block"
-        />
-
-        <ol className="grid gap-x-8 md:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <li
-              key={s.n}
-              className="relative flex gap-5 pb-9 last:pb-0 md:block md:pb-0"
+          {[10, 50, 90].map((left, index) => (
+            <div
+              key={left}
+              className="absolute top-[66px] -translate-x-1/2"
+              style={{ left: `${left}%` }}
             >
-              {/* node column (vertical connector on mobile) */}
-              <div className="relative flex flex-col items-center md:block">
-                <span
-                  data-pro="node"
-                  className="relative z-10 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream-line bg-cream-deep font-display text-sm font-semibold tabular-nums text-pink-deep shadow-[var(--shadow-soft)]"
-                >
-                  {s.n}
-                </span>
-                {i < STEPS.length - 1 && (
-                  <span aria-hidden className="mt-2 w-px flex-1 bg-cream-line md:hidden" />
-                )}
-              </div>
+              <span
+                data-process-node
+                className="block h-3 w-3 rounded-full border border-signal bg-paper-lilac"
+              />
+              <span
+                data-process-label
+                className="mono absolute top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[0.64rem] text-ink-faint"
+              >
+                {STEPS[index].label}
+              </span>
+            </div>
+          ))}
+        </div>
 
-              <div data-pro="step" className="md:mt-6">
-                <h3 className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-[1.4rem]">
-                  {s.title}
-                </h3>
-                <p className="mt-2.5 max-w-[34ch] text-[0.98rem] leading-relaxed text-ink-soft">
-                  {s.desc}
+        <ol className="relative mt-12 grid gap-0 border-t border-line-strong md:mt-8 md:grid-cols-3 md:border-t-0">
+          {STEPS.map((step, index) => (
+            <li
+              key={step.title}
+              data-process-step
+              className="relative border-b border-line py-7 md:block md:border-t md:border-r md:border-b-0 md:px-6 md:py-8 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
+            >
+              <span
+                data-process-mobile-node
+                className="absolute top-8 left-[-18px] z-10 h-4 w-4 rounded-full border border-signal bg-paper-lilac md:hidden"
+              />
+              <div>
+                <span className="mono text-[0.68rem] text-ink-faint">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-2 text-h3 leading-tight">{step.title}</h3>
+                <p className="mt-3 max-w-[36ch] text-ink-soft">
+                  {step.description}
                 </p>
               </div>
             </li>

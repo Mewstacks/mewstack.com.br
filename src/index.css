@@ -1,54 +1,113 @@
 @import "tailwindcss";
-/* MewStack — official palette: #FF7BAC · #262626 · #F2F2F2 */
 
-/* ============================================================
-   MewStack — brand tokens
-   Committed strategy: butter-cream + charcoal carry the surfaces,
-   hot pink is the live wire. OKLCH throughout.
-   ============================================================ */
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-variable-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Switzer";
+  src: url("/fonts/switzer-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Switzer";
+  src: url("/fonts/switzer-500.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Switzer";
+  src: url("/fonts/switzer-600.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 @theme {
-  --font-display: "Clash Display", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Switzer", "General Sans", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "IBM Plex Mono", ui-monospace, monospace;
 
-  /* surfaces — official brand: #F2F2F2 light · #262626 charcoal */
-  --color-cream: oklch(0.953 0 0);             /* body — brand #F2F2F2 */
-  --color-cream-deep: oklch(1 0 0);            /* raised white surface */
-  --color-cream-line: oklch(0.875 0 0);        /* hairline on light */
+  --color-paper: oklch(0.962 0.007 340);
+  --color-paper-lilac: oklch(0.946 0.01 300);
+  --color-paper-rose: oklch(0.948 0.011 20);
+  --color-paper-high: oklch(0.984 0.004 340);
+  --color-line: oklch(0.42 0.025 320 / 0.14);
+  --color-line-strong: oklch(0.42 0.025 320 / 0.24);
 
-  --color-night: oklch(0.268 0 0);             /* charcoal #262626 */
-  --color-night-2: oklch(0.325 0 0);           /* raised dark surface */
-  --color-night-line: oklch(0.40 0 0);         /* hairline on night */
+  --color-ink: oklch(0.245 0.018 300);
+  --color-ink-soft: oklch(0.435 0.02 305);
+  --color-ink-faint: oklch(0.55 0.02 310);
 
-  /* ink */
-  --color-ink: oklch(0.268 0 0);               /* primary text #262626 */
-  --color-ink-soft: oklch(0.44 0 0);           /* secondary on light (AA) */
-  --color-paper: oklch(0.953 0 0);             /* text on night #F2F2F2 */
-  --color-paper-soft: oklch(0.78 0 0);         /* secondary on night */
+  --color-night: oklch(0.215 0.022 290);
+  --color-night-2: oklch(0.262 0.024 290);
+  --color-night-line: oklch(0.96 0.012 320 / 0.13);
+  --color-paper-on-night: oklch(0.955 0.008 340);
+  --color-paper-on-night-soft: oklch(0.775 0.012 330);
 
-  /* brand pink #FF7BAC */
-  --color-pink: oklch(0.745 0.155 356);        /* brand hot pink (fills) */
-  --color-pink-bright: oklch(0.80 0.14 354);   /* pink text on night (AA lg) */
-  --color-pink-deep: oklch(0.555 0.205 356);   /* accessible pink text on light */
+  --color-signal: oklch(0.745 0.155 356);
+  --color-signal-deep: oklch(0.55 0.19 356);
+  --color-signal-bright: oklch(0.8 0.14 354);
+  --color-signal-ghost: oklch(0.745 0.155 356 / 0.1);
+  --color-dusk: oklch(0.62 0.055 290);
 
-  /* motion */
+  --text-hero: clamp(2.7rem, 7.4vw, 5.8rem);
+  --text-h2: clamp(2rem, 4.6vw, 3.5rem);
+  --text-h3: clamp(1.3rem, 2.2vw, 1.7rem);
+  --text-lede: clamp(1.08rem, 1.6vw, 1.3rem);
+  --text-label: 0.78rem;
+
+  --shadow-soft:
+    0 1px 2px oklch(0.3 0.035 310 / 0.05),
+    0 10px 28px oklch(0.3 0.045 310 / 0.06);
+  --shadow-viewport:
+    0 2px 6px oklch(0.22 0.04 300 / 0.18),
+    0 24px 56px oklch(0.25 0.05 305 / 0.16);
+  --shadow-signal:
+    0 0 0 1px var(--color-signal-ghost),
+    0 4px 18px oklch(0.745 0.155 356 / 0.12);
+
   --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* elevation — borders do most of the work; shadows stay whisper-soft */
-  --shadow-soft: 0 1px 2px rgba(40,30,40,0.04), 0 3px 10px -4px rgba(40,30,40,0.07);
-  --shadow-card: 0 1px 2px rgba(40,30,40,0.03), 0 10px 30px -14px rgba(40,30,40,0.13);
-  --shadow-glow: 0 0 0 1px oklch(0.745 0.155 356 / 0.14), 0 12px 34px -16px oklch(0.745 0.155 356 / 0.30);
-
-  /* hairlines — low-opacity borders, the Linear/Supabase tell */
-  --line: oklch(0.268 0 0 / 0.09);
-  --line-strong: oklch(0.268 0 0 / 0.14);
-
-  /* z-index scale */
   --z-base: 0;
   --z-wire: 5;
   --z-content: 10;
+  /* Linha do sinal quando precisa passar POR CIMA do conteúdo (ex.: equipe). */
+  --z-wire-over: 20;
   --z-nav: 40;
   --z-overlay: 60;
+
+  --color-code-green: oklch(0.76 0.12 145);
+  --color-code-blue: oklch(0.76 0.08 240);
+  --color-code-violet: oklch(0.72 0.09 300);
+  --color-code-amber: oklch(0.78 0.1 75);
+  --color-code-muted: oklch(0.58 0.02 300);
 }
 
 @layer base {
@@ -63,44 +122,65 @@
 
   body {
     margin: 0;
-    background-color: var(--color-cream);
+    overflow-x: clip;
+    background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-body);
+    font-size: 1rem;
     font-weight: 400;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: clip;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.03em;
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
+    font-weight: 500;
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
 
-  p { text-wrap: pretty; }
+  p {
+    text-wrap: pretty;
+  }
 
-  /* Lenis */
-  html.lenis, html.lenis body { height: auto; }
-  .lenis.lenis-smooth { scroll-behavior: auto !important; }
-  .lenis.lenis-stopped { overflow: hidden; }
+  a,
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
 
   ::selection {
-    background: var(--color-pink);
-    color: oklch(0.18 0.01 320);
+    background: var(--color-signal);
+    color: var(--color-night);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-pink-deep);
-    outline-offset: 3px;
     border-radius: 4px;
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
   }
 
-  /* Programmatic scroll targets (in-page anchors + skip-link) receive focus so
-     screen readers/keyboard move into the region — but a 2px outline around a
-     whole full-width section reads as a glitch. Suppress it for these
-     non-interactive tabindex="-1" targets only; real controls keep their ring. */
   [tabindex="-1"]:focus,
   [tabindex="-1"]:focus-visible {
     outline: none;
@@ -108,301 +188,335 @@
 }
 
 @layer utilities {
-  /* recurring brand tell: pulsing live status dot */
-  .live-dot {
-    position: relative;
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 9999px;
-    background: var(--color-pink);
-  }
-  .live-dot::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--color-pink);
-    animation: ping 2s var(--ease-quart) infinite;
-  }
-
-  /* data ticker mono flavor */
   .mono {
+    font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
+  }
+
+  .font-wonk {
+    font-variation-settings: "opsz" 144, "SOFT" 20, "WONK" 1;
   }
 
   .grain {
-    background-image: radial-gradient(
-      oklch(0.3 0.02 320 / 0.05) 1px,
-      transparent 1px
-    );
-    background-size: 4px 4px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px 180px;
+    mix-blend-mode: multiply;
   }
 
-  /* fine editorial grid — Linear-style structure, barely there */
-  .grid-lines {
-    background-image:
-      linear-gradient(to right, oklch(0.3 0.02 320 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(0.3 0.02 320 / 0.04) 1px, transparent 1px);
-    background-size: 64px 64px;
+  .paper-vignette {
+    background:
+      radial-gradient(
+        ellipse 80% 22% at 50% 0%,
+        oklch(0.984 0.004 340 / 0.72),
+        transparent 75%
+      );
   }
 
-  /* gradient ink for headline accents (light-mode safe) */
-  .text-gradient {
-    background-image: linear-gradient(
-      100deg,
-      var(--color-pink-deep) 0%,
-      oklch(0.62 0.205 356) 55%,
-      var(--color-pink-deep) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .signal-dot {
+    position: relative;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--color-signal);
   }
 
-  /* hairline card surface, raised */
-  .card-surface {
-    background: linear-gradient(180deg, var(--color-cream-deep), var(--color-cream));
-    border: 1px solid oklch(0.3 0.02 320 / 0.08);
-    box-shadow: var(--shadow-card);
+  .signal-dot[data-pulse="true"]::after {
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--color-signal);
+    border-radius: inherit;
+    content: "";
+    animation: signal-ping 2.4s var(--ease-quart) infinite;
   }
 
-  /* two-tone display gradient — Supabase headline pattern, light-safe.
-     first line full ink, second line fades to soft (set on the span) */
-  .text-ink-fade {
-    background-image: linear-gradient(180deg, var(--color-ink) 0%, var(--color-ink-soft) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .text-link {
+    background-image: linear-gradient(var(--color-signal), var(--color-signal));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 1px;
+    transition: color 200ms ease, background-size 200ms ease;
   }
 
-  /* FIG-style mono micro-label — ampere BentoGrid tell */
-  .fig {
-    font-family: var(--font-body);
-    font-variant-numeric: tabular-nums;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-pink-deep);
+  .text-link:hover {
+    color: var(--color-signal-bright);
+    background-size: 0 1px;
   }
 
-  /* mac-window chrome dot */
-  .win-dot { width: 0.7rem; height: 0.7rem; border-radius: 9999px; }
+  .section-index {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    color: var(--color-ink-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.04em;
+  }
 
-  /* product console surface — Linear hero mockup, translated to light mode */
-  .console {
-    background: var(--color-cream-deep);
-    border: 1px solid var(--line-strong);
-    border-bottom: 0;
-    border-radius: 1rem 1rem 0 0;
-    box-shadow:
-      0 -2px 60px -20px oklch(0.745 0.155 356 / 0.25),
-      0 40px 80px -40px rgba(40,30,40,0.35),
-      0 0 0 1px oklch(1 0 0 / 0.6) inset;
-    overflow: hidden;
+  .section-index > span:first-child {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+
+  .section-index-dark {
+    color: var(--color-paper-on-night-soft);
+  }
+
+  .section-index-dark > span:first-child {
+    color: var(--color-signal-bright);
+  }
+
+  .viewport-bezel {
+    position: relative;
+    overflow: visible;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 8px;
+    background: var(--color-night);
+    box-shadow: var(--shadow-viewport), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  }
+
+  .media-frame {
+    --frame-ratio: 16 / 10;
+  }
+
+  .viewport-bezel-on-night {
+    border-color: var(--color-night-line);
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.06);
+  }
+
+  .registration-mark {
+    position: absolute;
+    z-index: 2;
+    width: 8px;
+    height: 8px;
+    pointer-events: none;
+  }
+
+  .registration-mark::before,
+  .registration-mark::after {
+    position: absolute;
+    background: var(--color-night-line);
+    content: "";
+  }
+
+  .registration-mark::before {
+    width: 8px;
+    height: 1px;
+  }
+
+  .registration-mark::after {
+    width: 1px;
+    height: 8px;
+  }
+
+  .registration-mark[data-corner="tl"] {
+    top: 7px;
+    left: 7px;
+  }
+
+  .registration-mark[data-corner="tr"] {
+    top: 7px;
+    right: 7px;
+    transform: rotate(90deg);
+  }
+
+  .registration-mark[data-corner="br"] {
+    right: 7px;
+    bottom: 7px;
+    transform: rotate(180deg);
+  }
+
+  .registration-mark[data-corner="bl"] {
+    bottom: 7px;
+    left: 7px;
+    transform: rotate(270deg);
+  }
+
+  .case-frame {
+    --frame-ratio: 4 / 3;
+    width: min(92vw, 1040px);
+    flex: none;
+  }
+
+  @media (min-width: 768px) {
+    .case-frame {
+      --frame-ratio: 16 / 10;
+      width: min(78vw, 1040px, calc((100svh - 25rem) * 1.935));
+    }
   }
 }
 
 @layer components {
-  /* small tracked label — Linear/Supabase section opener */
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-ink-soft);
-  }
-  .eyebrow::before {
-    content: "";
-    width: 1.5rem;
-    height: 1px;
-    background: var(--color-pink);
-  }
-
-  /* buttons — crafted, not generic: tighter geometry, an inset top highlight,
-     a diagonal sheen that sweeps on hover, and an arrow that slides. */
   .btn {
     position: relative;
-    overflow: hidden;
     isolation: isolate;
     display: inline-flex;
+    min-height: 44px;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    border-radius: 0.625rem;
-    padding: 0.72rem 1.2rem;
+    gap: 0.6rem;
+    border-radius: 6px;
+    padding: 0.7rem 1.15rem;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1;
-    transition: transform 0.25s var(--ease-quart),
-      box-shadow 0.25s var(--ease-quart), background-color 0.25s var(--ease-quart),
-      border-color 0.25s var(--ease-quart), color 0.25s var(--ease-quart);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      color 200ms ease,
+      box-shadow 200ms ease;
   }
-  .btn .arrow {
-    display: inline-block;
-    transition: transform 0.25s var(--ease-quart);
-  }
-  /* diagonal sheen sweep — turns a flat fill into something crafted */
-  .btn-primary::before,
-  .btn-pink::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(
-      120deg,
-      transparent 30%,
-      oklch(1 0 0 / 0.16) 50%,
-      transparent 70%
-    );
-    transform: translateX(-140%);
-    transition: transform 0.65s var(--ease-quart);
-  }
+
   .btn-primary {
     background: var(--color-ink);
-    color: var(--color-cream);
-    box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 0.14),
-      inset 0 0 0 1px oklch(1 0 0 / 0.04);
+    color: var(--color-paper);
   }
-  .btn-pink {
-    background: var(--color-pink);
-    color: oklch(0.22 0.03 356);
-    box-shadow: var(--shadow-soft), inset 0 1px 0 oklch(1 0 0 / 0.28);
+
+  .btn-primary::before {
+    width: 0;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-signal);
+    content: "";
+    opacity: 0;
+    transition: width 200ms ease, opacity 200ms ease;
   }
+
+  .btn-primary:hover {
+    background: oklch(0.3 0.02 300);
+  }
+
+  .btn-primary:hover::before {
+    width: 6px;
+    opacity: 1;
+  }
+
+  .btn-inverse {
+    background: var(--color-paper-on-night);
+    color: var(--color-night);
+  }
+
+  .btn-inverse:hover {
+    background: var(--color-paper-high);
+  }
+
   .btn-ghost {
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--color-line-strong);
+    background: transparent;
     color: var(--color-ink);
-    background: oklch(1 0 0 / 0.4);
   }
 
-  /* Hover flourishes (arrow slide, sheen sweep, lift + glow) only where a real
-     pointer can hover. On touch a :hover state sticks after the tap — the lift
-     and glow would freeze until you tap elsewhere — so gate them behind
-     (hover: hover). Touch instead gets the crisp press below. */
-  @media (hover: hover) {
-    .btn:hover .arrow {
-      transform: translateX(3px);
-    }
-    .btn-primary:hover::before,
-    .btn-pink:hover::before {
-      transform: translateX(140%);
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 1px 2px rgba(40,30,40,0.08), 0 12px 28px -10px rgba(40,30,40,0.34),
-        inset 0 1px 0 oklch(1 0 0 / 0.18);
-    }
-    .btn-pink:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-glow), inset 0 1px 0 oklch(1 0 0 / 0.32);
-    }
-    .btn-ghost:hover {
-      border-color: var(--color-ink);
-      background: oklch(1 0 0 / 0.7);
-    }
-  }
-
-  /* Tap/press feedback — the touch-friendly counterpart to the hover lift. */
-  .btn:active {
-    transform: translateY(1px);
-  }
-
-  /* hairline card — near-white surface, border-led, whisper shadow */
-  .card {
-    border: 1px solid var(--line);
-    background: oklch(1 0 0 / 0.55);
-    border-radius: 1rem;
-    box-shadow: var(--shadow-soft);
-    transition: transform 0.3s var(--ease-quart),
-      box-shadow 0.3s var(--ease-quart), border-color 0.3s var(--ease-quart),
-      background-color 0.3s var(--ease-quart);
+  .btn-ghost:hover {
+    border-color: var(--color-signal);
+    background: var(--color-signal-ghost);
   }
 }
 
-/* ── custom cursor: a soft pink ring that trails the pointer. Desktop +
-   fine-pointer only; the native cursor stays visible underneath (a11y). The
-   dot is driven by JS transform (translate + scale), so no layout work. */
-.cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: var(--z-overlay);
-  width: var(--cursor-size, 12px);
-  height: var(--cursor-size, 12px);
-  margin: calc(var(--cursor-size, 12px) / -2) 0 0 calc(var(--cursor-size, 12px) / -2);
-  border-radius: 9999px;
-  border: 1.5px solid var(--color-pink);
-  background: oklch(0.745 0.155 356 / 0.12);
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  opacity: 0;
-  transition: opacity 0.3s var(--ease-quart), background-color 0.25s var(--ease-quart),
-    width 0.22s var(--ease-quart), height 0.22s var(--ease-quart), margin 0.22s var(--ease-quart);
-  will-change: transform;
-}
-.cursor-dot[data-visible="true"] { opacity: 1; }
-.cursor-dot[data-hover="true"] { background: oklch(0.745 0.155 356 / 0.22); }
-@media (pointer: coarse), (prefers-reduced-motion: reduce) {
-  .cursor-dot { display: none; }
-}
-
-/* ── horizontal gallery: on mobile (no JS pin) the track is a native
-   scroll-snap carousel; on desktop the hook pins + translates it instead. */
 .h-track {
   display: flex;
-  gap: 1.25rem;
+  width: max-content;
+  min-width: 0;
+  gap: clamp(1rem, 2.4vw, 2rem);
 }
-.h-track > * { flex: 0 0 auto; }
-@media (max-width: 767px) {
-  .h-snap {
+
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  .h-scroll {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    overscroll-behavior-x: contain;
   }
-  .h-snap::-webkit-scrollbar { display: none; }
-  .h-snap > .h-track > * { scroll-snap-align: center; }
+
+  .h-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .h-track > * {
+    scroll-snap-align: start;
+  }
 }
 
-/* slow-drifting aurora blobs for soft light-mode atmosphere */
-@keyframes aurora-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33% { transform: translate3d(3%, -4%, 0) scale(1.07); }
-  66% { transform: translate3d(-3%, 2%, 0) scale(0.96); }
-}
-.aurora { animation: aurora-drift 22s ease-in-out infinite; will-change: transform; }
-
-@keyframes ping {
-  0% { transform: scale(1); opacity: 0.6; }
-  75%, 100% { transform: scale(2.6); opacity: 0; }
+.standby-wave {
+  animation: standby-wave 12s linear infinite;
 }
 
-@keyframes float-soft {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-14px) rotate(-1.2deg); }
+@keyframes standby-wave {
+  to {
+    stroke-dashoffset: -280;
+  }
 }
 
-@keyframes wire-flow {
-  to { stroke-dashoffset: -1000; }
+@keyframes signal-ping {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.6);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
 }
-
-@keyframes marquee {
-  to { transform: translateX(-50%); }
-}
-
-.animate-float { animation: float-soft 7s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
+
+  .standby-wave {
+    animation: none;
+  }
+
+  .signal-dot[data-pulse="true"]::after {
+    animation: none;
+  }
+}
+
+html[data-reduced-motion="true"] {
+  scroll-behavior: auto;
+}
+
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.001ms !important;
+}
+
+html[data-reduced-motion="true"] .standby-wave {
+  animation: none;
+}
+
+html[data-reduced-motion="true"] .signal-dot[data-pulse="true"]::after {
+  animation: none;
+}
+
+html[data-reduced-motion="true"] .h-scroll {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+html[data-reduced-motion="true"] .h-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+html[data-reduced-motion="true"] .h-track > * {
+  scroll-snap-align: start;
 }
