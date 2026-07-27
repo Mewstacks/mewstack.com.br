@@ -15,8 +15,8 @@ const TEAM: Member[] = [
   {
     name: "Germano Argenta Dal Prá",
     role: "CEO & Data Engineer",
-    photo: "/brand/founder.png",
-    objectPosition: "50% 100%",
+    photo: "/brand/founder-v2.jpeg",
+    objectPosition: "50% 35%",
     bio: "Transforma dados bagunçados em pipelines, serviços e sistemas que sobrevivem ao mundo real da operação.",
     skills: ["Python", "Backend", "ETL", "Automação"],
   },
