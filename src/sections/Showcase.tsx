@@ -79,7 +79,6 @@ export default function Showcase() {
           data-signal-anchor="outcome-progress"
           className="mt-6 flex items-center gap-4 md:mt-4"
         >
-          <span className="mono text-[0.65rem] text-ink-faint">01</span>
           <span
             data-signal-anchor="outcome-terminal"
             className="h-px flex-1 overflow-hidden bg-line"
@@ -88,9 +87,6 @@ export default function Showcase() {
               ref={progress}
               className="block h-full w-full origin-left scale-x-0 bg-signal"
             />
-          </span>
-          <span className="mono text-[0.65rem] text-ink-faint">
-            {String(CASES.length).padStart(2, "0")}
           </span>
         </div>
       </div>

@@ -102,16 +102,6 @@ export default function Hero() {
             <HeroSignalMedia />
           </MediaFrame>
         </div>
-
-        <a
-          data-hero
-          href="#problema"
-          aria-label="Continuar para o problema"
-          className="mono mt-9 inline-flex min-h-11 w-fit items-center gap-3 text-[0.66rem] text-ink-faint lg:col-span-2 lg:col-start-1"
-        >
-          continuar
-          <span aria-hidden className="h-6 w-px bg-line-strong" />
-        </a>
       </div>
     </section>
   );
