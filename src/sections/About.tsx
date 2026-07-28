@@ -36,14 +36,6 @@ const TEAM: Member[] = [
     bio: "Mantém deploy, infraestrutura e suporte funcionando para o sistema continuar confiável depois da entrega.",
     skills: ["DevOps", "Docker", "Cloud", "Suporte"],
   },
-{
-    name: "Lorenzo Facchin",
-    role: "Comercial & Social Media",
-    photo: "/brand/team-sales.jpeg",
-    objectPosition: "50% 30%",
-    bio: "Faz a ponte entre problema, produto e conversa comercial sem transformar tecnologia em jargão.",
-    skills: ["Vendas B2B", "Conteúdo", "Relacionamento"],
-  },
 ];
 
 export default function About() {
@@ -77,7 +69,7 @@ export default function About() {
 
         <div
           data-signal-anchor="about-signal"
-          className="mt-12 grid gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-4"
+          className="mt-12 mx-auto grid max-w-[960px] gap-x-6 gap-y-12 md:grid-cols-3"
         >
           {TEAM.map((member) => (
             <article key={member.name} data-reveal className="min-w-0">
