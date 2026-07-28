@@ -61,7 +61,7 @@ export default function About() {
               Produto bom tem gente responsável do outro lado.
             </h2>
             <p data-reveal className="mt-5 max-w-[56ch] text-ink-soft">
-              Um time pequeno, direto e próximo do trabalho — da primeira conversa
+              Um time pequeno, direto e próximo do trabalho da primeira conversa
               ao sistema rodando em produção.
             </p>
           </div>

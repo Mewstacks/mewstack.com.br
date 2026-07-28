@@ -69,7 +69,7 @@ export default function Showcase() {
               Sistemas reais, feitos para operações reais.
             </h2>
             <p data-reveal className="mt-5 max-w-[68ch] text-ink-soft">
-              Automação fiscal, plataforma web e distribuição multicanal —
+              Automação fiscal, plataforma web e distribuição multicanal, 
               produtos diferentes, com a mesma obsessão por clareza, integração e fluxo.
             </p>
           </div>

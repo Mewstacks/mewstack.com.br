@@ -24,14 +24,14 @@ const SERVICES: Service[] = [
   {
     title: "Aplicações web e sistemas internos",
     description:
-      "Um software desenhado para o jeito que o negócio funciona, que centraliza a operação em um lugar só — no lugar da planilha esticada e do sistema genérico adaptado na marra.",
+      "Um software desenhado para o jeito que o negócio funciona, que centraliza a operação em um lugar só, no lugar da planilha esticada e do sistema genérico adaptado na marra.",
     capabilities: ["SISTEMAS SOB MEDIDA", "PORTAIS INTERNOS", "FLUXOS DO SEU JEITO"],
     instrument: "blueprint",
   },
   {
     title: "Dados e monitoramento",
     description:
-      "A informação espalhada vira uma leitura só, organizada e confiável — com alertas que avisam quando algo foge do esperado, antes de virar problema.",
+      "A informação espalhada vira uma leitura só, organizada e confiável, com alertas que avisam quando algo foge do esperado, antes de virar problema.",
     capabilities: ["ORGANIZAÇÃO DE DADOS", "RELATÓRIOS & LEITURAS", "ALERTAS"],
     instrument: "columns",
   },
@@ -332,7 +332,7 @@ export default function Capabilities() {
             </h2>
             <p data-reveal className="mt-6 max-w-[58ch] text-lede text-ink-soft">
               O ponto de partida não é a ferramenta da moda. É o que precisa
-              acontecer na sua operação — e o software certo para isso.
+              acontecer na sua operação, e o software certo para isso.
             </p>
           </div>
         </div>

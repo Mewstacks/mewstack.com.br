@@ -64,7 +64,7 @@ export default function Contact() {
               className="mt-7 max-w-[48ch] text-lede text-paper-on-night-soft"
             >
               Em uma conversa curta, mapeamos o que hoje depende de repetição,
-              improviso ou conferência manual — e por onde vale começar.
+              improviso ou conferência manual, e por onde vale começar.
             </p>
 
             <div data-reveal className="mt-9 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
