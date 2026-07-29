@@ -92,7 +92,7 @@ function createHeroTimeline(
 
   gsap.set(outerPath, {
     strokeDasharray: outerLength,
-    strokeDashoffset: outerLength * (1 - MOTION.signal.hero.initialDraw),
+    strokeDashoffset: outerLength,
     opacity: 1,
   });
   if (joinPath) {
@@ -170,12 +170,15 @@ function createHeroTimeline(
     },
   });
 
-  timeline.fromTo(
-    outerPath,
-    { strokeDashoffset: outerLength },
-    { strokeDashoffset: 0, duration: dial.descentSpan },
-    0,
-  );
+  // Descida desenha no load, completa antes de qualquer scroll: ao rolar, o
+  // header cobre um traço já inteiro (rolagem normal), nunca uma ponta viva.
+  const heroDraw = MOTION.signal.heroDraw;
+  const descentTween = gsap.to(outerPath, {
+    strokeDashoffset: 0,
+    delay: heroDraw.delay,
+    duration: heroDraw.duration,
+    ease: heroDraw.ease,
+  });
 
   timeline
     .to(veil, { opacity: dial.veilOpacity, duration: dial.veilSpan }, dial.veilAt)
@@ -233,6 +236,7 @@ function createHeroTimeline(
     window.cancelAnimationFrame(seekFrame);
     video.removeEventListener("loadedmetadata", onMetadata);
     video.pause();
+    descentTween.kill();
     timeline.scrollTrigger?.kill();
     timeline.kill();
   };
@@ -358,12 +362,17 @@ export function SignalScene({
       const config = MOTION.signal[scene];
       const { length } = measurePath(path);
 
+      // Opacidade 1 desde já: o dashoffset cheio já esconde o traço — evita
+      // pop de opacidade quando o desenho começa.
       gsap.set(path, {
         strokeDasharray: length,
-        strokeDashoffset: length * (1 - config.initialDraw),
-        opacity: config.initialDraw > 0 ? 1 : 0,
+        strokeDashoffset: length,
+        opacity: 1,
       });
 
+      // Scrub: true — colado no scroll, sem atraso. A janela (MOTION.signal)
+      // abre na borda inferior e fecha ~no centro da viewport, então a ponta
+      // desenha dentro da zona de leitura, no ritmo da rolagem.
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
@@ -371,12 +380,10 @@ export function SignalScene({
           trigger,
           start: config.start,
           end: config.end,
-          // Contato: lag leve pra o traço “chegar” sem estalo no fim da página.
-          scrub: scene === "contact" ? 1.15 : true,
+          scrub: true,
           invalidateOnRefresh: true,
         },
       });
-      if (config.initialDraw === 0) timeline.set(path, { opacity: 1 }, 0.001);
       timeline.to(path, { strokeDashoffset: 0, duration: 1 }, 0);
 
       return () => {

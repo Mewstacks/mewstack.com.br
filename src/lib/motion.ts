@@ -31,8 +31,8 @@ export const MOTION = {
     flowSpacing: 430,
     flowOpacity: 0.48,
     // Timeline única no scroll natural (sem pin). Pesos relativos ao progresso 0→1.
-    // Descida ocupa a primeira metade; join/travessia/saída fecham com o vídeo ainda na tela.
-    descentSpan: 0.42,
+    // A descida desenha no load (MOTION.signal.heroDraw); o scrub cobre só
+    // join/travessia/saída, que fecham com o vídeo ainda na tela.
     veilAt: 0.4,
     veilSpan: 0.07,
     guideAt: 0.4,
@@ -77,42 +77,49 @@ export const MOTION = {
       // Fecha a saída antes do hero sumir — bottom 40% mantém o frame na viewport.
       start: "top top",
       end: "bottom 40%",
-      initialDraw: 0.012,
       // Lag mínimo: tip suave sem “segurar” o scroll.
       scrub: 0.3,
     },
-    // Janela no TOPO da âncora: desenho enquanto a linha atravessa a viewport.
-    problem: {
-      start: "top 85%",
-      end: "top 15%",
-      initialDraw: 0,
+    // Descida do hero: tween LENTO no load — acompanha a leitura da dobra e
+    // termina antes de qualquer scroll, então o header nunca cobre uma ponta
+    // em movimento.
+    heroDraw: {
+      delay: 0.4,
+      duration: 3.2,
+      ease: "sine.inOut",
     },
-    // Trilho vertical: o desenho precisa TERMINAR com a saída ainda na viewport.
+    // Demais cenas: scrub COLADO no scroll (scrub: true, zero lag). A janela
+    // abre quando a âncora entra pela borda inferior e fecha ~no centro da
+    // viewport: a ponta desenha dentro da zona de leitura, acompanhando o
+    // ritmo do scroll — nunca “entra pela borda” no topo, e o traço está
+    // completo antes da região do header.
+    problem: {
+      start: "top 95%",
+      end: "top 45%",
+    },
+    // Trilho vertical: desenha enquanto os painéis 01→03 sobem; fecha com a
+    // saída ainda dentro da viewport.
     services: {
-      start: "top 78%",
-      end: "bottom 68%",
-      initialDraw: 0,
+      start: "top 95%",
+      end: "bottom 62%",
     },
     machine: {
-      start: "top 80%",
-      end: "top 20%",
-      initialDraw: 0,
+      start: "top 95%",
+      end: "top 40%",
     },
     outcome: {
-      start: "top 90%",
-      end: "top 40%",
-      initialDraw: 0,
+      start: "top 95%",
+      end: "top 45%",
     },
     about: {
-      start: "top 85%",
-      end: "top 15%",
-      initialDraw: 0,
+      start: "top 95%",
+      end: "top 45%",
     },
     contact: {
-      // Footer no fim da página: janela larga pra completar antes do limite do Lenis.
-      start: "top 135%",
-      end: "top 92%",
-      initialDraw: 0,
+      // Footer no fim da página: a hairline não alcança o centro da viewport —
+      // fecha logo antes do limite de scroll do Lenis.
+      start: "top 125%",
+      end: "top 90%",
     },
   },
 
