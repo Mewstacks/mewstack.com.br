@@ -32,23 +32,25 @@ export const MOTION = {
     flowOpacity: 0.48,
     // Timeline única no scroll natural (sem pin). Pesos relativos ao progresso 0→1.
     // A descida desenha no load (MOTION.signal.heroDraw); o scrub cobre só
-    // join/travessia/saída, que fecham com o vídeo ainda na tela.
-    veilAt: 0.4,
+    // join/travessia/saída. Tudo acontece na PRIMEIRA metade da janela: a
+    // linha atravessa e sai do vídeo enquanto o frame passa pelo centro da
+    // viewport — quando o usuário sai do hero, a linha já saiu junto.
+    veilAt: 0.1,
     veilSpan: 0.07,
-    guideAt: 0.4,
+    guideAt: 0.1,
     guideSpan: 0.1,
-    guideFadeAt: 0.68,
+    guideFadeAt: 0.5,
     guideFadeSpan: 0.06,
-    joinAt: 0.4,
-    joinSpan: 0.09,
-    innerAt: 0.48,
-    innerSpan: 0.18,
-    flowAt: 0.72,
-    flowSpan: 0.12,
-    exitAt: 0.62,
+    joinAt: 0.1,
+    joinSpan: 0.1,
+    innerAt: 0.2,
+    innerSpan: 0.24,
+    flowAt: 0.48,
+    flowSpan: 0.16,
+    exitAt: 0.4,
     exitSpan: 0.2,
     // Progresso a partir do qual o vídeo acompanha o scrub (após a descida).
-    mediaFrom: 0.4,
+    mediaFrom: 0.1,
     seekThreshold: 1 / 30,
   },
   wipeDuration: 0.8,
@@ -74,9 +76,11 @@ export const MOTION = {
   signal: {
     hero: {
       // Scroll natural na própria seção: progresso 0 no topo (sem pin).
-      // Fecha a saída antes do hero sumir — bottom 40% mantém o frame na viewport.
+      // Janela termina com o frame ~no centro (bottom 45%): a coreografia
+      // inteira (join→travessia→saída, ver heroSignal) fecha na primeira
+      // metade, com o vídeo na zona de leitura — nunca "acima da tela".
       start: "top top",
-      end: "bottom 40%",
+      end: "bottom 45%",
       // Lag mínimo: tip suave sem “segurar” o scroll.
       scrub: 0.3,
     },

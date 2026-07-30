@@ -272,34 +272,72 @@ export function buildSignalSceneRoute(
       ? Math.max(18, mediaLeft - 4)
       : rail;
 
-    // Um laço que se cruza, descendo. Compact: swing right into copy.
-    const loop = (cy: number, span: number, amp = A) => {
+    // Gestos distintos que vão se acalmando — nada de 3 laços iguais.
+    // Cada forma tem tamanho, direção e fechamento próprios; a amplitude
+    // decai conforme a linha "se alinha" até a aproximação reta do join.
+    // Laço grande, aberto e tombado: sai largo pra direita, sobe por fora
+    // e desce cruzando o próprio rastro — não fecha (fio solto, não ornamento).
+    const looseLoop = (cy: number, span: number, amp = A): CubicCurve[] => {
       const leftAmp = compact ? amp * 0.3 : amp;
       const rightAmp = compact ? amp * 1.25 : amp;
       return [
         curve(
-          rail - leftAmp,
-          cy - span * 0.5,
-          rail - leftAmp,
-          cy + span * 0.18,
-          rail + rightAmp * 0.5,
-          cy,
+          rail - leftAmp * 0.2,
+          cy - span * 0.7,
+          rail + rightAmp * 0.7,
+          cy - span * 0.55,
+          rail + rightAmp * 0.95,
+          cy + span * 0.02,
         ),
         curve(
-          rail + rightAmp * 1.15,
-          cy - span * 0.12,
+          rail + rightAmp * 1.35,
+          cy + span * 0.35,
+          rail + rightAmp * 0.9,
+          cy - span * 1.1,
+          rail + rightAmp * 0.05,
+          cy - span * 0.85,
+        ),
+        curve(
+          rail - leftAmp,
+          cy - span * 0.55,
+          rail - leftAmp * 0.55,
+          cy + span * 0.5,
+          rail + leftAmp * 0.2,
+          cy + span * 0.7,
+        ),
+      ];
+    };
+
+    // Dobra: a linha tropeça — sai pra direita, volta SUBINDO por dentro
+    // num cotovelo apertado e desce de novo cruzando o rastro. Leitura de
+    // fio que enrosca, contraponto aberto do laço (não é um segundo laço).
+    const fold = (cy: number, span: number, amp = A): CubicCurve[] => {
+      const leftAmp = compact ? amp * 0.3 : amp;
+      const rightAmp = compact ? amp * 1.2 : amp;
+      return [
+        curve(
+          rail + rightAmp * 0.7,
+          cy - span * 0.55,
           rail + rightAmp * 1.1,
-          cy - span * 0.95,
-          rail + rightAmp * 0.12,
-          cy - span * 0.78,
+          cy - span * 0.02,
+          rail + rightAmp * 0.6,
+          cy + span * 0.22,
         ),
         curve(
-          rail - leftAmp * 0.7,
-          cy - span * 0.62,
-          rail - leftAmp * 0.3,
-          cy + span * 0.58,
+          rail + rightAmp * 0.15,
+          cy + span * 0.42,
+          rail + rightAmp * 0.3,
+          cy - span * 0.58,
+          rail + rightAmp * 0.02,
+          cy - span * 0.52,
+        ),
+        curve(
+          rail - leftAmp * 0.4,
+          cy - span * 0.45,
+          rail - leftAmp * 0.35,
+          cy + span * 0.32,
           rail,
-          cy + span * 0.82,
+          cy + span * 0.58,
         ),
       ];
     };
@@ -319,19 +357,20 @@ export function buildSignalSceneRoute(
 
     const room = Math.max(compact ? 240 : 280, media.y - (compact ? 16 : 48));
 
+    // Envelope: gestos grandes e irregulares em cima → tremores curtos →
+    // onda amortecida → aproximação reta. Ritmo assimétrico de propósito.
     const descent: CubicCurve[] = compact
       ? [
-          wave(0, room * 0.1, 0.8),
-          ...loop(room * 0.18, Math.min(72, room * 0.22)),
-          wave(room * 0.26, room * 0.34, 1),
-          ...loop(room * 0.42, Math.min(68, room * 0.2)),
-          wave(room * 0.5, room * 0.58, 0.95),
-          ...loop(room * 0.66, Math.min(64, room * 0.18)),
-          wave(room * 0.74, room * 0.82, 0.85),
-          ...loop(room * 0.88, Math.min(56, room * 0.14), A * 0.85),
+          wave(0, room * 0.1, 0.4, A * 0.6),
+          ...looseLoop(room * 0.23, Math.min(70, room * 0.22), A * 0.8),
+          wave(room * 0.34, room * 0.39, -0.45, A * 0.55),
+          ...fold(room * 0.48, Math.min(56, room * 0.17), A * 0.65),
+          wave(room * 0.57, room * 0.62, 0.5, A * 0.36),
+          wave(room * 0.62, room * 0.67, -0.45, A * 0.3),
+          wave(room * 0.71, room * 0.76, 0.35, A * 0.25),
           curve(
             rail + A * 0.25,
-            room * 0.94,
+            room * 0.84,
             approachRail + (rail - approachRail) * 0.4,
             mediaY - 24,
             approachRail,
@@ -339,15 +378,16 @@ export function buildSignalSceneRoute(
           ),
         ]
       : [
-          wave(0, height * 0.09, 0.7),
-          ...loop(height * 0.16, height * 0.055),
-          wave(height * 0.21, height * 0.27, 0.9),
-          ...loop(height * 0.34, height * 0.055),
-          wave(height * 0.39, height * 0.45, 0.9),
-          ...loop(height * 0.52, height * 0.05),
+          wave(0, height * 0.06, 0.55),
+          ...looseLoop(height * 0.14, height * 0.08),
+          wave(height * 0.21, height * 0.255, -0.5, A * 0.85),
+          ...fold(height * 0.315, height * 0.055, A * 0.7),
+          wave(height * 0.36, height * 0.395, 0.5, A * 0.42),
+          wave(height * 0.395, height * 0.43, -0.45, A * 0.36),
+          wave(height * 0.46, height * 0.51, 0.3, A * 0.28),
           curve(
             rail + A * 0.4,
-            height * 0.6,
+            height * 0.57,
             rail,
             mediaY - 94,
             rail,
