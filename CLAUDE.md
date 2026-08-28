@@ -7,7 +7,8 @@ One-pager de credibilidade do estúdio MewStack. Leia `PRODUCT.md`, `DESIGN.md` 
 
 - React 18 + TypeScript + Vite 6 + Tailwind v4 CSS-first.
 - GSAP + ScrollTrigger + SplitText, Lenis e lucide-react. Sem framer-motion.
-- Rodar: `npm run dev`. Buildar: `npm run build`.
+- Rodar: `npm run dev`. Buildar: `npm run build` (`tsc -b` + `vite build` +
+  `scripts/prerender.mjs`).
 - `vite.config.ts` lê `PORT` do ambiente com fallback 5173.
 
 ## Arquitetura
@@ -19,6 +20,27 @@ One-pager de credibilidade do estúdio MewStack. Leia `PRODUCT.md`, `DESIGN.md` 
 - `useSceneBackground.ts` + `SceneBackground.tsx`: crossfade entre quatro tons.
 - `useHorizontalGallery.ts`: Cases pinado no desktop e scroll-snap no fallback.
 - `MediaFrame.tsx`: bezel compartilhado; `SignalLine.tsx`: fio com fallback estático.
+
+## Prerender e rotas
+
+O build gera HTML estático de cada rota com Playwright — sem isso o site serve uma
+casca vazia e não é indexável.
+
+- `scripts/prerender.mjs` sobe `vite preview`, abre cada rota com
+  `reducedMotion: "reduce"` e serializa o DOM. Funciona porque sob reduced-motion
+  `useChapter` e `Capabilities` saem cedo: headings inteiros, terminal intacto,
+  nada em `opacity: 0`.
+- **Rota nova precisa estar linkada de dentro do site.** O prerender descobre
+  rotas rastreando `a[href]` a partir das sementes em `scripts/routes.mjs`. Página
+  não linkada não é prerenderizada e responde 404 — de propósito.
+- `src/components/Seo.tsx` reescreve title/description/canonical/JSON-LD por rota
+  num layout effect, que é o que o snapshot captura.
+- Conteúdo das páginas de serviço em `src/lib/services.ts`; schema em
+  `src/lib/schema.ts`; template em `src/pages/ServicePage.tsx`.
+- `index.html` tem uma **guarda de paint** (`html.booting`) que esconde só o que o
+  GSAP anima até o React montar. Sem ela o conteúdo prerenderizado pisca. O
+  prerender remove a classe do arquivo — nunca deixe ela vazar pro HTML.
+- `public/.htaccess` não tem mais catch-all SPA: caminho desconhecido dá 404 real.
 
 ## Fluxo inegociável
 
@@ -48,6 +70,11 @@ One-pager de credibilidade do estúdio MewStack. Leia `PRODUCT.md`, `DESIGN.md` 
 - Lenis controla scroll programático; use sua instância para âncoras.
 - `overflow-x: clip` não substitui a medição real de `scrollWidth`.
 - Linhas de tabela independentes precisam de colunas explicitamente dimensionadas.
+- `data-reveal-title` (SplitText linha a linha) é disparado por scroll: num
+  heading que já nasce dentro da viewport ele trava no meio. Acima da dobra use
+  `data-reveal`.
+- Heading dentro de `figcaption` herda a fonte display pela regra global de
+  `h1..h4`; `index.css` já anula isso para a legenda continuar em mono.
 
 ## Ordem fixa
 

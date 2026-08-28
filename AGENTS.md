@@ -14,7 +14,12 @@ Não duplique o conteúdo desses dois; siga-os.
 - **React 18 + TypeScript + Vite 6 + Tailwind v4** (CSS-first, `@theme` em `src/index.css`).
 - **GSAP + ScrollTrigger + SplitText** (animação/scroll cinematográfico), **lenis** (scroll
   suave, em ponte com o ScrollTrigger), **lucide-react** (ícones). **Sem framer-motion.**
-- Rodar: `npm run dev` · Buildar: `npm run build` (faz `tsc -b` + `vite build`).
+- Rodar: `npm run dev` · Buildar: `npm run build` (`tsc -b` + `vite build` +
+  `scripts/prerender.mjs`, que snapshota cada rota para HTML estático).
+- **react-router-dom**: home em `src/pages/Home.tsx`, páginas de serviço em
+  `src/pages/ServicePage.tsx` (conteúdo em `src/lib/services.ts`). Rota nova só
+  existe se estiver linkada de dentro do site — o prerender descobre rotas
+  rastreando os links, e o que não é prerenderizado responde 404.
 - `vite.config.ts` lê `PORT` do ambiente (fallback 5173) — não remova.
 
 ### Arquitetura de motion (o sistema de "capítulos")
