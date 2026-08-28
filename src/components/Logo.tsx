@@ -7,7 +7,7 @@ const SRC: Record<Variant, string> = {
   horizontalDark: "/brand/logo-horizontal-dark.png",
   stacked: "/brand/logo-stacked.png",
   icon: "/brand/icon.png",
-  white: "/brand/logo-white.png",
+  white: "/brand/logo-white.webp",
   vector: "/brand/mascot.svg",
 };
 

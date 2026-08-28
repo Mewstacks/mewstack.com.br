@@ -6,6 +6,9 @@ type Member = {
   name: string;
   role: string;
   photo?: string;
+  /* Intrinsic [width, height] of `photo`, reserved so the card does not jump
+     when the portrait decodes. */
+  photoSize: readonly [number, number];
   objectPosition?: string;
   bio: string;
   skills: string[];
@@ -15,7 +18,8 @@ const TEAM: Member[] = [
   {
     name: "Germano Argenta Dal Prá",
     role: "CEO & Data Engineer",
-    photo: "/brand/founder-v2.jpeg",
+    photo: "/brand/founder-v2.webp",
+    photoSize: [592, 712] as const,
     objectPosition: "50% 35%",
     bio: "Transforma dados bagunçados em pipelines, serviços e sistemas que sobrevivem ao mundo real da operação.",
     skills: ["Python", "Backend", "ETL", "Automação"],
@@ -23,7 +27,8 @@ const TEAM: Member[] = [
   {
     name: "Pedro Henrique Gasparin Machado",
     role: "Full-Stack Developer",
-    photo: "/brand/team-dev.jpeg",
+    photo: "/brand/team-dev.webp",
+    photoSize: [1179, 1168] as const,
     objectPosition: "68% 32%",
     bio: "Leva o produto da arquitetura à tela, conectando APIs, interfaces rápidas e acabamento de alto nível.",
     skills: ["Django", "React", "TypeScript", "UI"],
@@ -31,7 +36,8 @@ const TEAM: Member[] = [
   {
     name: "Vinicius Alves Motta",
     role: "DevOps & Support Manager",
-    photo: "/brand/team-devops-v4.jpeg",
+    photo: "/brand/team-devops-v4.webp",
+    photoSize: [721, 1600] as const,
     objectPosition: "50% 24%",
     bio: "Mantém deploy, infraestrutura e suporte funcionando para o sistema continuar confiável depois da entrega.",
     skills: ["DevOps", "Docker", "Cloud", "Suporte"],
@@ -79,6 +85,8 @@ export default function About() {
                     <img
                       src={member.photo}
                       alt={`Retrato de ${member.name}`}
+                      width={member.photoSize[0]}
+                      height={member.photoSize[1]}
                       style={{ objectPosition: member.objectPosition }}
                       className="h-full w-full object-cover"
                       loading="lazy"

@@ -103,7 +103,11 @@ export default function Contact() {
         </div>
       </div>
 
+      {/* Lives inside <section> so the signal line can terminate on its
+          hairline; the explicit role restores the contentinfo landmark that
+          nesting would otherwise suppress. */}
       <footer
+        role="contentinfo"
         data-signal-anchor="contact-horizon"
         className="relative z-[var(--z-content)] border-t border-night-line"
       >

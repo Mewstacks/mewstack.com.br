@@ -41,6 +41,8 @@ const COLLECTOR_DOTS = [
  * Presentation and media loading only. SignalScene owns the single scroll
  * timeline that drives this SVG, the outside connector and video seeking.
  */
+const HERO_VIDEO = "/media/hero-signal.mp4";
+
 export default function HeroSignalMedia() {
   const root = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -51,11 +53,18 @@ export default function HeroSignalMedia() {
     const media = video.current;
     if (reduce || !container || !media) return;
 
+    // The source is attached here rather than in the markup. With src set up
+    // front, `preload="metadata"` starts a fetch and the load() below restarts
+    // it from byte zero — the 3.5 MB file came down twice (measured: 7.2 MB of
+    // video on a single page load).
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
-        media.preload = "auto";
-        media.load();
+        if (!media.src) {
+          media.src = HERO_VIDEO;
+          media.preload = "auto";
+          media.load();
+        }
         observer.disconnect();
       },
       { rootMargin: "100% 0px" },
@@ -75,7 +84,9 @@ export default function HeroSignalMedia() {
       {reduce ? (
         <img
           data-hero-signal-poster
-          src="/media/hero-signal-poster.jpg"
+          src="/media/hero-signal-poster.webp"
+          width={1200}
+          height={675}
           alt=""
           aria-hidden="true"
           className="h-full w-full object-cover"
@@ -85,12 +96,11 @@ export default function HeroSignalMedia() {
         <video
           ref={video}
           data-hero-signal-video
-          src="/media/hero-signal.mp4"
-          poster="/media/hero-signal-poster.jpg"
+          poster="/media/hero-signal-poster.webp"
           className="h-full w-full object-cover"
           muted
           playsInline
-          preload="metadata"
+          preload="none"
           aria-hidden="true"
           draggable={false}
         />

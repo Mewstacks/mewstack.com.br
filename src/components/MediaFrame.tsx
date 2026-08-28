@@ -12,7 +12,14 @@ type MediaFrameProps = {
   ratio?: string;
   caption?: MediaCaption;
   captionPosition?: "top" | "bottom";
+  /* Promotes the caption's name to a heading. Only for captions that name a
+     real piece of work (the Showcase cases) — instrument labels stay as text. */
+  captionNameAs?: "p" | "h3";
   src?: string;
+  /* Intrinsic pixel size. Without it the browser cannot reserve the box before
+     the image lands and the surrounding layout shifts (CLS). */
+  width?: number;
+  height?: number;
   videoSrc?: string;
   fit?: "cover" | "contain";
   standbyLabel?: string;
@@ -28,28 +35,37 @@ const CORNERS = ["tl", "tr", "br", "bl"] as const;
 function Caption({
   caption,
   onNight,
+  nameAs = "p",
 }: {
   caption: MediaCaption;
   onNight: boolean;
+  nameAs?: "p" | "h3";
 }) {
+  const asHeading = nameAs === "h3";
+  const nameClass = `font-medium ${onNight ? "text-paper-on-night" : "text-ink"}`;
   return (
-    <div
+    <figcaption
       className={`mono flex min-h-8 min-w-0 items-center justify-between gap-3 border-y px-3 text-[0.65rem] leading-none sm:px-4 sm:text-[0.72rem] ${
         onNight
           ? "border-night-line text-paper-on-night-soft"
           : "border-line text-ink-faint"
       }`}
     >
-      <p className="min-w-0 truncate">
-        <span
-          className={`font-medium ${
-            onNight ? "text-paper-on-night" : "text-ink"
-          }`}
-        >
-          {caption.name}
-        </span>
-        {caption.detail && <span> · {caption.detail}</span>}
-      </p>
+      {/* A heading cannot sit inside <p>, so the wrapper relaxes to a div when
+          the caption carries the case title. */}
+      {asHeading ? (
+        <div className="flex min-w-0 items-baseline gap-1 truncate">
+          <h3 className={`${nameClass} truncate`}>{caption.name}</h3>
+          {caption.detail && (
+            <span className="truncate"> · {caption.detail}</span>
+          )}
+        </div>
+      ) : (
+        <p className="min-w-0 truncate">
+          <span className={nameClass}>{caption.name}</span>
+          {caption.detail && <span> · {caption.detail}</span>}
+        </p>
+      )}
       <p className="flex shrink-0 items-center gap-2">
         {caption.year && <span>{caption.year}</span>}
         {caption.type === "●" ? (
@@ -64,7 +80,7 @@ function Caption({
           </span>
         ) : null}
       </p>
-    </div>
+    </figcaption>
   );
 }
 
@@ -112,7 +128,10 @@ export default function MediaFrame({
   ratio,
   caption,
   captionPosition = "bottom",
+  captionNameAs = "p",
   src,
+  width,
+  height,
   videoSrc,
   fit = "cover",
   standbyLabel = "CAPTURA EM PRODUÇÃO — EM BREVE",
@@ -144,6 +163,8 @@ export default function MediaFrame({
     <img
       src={src}
       alt={title}
+      width={width}
+      height={height}
       className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
       loading="lazy"
       decoding="async"
@@ -155,7 +176,7 @@ export default function MediaFrame({
   return (
     <figure style={style} className={`media-frame group min-w-0 ${className}`}>
       {caption && captionPosition === "top" && (
-        <Caption caption={caption} onNight={onNight} />
+        <Caption caption={caption} onNight={onNight} nameAs={captionNameAs} />
       )}
       <div
         className={`viewport-bezel ${
@@ -173,7 +194,7 @@ export default function MediaFrame({
         <div className="h-full w-full overflow-hidden rounded-[7px]">{media}</div>
       </div>
       {caption && captionPosition === "bottom" && (
-        <Caption caption={caption} onNight={onNight} />
+        <Caption caption={caption} onNight={onNight} nameAs={captionNameAs} />
       )}
     </figure>
   );

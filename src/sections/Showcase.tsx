@@ -7,7 +7,9 @@ import { useHorizontalGallery } from "../lib/useHorizontalGallery";
 const CASES = [
   {
     key: "operacao-fiscal",
-    src: "/media/cases/operacao-fiscal.png",
+    src: "/media/cases/operacao-fiscal.webp",
+    width: 1918,
+    height: 991,
     title:
       "Dashboard de operação fiscal com obrigações, upload de recibos, consulta de NFS-e e checklist mensal",
     caption: {
@@ -18,7 +20,9 @@ const CASES = [
   },
   {
     key: "plataforma-tributaria",
-    src: "/media/cases/plataforma-tributaria.png",
+    src: "/media/cases/plataforma-tributaria.webp",
+    width: 1918,
+    height: 991,
     title:
       "Aplicação web tributária com acesso a uma plataforma fiscal e ferramentas para validação e adaptação",
     caption: {
@@ -29,7 +33,9 @@ const CASES = [
   },
   {
     key: "distribuicao-multicanal",
-    src: "/media/cases/distribuicao-multicanal.png",
+    src: "/media/cases/distribuicao-multicanal.webp",
+    width: 1916,
+    height: 989,
     title:
       "Sistema interno de promoções com coleta de ofertas, filtros e distribuição para WhatsApp e Telegram",
     caption: {
@@ -110,8 +116,11 @@ export default function Showcase() {
               key={item.key}
               className="case-frame transition-shadow duration-200 hover:shadow-[var(--shadow-signal)]"
               caption={item.caption}
+              captionNameAs="h3"
               title={item.title}
               src={item.src}
+              width={item.width}
+              height={item.height}
               fit="contain"
               ratio="1918 / 991"
             />

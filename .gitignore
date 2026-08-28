@@ -14,3 +14,9 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# dev screenshots — 191 files / ~30 MB, slows every checkout and clone
+output/
+
+# playwright browser cache
+.playwright
