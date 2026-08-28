@@ -158,6 +158,7 @@ export default function Contact() {
             ))}
           </nav>
           <div className="text-sm lg:text-right">
+            <p>Caxias do Sul · RS</p>
             <p>© {new Date().getFullYear()} MewStack</p>
             <a
               href="https://mewstack.com.br"
