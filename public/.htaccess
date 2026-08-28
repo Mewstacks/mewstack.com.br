@@ -2,6 +2,14 @@
 
 Options -Indexes
 DirectoryIndex index.html
+
+# Prerendered routes live in directories, and mod_dir would answer /rota with a
+# 301 to /rota/ before any rewrite runs — an extra hop, and a URL that disagrees
+# with the page's own canonical. Turning it off lets the rule below serve the
+# file directly. Safe because Options -Indexes already forbids listings.
+<IfModule mod_dir.c>
+  DirectorySlash Off
+</IfModule>
 AddDefaultCharset UTF-8
 
 # The FTP deploy action writes its sync state into the docroot; without this it
@@ -32,9 +40,13 @@ AddDefaultCharset UTF-8
   RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 
   # --- Prerendered routes ---------------------------------------------------
-  # /rota -> /rota/index.html, served directly (no 301 to a trailing slash).
+  # One address per page: /rota, never /rota/. Matches what the canonical tag
+  # and the sitemap both claim.
+  RewriteCond %{REQUEST_URI} !^/$
+  RewriteRule ^(.+)/$ /$1 [L,R=301]
+
+  # /rota -> /rota/index.html, served in place with a 200.
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
   RewriteRule ^(.+?)/?$ /$1/index.html [L]
 
