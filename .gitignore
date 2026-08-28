@@ -20,3 +20,6 @@ output/
 
 # playwright browser cache
 .playwright
+
+# scratch files from verification runs
+*.tmp.*
