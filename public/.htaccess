@@ -51,9 +51,10 @@ ErrorDocument 404 /404.html
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 
-  # Enable only after confirming HTTPS is healthy on every entry point.
-  # Browsers cache this policy, so it is slow to undo.
-  # Header always set Strict-Transport-Security "max-age=31536000"
+  # Verified in production before enabling: http -> https and www -> apex both
+  # answer 301, and https serves 200. No includeSubDomains and no preload, so
+  # the policy stays scoped to this host and expires on its own.
+  Header always set Strict-Transport-Security "max-age=31536000"
 
   # Vite fingerprints its output, so a hashed file can never go stale. Matched
   # by filename rather than <If ...>, which only exists on Apache 2.4 and would
