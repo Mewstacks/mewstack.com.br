@@ -1,7 +1,9 @@
 import { useRef, type MouseEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "../components/Logo";
 import { SignalScene } from "../components/SignalJourney";
 import { NAV_CHAPTERS } from "../lib/chapters";
+import { SERVICES } from "../lib/services";
 import { useChapter } from "../lib/useChapter";
 import { useMagnetic } from "../lib/useMagnetic";
 
@@ -34,6 +36,7 @@ function openInstagram(event: MouseEvent<HTMLAnchorElement>) {
 
 export default function Contact() {
   const root = useRef<HTMLElement>(null);
+  const onHome = useLocation().pathname === "/";
   useChapter(root, { exit: false });
   useMagnetic(root, "[data-contact-magnetic]", { strength: 0.12, max: 10 });
 
@@ -135,6 +138,23 @@ export default function Contact() {
           </div>
         </div>
 
+        <div className="mx-auto max-w-[1200px] border-b border-night-line px-5 py-7 sm:px-8">
+          <nav
+            aria-label="Serviços"
+            className="mono flex flex-wrap gap-x-6 gap-y-3 text-[0.62rem] text-paper-on-night-soft"
+          >
+            {SERVICES.map((service) => (
+              <Link
+                key={service.slug}
+                to={`/${service.slug}`}
+                className="transition-colors duration-200 hover:text-signal-bright"
+              >
+                {service.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
         <div className="mx-auto grid max-w-[1200px] gap-8 px-5 py-8 text-paper-on-night-soft sm:px-8 lg:grid-cols-[auto_1fr_auto] lg:items-center">
           <div data-signal-anchor="contact-terminal" className="relative w-fit">
             <Logo
@@ -150,7 +170,7 @@ export default function Contact() {
             {NAV_CHAPTERS.map((chapter, index) => (
               <a
                 key={chapter.id}
-                href={`#${chapter.id}`}
+                href={onHome ? `#${chapter.id}` : `/#${chapter.id}`}
                 className="transition-colors duration-200 hover:text-signal-bright"
               >
                 {String(index + 1).padStart(2, "0")} {chapter.label}

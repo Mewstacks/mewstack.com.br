@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Logo from "../components/Logo";
 import { HEADER_CHAPTERS } from "../lib/chapters";
 import { useChapterTheme } from "../lib/useChapterTheme";
 
 const LINKS = HEADER_CHAPTERS.map((chapter, index) => ({
-  href: `#${chapter.id}`,
+  id: chapter.id,
   label: chapter.label,
   index: String(index + 1).padStart(2, "0"),
 }));
@@ -13,6 +14,13 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const dark = useChapterTheme() === "dark" && !open;
+  const onHome = useLocation().pathname === "/";
+
+  /* The chapters only exist on the one-pager. On a service page the same nav
+     has to leave the page first, so the anchor becomes a root-relative URL —
+     RouteChrome scrolls to the hash once the home route has mounted. On home
+     the bare hash is kept so LenisAnchors can animate the scroll. */
+  const anchor = (id: string) => (onHome ? `#${id}` : `/#${id}`);
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 20);
@@ -37,7 +45,7 @@ export default function Nav() {
     >
       <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 sm:px-8">
         <a
-          href="#top"
+          href={onHome ? "#top" : "/"}
           aria-label="MewStack, início"
           className="flex min-h-11 items-center"
           onClick={() => setOpen(false)}
@@ -53,8 +61,8 @@ export default function Nav() {
         <nav aria-label="Capítulos" className="hidden items-center gap-5 lg:flex xl:gap-7">
           {LINKS.map((link) => (
             <a
-              key={link.href}
-              href={link.href}
+              key={link.id}
+              href={anchor(link.id)}
               className={`group relative flex min-h-11 items-center gap-1.5 text-[0.78rem] font-medium ${
                 dark ? "text-paper-on-night-soft" : "text-ink-soft"
               }`}
@@ -77,7 +85,7 @@ export default function Nav() {
 
         <div className="flex items-center gap-2">
           <a
-            href="#contato"
+            href={anchor("contato")}
             className={`btn hidden text-sm sm:inline-flex ${
               dark ? "btn-primary btn-inverse" : "btn-ghost"
             }`}
@@ -126,9 +134,9 @@ export default function Nav() {
       >
         <ul className="mx-auto max-w-[1200px] px-5 sm:px-8">
           {LINKS.map((link) => (
-            <li key={link.href} className="border-b border-line last:border-0">
+            <li key={link.id} className="border-b border-line last:border-0">
               <a
-                href={link.href}
+                href={anchor(link.id)}
                 onClick={() => setOpen(false)}
                 className="flex min-h-14 items-center gap-4 text-ink"
               >
@@ -139,7 +147,7 @@ export default function Nav() {
           ))}
           <li className="py-4">
             <a
-              href="#contato"
+              href={anchor("contato")}
               onClick={() => setOpen(false)}
               className="btn btn-primary w-full"
             >

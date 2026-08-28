@@ -10,7 +10,7 @@
  * the same content a sighted visitor ends up with, not a hidden-text trick.
  *
  * Crawlers that never execute JS (GPTBot, ClaudeBot, PerplexityBot) and
- * Googlebot's first pass both read this file directly.
+ * Googlebot's first pass both read these files directly.
  */
 import { preview } from "vite";
 import { chromium } from "playwright";
@@ -22,6 +22,7 @@ import { ROUTES, SITE_ORIGIN } from "./routes.mjs";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const outDir = join(root, "dist");
 const PORT = 4183;
+const MAX_PAGES = 200;
 
 /* Runs inside the page. Strips the bits of the live DOM that are runtime state
  * rather than content, then writes the per-route head tags. */
@@ -32,7 +33,8 @@ function serialize({ canonical, title, description }) {
   document.documentElement.removeAttribute("data-reduced-motion");
 
   // Belt and braces: App drops this on mount, but if it ever survived into the
-  // file it would hide the whole page from crawlers that do not run scripts.
+  // file it would hide the animated content from crawlers that do not run
+  // scripts.
   document.documentElement.classList.remove("booting");
 
   // GSAP's reduced-motion path leaves `opacity: 1` plus cleared transforms on
@@ -93,6 +95,18 @@ function serialize({ canonical, title, description }) {
   return "<!doctype html>\n" + document.documentElement.outerHTML + "\n";
 }
 
+/* Routes are discovered by crawling the site's own internal links, seeded from
+   routes.mjs. A linked page is therefore always prerendered and always in the
+   sitemap — the two cannot drift apart, and an unlinked page would not rank
+   anyway. */
+const SKIP_EXT = /\.[a-z0-9]{2,5}$/i;
+function normalise(href) {
+  if (!href || !href.startsWith("/") || href.startsWith("//")) return null;
+  const path = href.split("#")[0].split("?")[0];
+  if (!path || SKIP_EXT.test(path)) return null;
+  return path === "/" ? "/" : path.replace(/\/+$/, "");
+}
+
 const server = await preview({
   root,
   preview: { port: PORT, strictPort: true, open: false },
@@ -106,15 +120,22 @@ const context = await browser.newContext({
   locale: "pt-BR",
 });
 
-// Snapshot everything before writing anything: the dev server is still serving
-// out of dist/, and overwriting index.html mid-run would poison later routes
-// that fall back to it.
+const seeds = new Map(ROUTES.map((r) => [r.path, r]));
+const queue = [...seeds.keys()];
+const seen = new Set(queue);
+
+// Snapshot everything before writing: the preview server is still serving out
+// of dist/, and overwriting index.html mid-run would poison later routes.
 const snapshots = [];
+
 try {
-  for (const route of ROUTES) {
+  while (queue.length && snapshots.length < MAX_PAGES) {
+    const path = queue.shift();
     const page = await context.newPage();
-    const url = `http://localhost:${PORT}${route.path}`;
-    await page.goto(url, { waitUntil: "networkidle", timeout: 60_000 });
+    await page.goto(`http://localhost:${PORT}${path}`, {
+      waitUntil: "networkidle",
+      timeout: 60_000,
+    });
     await page.waitForFunction(
       () => (document.getElementById("root")?.childElementCount ?? 0) > 0,
       null,
@@ -124,13 +145,28 @@ try {
     // Let layout-measuring effects (Process/SignalJourney route state) commit.
     await page.waitForTimeout(400);
 
+    const hrefs = await page.evaluate(() =>
+      [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")),
+    );
+    for (const href of hrefs) {
+      const next = normalise(href);
+      if (next && !seen.has(next)) {
+        seen.add(next);
+        queue.push(next);
+      }
+    }
+
+    const route = seeds.get(path) ?? { path, changefreq: "monthly", priority: "0.8" };
     const html = await page.evaluate(serialize, {
-      canonical: SITE_ORIGIN + route.path,
+      canonical: SITE_ORIGIN + path,
       title: route.title ?? null,
       description: route.description ?? null,
     });
     snapshots.push({ route, html });
     await page.close();
+  }
+  if (queue.length) {
+    console.warn(`prerender  stopped at ${MAX_PAGES} pages, ${queue.length} left queued`);
   }
 } finally {
   await browser.close();
@@ -145,8 +181,9 @@ for (const { route, html } of snapshots) {
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, html, "utf8");
   const h2 = (html.match(/<h2[\s>]/g) ?? []).length;
+  const title = (html.match(/<title>([^<]*)<\/title>/) ?? [, ""])[1];
   console.log(
-    `prerender  ${route.path.padEnd(34)} ${String(Math.round(html.length / 1024)).padStart(4)} KB  ${h2} h2`,
+    `prerender  ${route.path.padEnd(26)} ${String(Math.round(html.length / 1024)).padStart(4)} KB  ${String(h2).padStart(2)} h2  ${title.slice(0, 46)}`,
   );
 }
 
@@ -154,15 +191,17 @@ const lastmod = new Date().toISOString().slice(0, 10);
 const sitemap =
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  ROUTES.map(
-    (r) =>
-      "  <url>\n" +
-      `    <loc>${SITE_ORIGIN}${r.path}</loc>\n` +
-      `    <lastmod>${lastmod}</lastmod>\n` +
-      `    <changefreq>${r.changefreq}</changefreq>\n` +
-      `    <priority>${r.priority}</priority>\n` +
-      "  </url>",
-  ).join("\n") +
+  snapshots
+    .map(
+      ({ route: r }) =>
+        "  <url>\n" +
+        `    <loc>${SITE_ORIGIN}${r.path}</loc>\n` +
+        `    <lastmod>${lastmod}</lastmod>\n` +
+        `    <changefreq>${r.changefreq}</changefreq>\n` +
+        `    <priority>${r.priority}</priority>\n` +
+        "  </url>",
+    )
+    .join("\n") +
   "\n</urlset>\n";
 await writeFile(join(outDir, "sitemap.xml"), sitemap, "utf8");
-console.log(`sitemap    ${ROUTES.length} URL(s) -> dist/sitemap.xml`);
+console.log(`sitemap    ${snapshots.length} URL(s) -> dist/sitemap.xml`);

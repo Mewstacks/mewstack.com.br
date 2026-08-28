@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { useGSAP } from "@gsap/react";
 import MediaFrame from "../components/MediaFrame";
 import { SignalScene } from "../components/SignalJourney";
@@ -11,11 +12,14 @@ type Service = {
   description: string;
   capabilities: string[];
   instrument: "terminal" | "blueprint" | "columns";
+  /** Detail page for this line of work. */
+  href: string;
 };
 
 const SERVICES: Service[] = [
   {
     title: "Automações e integrações",
+    href: "/automacao-de-processos",
     description:
       "Tarefas repetitivas passam a rodar sozinhas e as ferramentas que hoje não se falam começam a trocar informação entre si. Sem redigitar, sem copiar e colar.",
     capabilities: ["ROTINAS AUTOMÁTICAS", "APIs & INTEGRAÇÕES", "AGENDAMENTOS"],
@@ -23,6 +27,7 @@ const SERVICES: Service[] = [
   },
   {
     title: "Aplicações web e sistemas internos",
+    href: "/sistemas-sob-medida",
     description:
       "Um software desenhado para o jeito que o negócio funciona, que centraliza a operação em um lugar só, no lugar da planilha esticada e do sistema genérico adaptado na marra.",
     capabilities: ["SISTEMAS SOB MEDIDA", "PORTAIS INTERNOS", "FLUXOS DO SEU JEITO"],
@@ -30,6 +35,7 @@ const SERVICES: Service[] = [
   },
   {
     title: "Dados e monitoramento",
+    href: "/integracao-de-sistemas",
     description:
       "A informação espalhada vira uma leitura só, organizada e confiável, com alertas que avisam quando algo foge do esperado, antes de virar problema.",
     capabilities: ["ORGANIZAÇÃO DE DADOS", "RELATÓRIOS & LEITURAS", "ALERTAS"],
@@ -363,6 +369,12 @@ export default function Capabilities() {
                     <span key={capability}>{capability}</span>
                   ))}
                 </p>
+                <Link
+                  to={service.href}
+                  className="text-link mt-5 inline-flex min-h-11 items-center text-[0.9rem]"
+                >
+                  Ver {service.title.toLowerCase()}
+                </Link>
               </div>
               <MediaFrame
                 ratio="4 / 3"

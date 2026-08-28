@@ -1,17 +1,16 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { ReactLenis, useLenis } from "lenis/react";
 import { ScrollTrigger } from "./lib/gsap";
 import { reduceMotion } from "./lib/motion";
 import SceneBackground from "./components/SceneBackground";
+import Seo from "./components/Seo";
 import Nav from "./sections/Nav";
-import Hero from "./sections/Hero";
-import Problem from "./sections/Problem";
-import Capabilities from "./sections/Capabilities";
-import CodeLab from "./sections/CodeLab";
-import Process from "./sections/Process";
-import About from "./sections/About";
-import Showcase from "./sections/Showcase";
-import Contact from "./sections/Contact";
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+import ServicePage from "./pages/ServicePage";
+import { SERVICES } from "./lib/services";
+import { homeSchema, serviceSchema } from "./lib/schema";
 
 /* Bridges Lenis's smooth scroll into ScrollTrigger (so every scrubbed/pinned
    animation tracks the eased scroll) and drives the top progress bar. Lives
@@ -59,6 +58,16 @@ function ScrollChrome() {
    focus moving to the target. */
 const NAV_CLEARANCE = 96; // px the section sits below the viewport top (fixed nav)
 
+function offsetFor(target: HTMLElement) {
+  let y = -NAV_CLEARANCE;
+  let node: HTMLElement | null = target;
+  while (node) {
+    y += node.offsetTop;
+    node = node.offsetParent as HTMLElement | null;
+  }
+  return Math.max(0, Math.round(y));
+}
+
 function LenisAnchors() {
   const lenis = useLenis();
 
@@ -72,19 +81,73 @@ function LenisAnchors() {
       const target = document.querySelector<HTMLElement>(href);
       if (!target) return;
       e.preventDefault();
-      let y = -NAV_CLEARANCE;
-      let node: HTMLElement | null = target;
-      while (node) {
-        y += node.offsetTop;
-        node = node.offsetParent as HTMLElement | null;
-      }
-      lenis.scrollTo(Math.max(0, Math.round(y)));
+      lenis.scrollTo(offsetFor(target));
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
   }, [lenis]);
+
+  return null;
+}
+
+/* A route change swaps the whole page under Lenis and ScrollTrigger, neither of
+   which watches the router. This resets the scroll position, honours a #hash
+   carried across pages (the nav links back to /#processo from a service page)
+   and rebuilds trigger positions for the new content. */
+function RouteChrome() {
+  const { pathname, hash } = useLocation();
+  const lenis = useLenis();
+
+  useLayoutEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+
+  useEffect(() => {
+    if (!hash) {
+      const id = window.setTimeout(() => ScrollTrigger.refresh(), 120);
+      return () => window.clearTimeout(id);
+    }
+
+    /* Landing on /#processo from a service page means the home page has to
+       mount, lay out and load its media before the anchor's offset is even
+       knowable. A single delayed scroll lands short, so this re-measures until
+       the target actually sits under the nav — and stops the moment the visitor
+       takes over the scroll themselves. */
+    let attempts = 0;
+    let timer = 0;
+    let taken = false;
+    const surrender = () => {
+      taken = true;
+    };
+    window.addEventListener("wheel", surrender, { passive: true, once: true });
+    window.addEventListener("touchstart", surrender, { passive: true, once: true });
+
+    const attempt = () => {
+      if (taken) return;
+      const target = document.querySelector<HTMLElement>(hash);
+      if (target) {
+        ScrollTrigger.refresh();
+        const y = offsetFor(target);
+        if (Math.abs(window.scrollY - y) > 8) {
+          if (lenis) lenis.scrollTo(y, { immediate: true });
+          else window.scrollTo(0, y);
+        } else {
+          return;
+        }
+      }
+      if (++attempts < 12) timer = window.setTimeout(attempt, 120);
+    };
+    timer = window.setTimeout(attempt, 60);
+
+    return () => {
+      taken = true;
+      window.clearTimeout(timer);
+      window.removeEventListener("wheel", surrender);
+      window.removeEventListener("touchstart", surrender);
+    };
+  }, [pathname, hash, lenis]);
 
   return null;
 }
@@ -117,6 +180,7 @@ export default function App() {
       }}
     >
       <LenisAnchors />
+      <RouteChrome />
       {!reduce && <ScrollChrome />}
       <SceneBackground />
       <a
@@ -127,14 +191,40 @@ export default function App() {
       </a>
       <Nav />
       <main id="conteudo">
-        <Hero />
-        <Problem />
-        <Capabilities />
-        <Process />
-        <CodeLab />
-        <Showcase />
-        <About />
-        <Contact />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Seo
+                  title="MewStack — Sistemas e automação sob medida em Caxias do Sul"
+                  description="Estúdio de software em Caxias do Sul. Sistemas sob medida, automação de processos e integração de dados para a sua operação."
+                  path="/"
+                  schema={homeSchema()}
+                />
+                <Home />
+              </>
+            }
+          />
+          {SERVICES.map((service) => (
+            <Route
+              key={service.slug}
+              path={`/${service.slug}`}
+              element={
+                <>
+                  <Seo
+                    title={service.metaTitle}
+                    description={service.metaDescription}
+                    path={`/${service.slug}`}
+                    schema={serviceSchema(service)}
+                  />
+                  <ServicePage service={service} />
+                </>
+              }
+            />
+          ))}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </main>
     </ReactLenis>
   );
