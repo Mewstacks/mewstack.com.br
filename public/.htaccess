@@ -1,36 +1,109 @@
-# Static site — MewStack (React/Vite SPA)
+# Static site — MewStack (React/Vite, prerendered to HTML at build time)
 
-# Force index
+Options -Indexes
 DirectoryIndex index.html
+AddDefaultCharset UTF-8
 
-# Single-page fallback: send unknown routes to index.html
+# The FTP deploy action writes its sync state into the docroot; without this it
+# is world-readable and lists every file on the server.
+<FilesMatch "^\.">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^index\.html$ - [L]
+
+  # --- One canonical origin -------------------------------------------------
+  # Until now http/https and www/apex all answered 200 with identical HTML:
+  # four URLs, one page, no canonical. Both checks are needed because shared
+  # hosting terminates TLS at a proxy, where %{HTTPS} stays off.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://mewstack.com.br%{REQUEST_URI} [L,R=301]
+
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+  # --- Prerendered routes ---------------------------------------------------
+  # /rota -> /rota/index.html, served directly (no 301 to a trailing slash).
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.+?)/?$ /$1/index.html [L]
+
+  # No SPA catch-all. Every route is prerendered, so anything left over really
+  # is missing and must say 404 — the old `RewriteRule . /index.html` answered
+  # 200 for /robots.txt, /sitemap.xml, /favicon.ico and every typo'd URL.
 </IfModule>
 
-# Gzip compression
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+  # Enable only after confirming HTTPS is healthy on every entry point.
+  # Browsers cache this policy, so it is slow to undo.
+  # Header always set Strict-Transport-Security "max-age=31536000"
+
+  # Vite fingerprints its output, so a hashed file can never go stale. Matched
+  # by filename rather than <If ...>, which only exists on Apache 2.4 and would
+  # 500 the whole site on an older server.
+  <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json image/svg+xml
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript text/javascript
+  AddOutputFilterByType DEFLATE application/json application/xml
+  AddOutputFilterByType DEFLATE application/manifest+json image/svg+xml
+  AddOutputFilterByType DEFLATE image/x-icon
 </IfModule>
 
-# Cache static assets (hashed filenames — safe to cache long)
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript text/javascript
+  AddOutputFilterByType BROTLI_COMPRESS application/json application/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/manifest+json image/svg+xml
+</IfModule>
+
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 year"
   ExpiresByType application/javascript "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
-  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
   ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/avif "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  # The hero video is the single heaviest asset and had no cache rule at all.
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType video/webm "access plus 1 year"
   ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/xml "access plus 1 hour"
 </IfModule>
 
-# Correct MIME for modern JS modules
 <IfModule mod_mime.c>
   AddType application/javascript .js .mjs
+  AddType image/webp .webp
+  AddType image/avif .avif
+  AddType application/manifest+json .webmanifest
 </IfModule>

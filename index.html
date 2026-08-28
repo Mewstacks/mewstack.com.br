@@ -2,25 +2,131 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/brand/icon.png" />
-    <link rel="apple-touch-icon" href="/brand/icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f6f1f3" />
-    <title>MewStack — Software, Automações & Data Processing</title>
+
+    <title>MewStack — Automação de processos e software sob medida</title>
     <meta
       name="description"
-      content="MewStack transforma dados não estruturados em decisões de negócio aplicáveis. Software sob medida, rotinas inteligentes e automação que elimina o trabalho repetitivo."
+      content="Estúdio de software que automatiza processos, integra sistemas e organiza dados. Aplicações web e sistemas internos sob medida para a sua operação."
     />
-    <meta property="og:title" content="MewStack — Software, Automações & Data Processing" />
+    <link rel="canonical" href="https://mewstack.com.br/" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/brand/icon-512.png" sizes="any" />
+    <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MewStack" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://mewstack.com.br/" />
+    <meta property="og:title" content="MewStack — Automação de processos e software sob medida" />
     <meta
       property="og:description"
-      content="Eliminamos processos repetitivos e revelamos o poder dos dados que você já possui."
+      content="Estúdio de software que automatiza processos, integra sistemas e organiza dados. Aplicações web e sistemas internos sob medida para a sua operação."
     />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:image" content="https://mewstack.com.br/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MewStack — software, automações e dados" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Paint guard. The HTML now ships prerendered, so without this a visitor
+         on a slow connection sees the finished page, then watches it blank out
+         when React mounts and GSAP arms the intro reveals (measured: ~1s of
+         flash on throttled 4G).
+         Only the elements the motion system actually animates are held back -
+         hiding all of #root would also delay the nav, background and frames,
+         and with them first paint. visibility keeps the layout box, so nothing
+         shifts when they are released. Crawlers never run this script and read
+         the full markup either way. -->
+    <style>
+      html.booting [data-hero],
+      html.booting [data-reveal],
+      html.booting [data-reveal-title],
+      html.booting [data-term-text] { visibility: hidden }
+    </style>
+    <script>
+      document.documentElement.classList.add("booting");
+      // Safety net: if the bundle never arrives, show the prerendered content
+      // rather than an empty page.
+      setTimeout(function () {
+        document.documentElement.classList.remove("booting");
+      }, 4000);
+    </script>
+
     <link rel="preload" href="/fonts/fraunces-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/switzer-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-mono-variable.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script
+      defer
+      data-domain="mewstack.com.br"
+      src="https://plausible.io/js/script.outbound-links.js"
+    ></script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://mewstack.com.br/#organization",
+            "name": "MewStack",
+            "url": "https://mewstack.com.br/",
+            "logo": "https://mewstack.com.br/brand/logo-horizontal.png",
+            "image": "https://mewstack.com.br/og.jpg",
+            "email": "vendas@mewstack.com.br",
+            "telephone": "+55-54-99657-3455",
+            "legalName": "MewStack Desenvolvimento de Sistemas Ltda",
+            "taxID": "68.340.160/0001-13",
+            "foundingDate": "2026-08-03",
+            "description": "Estúdio de software especializado em automação de processos, integração de sistemas, aplicações web e organização de dados.",
+            "sameAs": ["https://www.instagram.com/meewstack/"]
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://mewstack.com.br/#localbusiness",
+            "name": "MewStack",
+            "url": "https://mewstack.com.br/",
+            "image": "https://mewstack.com.br/og.jpg",
+            "parentOrganization": { "@id": "https://mewstack.com.br/#organization" },
+            "telephone": "+55-54-99657-3455",
+            "email": "vendas@mewstack.com.br",
+            "priceRange": "$$",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Rua Primitiva Zatti, 297 - fundos",
+              "addressLocality": "Caxias do Sul",
+              "addressRegion": "RS",
+              "postalCode": "95057-560",
+              "addressCountry": "BR"
+            },
+            "areaServed": [
+              { "@type": "City", "name": "Caxias do Sul" },
+              { "@type": "State", "name": "Rio Grande do Sul" },
+              { "@type": "Country", "name": "Brasil" }
+            ],
+            "knowsAbout": [
+              "Automação de processos",
+              "Integração de sistemas",
+              "Desenvolvimento de software sob medida",
+              "Automação fiscal e NFS-e",
+              "Engenharia de dados"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://mewstack.com.br/#website",
+            "url": "https://mewstack.com.br/",
+            "name": "MewStack",
+            "inLanguage": "pt-BR",
+            "publisher": { "@id": "https://mewstack.com.br/#organization" }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

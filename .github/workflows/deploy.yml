@@ -21,6 +21,15 @@ jobs:
 
       - name: Instalar dependências
         run: npm ci
+        # Playwright's postinstall pulls every browser (~400 MB). The prerender
+        # only needs Chromium, installed explicitly in the next step.
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+      # The build's prerender step drives a real browser to snapshot the app
+      # into static HTML, so CI needs one.
+      - name: Instalar Chromium (prerender)
+        run: npx playwright install --with-deps chromium
 
       - name: Build
         run: npm run build

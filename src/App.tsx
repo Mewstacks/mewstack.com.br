@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { ReactLenis, useLenis } from "lenis/react";
 import { ScrollTrigger } from "./lib/gsap";
 import { reduceMotion } from "./lib/motion";
@@ -91,6 +91,13 @@ function LenisAnchors() {
 
 export default function App() {
   const reduce = reduceMotion();
+
+  // Releases the paint guard set in index.html. Layout effect, so it runs after
+  // the chapters' own useGSAP effects have armed their reveals — the first
+  // painted frame is the intro's starting state, never a half-applied one.
+  useLayoutEffect(() => {
+    document.documentElement.classList.remove("booting");
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.reducedMotion = reduce ? "true" : "false";
