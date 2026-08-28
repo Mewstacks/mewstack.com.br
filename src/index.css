@@ -144,6 +144,18 @@
     text-wrap: balance;
   }
 
+  /* A media caption names the work, so its title is a real heading — but it is
+     typeset as caption chrome, not as display. Everything the rule above sets
+     goes back to whatever the figcaption established. */
+  figcaption :is(h1, h2, h3, h4) {
+    font-family: inherit;
+    font-variation-settings: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    text-wrap: inherit;
+  }
+
   p {
     text-wrap: pretty;
   }
