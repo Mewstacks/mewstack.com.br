@@ -10,7 +10,7 @@ import { useMagnetic } from "../lib/useMagnetic";
 const INSTAGRAM_USER = "meewstack";
 const INSTAGRAM = `https://www.instagram.com/${INSTAGRAM_USER}/`;
 const INSTAGRAM_APP = `instagram://user?username=${INSTAGRAM_USER}`;
-const EMAIL = "vendas@mewstack.com.br";
+const EMAIL = "contato@mewstack.com.br";
 const WHATSAPP = "https://wa.me/5554996573455";
 
 function isIOS() {
