@@ -46,6 +46,12 @@ export function useHorizontalGallery(
             scrub: MOTION.horizontalScrub,
             pin: true,
             pinSpacing: true,
+            // Pin by translating instead of switching to position: fixed.
+            // Nothing moves on screen either way, but Chrome's layout
+            // instability API counts the relative -> fixed swap as the element
+            // travelling a full viewport, which alone put CLS at ~1.99 on this
+            // page. Transform pinning is invisible to that metric.
+            pinType: "transform",
             refreshPriority: 0,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
