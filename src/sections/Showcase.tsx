@@ -44,6 +44,58 @@ const CASES = [
       type: "INTEGRAÇÃO",
     },
   },
+  {
+    key: "conciliacao-contabil",
+    src: "/media/cases/conciliacao-contabil.webp",
+    width: 1918,
+    height: 991,
+    title:
+      "Mesa de revisão de lançamentos com sugestão de conta, grau de confiança e aprovação por competência",
+    caption: {
+      name: "CONCILIAÇÃO ASSISTIDA",
+      detail: "Mesa de revisão · confiança",
+      type: "PLATAFORMA",
+    },
+  },
+  {
+    key: "integracao-financeira",
+    src: "/media/cases/integracao-financeira.webp",
+    width: 1918,
+    height: 991,
+    title:
+      "Painel de integração entre marketplace e ERP financeiro, com movimento diário, canais e inconsistências",
+    caption: {
+      name: "INTEGRAÇÃO FINANCEIRA",
+      detail: "Pedidos · lançamentos · exceções",
+      type: "INTEGRAÇÃO",
+    },
+  },
+  {
+    key: "rentabilidade-carteira",
+    src: "/media/cases/rentabilidade-carteira.webp",
+    width: 1918,
+    height: 991,
+    title:
+      "Análise de rentabilidade por cliente com receita, custo, margem e confiabilidade dos dados da carteira",
+    caption: {
+      name: "RENTABILIDADE POR CLIENTE",
+      detail: "Receita · custo · margem",
+      type: "ANÁLISE",
+    },
+  },
+  {
+    key: "operacao-comercial",
+    src: "/media/cases/operacao-comercial.webp",
+    width: 1500,
+    height: 775,
+    title:
+      "Quadro de operação do time com cartões por etapa, prioridade, cliente vinculado e prazo de entrega",
+    caption: {
+      name: "OPERAÇÃO DO TIME",
+      detail: "Quadros · clientes · prazos",
+      type: "SISTEMA INTERNO",
+    },
+  },
 ];
 
 export default function Showcase() {
@@ -75,8 +127,8 @@ export default function Showcase() {
               Sistemas reais, feitos para operações reais.
             </h2>
             <p data-reveal className="mt-5 max-w-[68ch] text-ink-soft">
-              Automação fiscal, plataforma web e distribuição multicanal, 
-              produtos diferentes, com a mesma obsessão por clareza, integração e fluxo.
+              Automação fiscal, conciliação contábil, integração financeira e sistemas
+              internos, produtos diferentes, com a mesma obsessão por clareza, integração e fluxo.
             </p>
           </div>
         </div>
