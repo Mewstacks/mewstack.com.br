@@ -42,6 +42,15 @@ const TEAM: Member[] = [
     bio: "Mantém deploy, infraestrutura e suporte funcionando para o sistema continuar confiável depois da entrega.",
     skills: ["DevOps", "Docker", "Cloud", "Suporte"],
   },
+  {
+    name: "Guilherme Bortolini da Costa",
+    role: "Executivo Comercial",
+    photo: "/brand/team-comercial.webp",
+    photoSize: [720, 1279] as const,
+    objectPosition: "50% 40%",
+    bio: "Faz a primeira conversa: entende a operação, transforma o problema em escopo e proposta clara e acompanha o cliente até o projeto começar.",
+    skills: ["Vendas", "Propostas", "Negociação", "Clientes"],
+  },
 ];
 
 export default function About() {
@@ -75,7 +84,7 @@ export default function About() {
 
         <div
           data-signal-anchor="about-signal"
-          className="mt-12 mx-auto grid max-w-[960px] gap-x-6 gap-y-12 md:grid-cols-3"
+          className="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4"
         >
           {TEAM.map((member) => (
             <article key={member.name} data-reveal className="min-w-0">

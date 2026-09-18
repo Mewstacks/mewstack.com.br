@@ -1,5 +1,7 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
+import { Maximize2 } from "lucide-react";
 import { reduceMotion } from "../lib/motion";
+import Lightbox from "./Lightbox";
 
 export type MediaCaption = {
   name: string;
@@ -27,6 +29,8 @@ type MediaFrameProps = {
   angle?: number;
   className?: string;
   onNight?: boolean;
+  /* Clique na imagem abre a captura ampliada (Lightbox). Só para `src`. */
+  expandable?: boolean;
   children?: ReactNode;
 };
 
@@ -139,9 +143,12 @@ export default function MediaFrame({
   angle = 1,
   className = "",
   onNight = false,
+  expandable = false,
   children,
 }: MediaFrameProps) {
   const reduce = reduceMotion();
+  const [expanded, setExpanded] = useState(false);
+  const zoomable = expandable && !children && !videoSrc && !!src;
   const style = ratio
     ? ({ "--frame-ratio": ratio } as CSSProperties)
     : undefined;
@@ -191,10 +198,38 @@ export default function MediaFrame({
             className="registration-mark"
           />
         ))}
-        <div className="h-full w-full overflow-hidden rounded-[7px]">{media}</div>
+        <div className="h-full w-full overflow-hidden rounded-[7px]">
+          {zoomable ? (
+            <button
+              type="button"
+              className="case-zoom"
+              aria-label={`Ampliar imagem: ${title}`}
+              aria-haspopup="dialog"
+              onClick={() => setExpanded(true)}
+            >
+              {media}
+              <span aria-hidden className="case-zoom-hint">
+                <Maximize2 size={15} strokeWidth={1.75} />
+              </span>
+            </button>
+          ) : (
+            media
+          )}
+        </div>
       </div>
       {caption && captionPosition === "bottom" && (
         <Caption caption={caption} onNight={onNight} nameAs={captionNameAs} />
+      )}
+      {zoomable && src && (
+        <Lightbox
+          open={expanded}
+          src={src}
+          alt={title}
+          width={width}
+          height={height}
+          caption={caption}
+          onClose={() => setExpanded(false)}
+        />
       )}
     </figure>
   );

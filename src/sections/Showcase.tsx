@@ -201,6 +201,7 @@ export default function Showcase() {
               height={item.height}
               fit="contain"
               ratio="1918 / 991"
+              expandable
             />
           ))}
         </div>

@@ -474,6 +474,132 @@
   }
 }
 
+@layer components {
+  /* Ampliação dos cases (Lightbox.tsx). Fundo night, sem blur nem brilho:
+     a captura é o assunto. */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-paper-on-night);
+    overflow: hidden;
+  }
+  .lightbox::backdrop {
+    background: oklch(0.17 0.02 290 / 0.92);
+  }
+  .lightbox[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: lightbox-in 220ms var(--ease-quart);
+  }
+  .lightbox[open]::backdrop {
+    animation: lightbox-fade 220ms ease;
+  }
+  .lightbox-body {
+    display: flex;
+    min-width: 0;
+    width: min(94vw, 1600px);
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .lightbox-scroller {
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--color-night-line);
+    border-radius: 8px;
+    background: var(--color-night);
+  }
+  .lightbox-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 84vh;
+    object-fit: contain;
+    cursor: zoom-out;
+  }
+  /* No celular a captura inteira na largura fica ilegível: ela abre ampliada
+     e o scroller rola na horizontal. */
+  @media (max-width: 639px) {
+    .lightbox-image {
+      width: 200vw;
+      max-width: none;
+      max-height: none;
+      cursor: auto;
+    }
+  }
+  .lightbox-close {
+    position: absolute;
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: 0.75rem;
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-night-line);
+    border-radius: 999px;
+    background: var(--color-night-2);
+    color: var(--color-paper-on-night);
+    transition: border-color 200ms ease;
+  }
+  .lightbox-close:hover {
+    border-color: var(--color-signal);
+  }
+  .case-zoom {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: zoom-in;
+  }
+  .case-zoom-hint {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-night-line);
+    border-radius: 999px;
+    background: var(--color-night);
+    color: var(--color-paper-on-night);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .case-zoom:hover .case-zoom-hint,
+  .case-zoom:focus-visible .case-zoom-hint {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .case-zoom-hint {
+      opacity: 0.85;
+    }
+  }
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+@keyframes lightbox-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
