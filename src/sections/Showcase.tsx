@@ -32,6 +32,19 @@ const CASES = [
     },
   },
   {
+    key: "retificacao-fiscal",
+    src: "/media/cases/retificacao-fiscal.webp",
+    width: 1918,
+    height: 991,
+    title:
+      "Conferência mensal da EFD-Contribuições com diferenças de PIS/Cofins por documento e preparo da retificadora",
+    caption: {
+      name: "RETIFICAÇÃO FISCAL",
+      detail: "EFD · conferência · retificadora",
+      type: "APLICAÇÃO WEB",
+    },
+  },
+  {
     key: "distribuicao-multicanal",
     src: "/media/cases/distribuicao-multicanal.webp",
     width: 1916,
@@ -54,6 +67,19 @@ const CASES = [
     caption: {
       name: "CONCILIAÇÃO ASSISTIDA",
       detail: "Mesa de revisão · confiança",
+      type: "PLATAFORMA",
+    },
+  },
+  {
+    key: "central-contabil",
+    src: "/media/cases/central-contabil.webp",
+    width: 1918,
+    height: 991,
+    title:
+      "Visão geral de um escritório contábil com carteira, NFS-e em revisão, guias, caixa DTE e triagem de arquivos",
+    caption: {
+      name: "CENTRAL DO ESCRITÓRIO",
+      detail: "NFS-e · guias · DTE · triagem",
       type: "PLATAFORMA",
     },
   },
@@ -127,7 +153,7 @@ export default function Showcase() {
               Sistemas reais, feitos para operações reais.
             </h2>
             <p data-reveal className="mt-5 max-w-[68ch] text-ink-soft">
-              Automação fiscal, conciliação contábil, integração financeira e sistemas
+              Automação e retificação fiscal, conciliação contábil, integração financeira e sistemas
               internos, produtos diferentes, com a mesma obsessão por clareza, integração e fluxo.
             </p>
           </div>
