@@ -244,9 +244,12 @@ export function buildSignalSceneRoute(
     const mediaYRight = media.y + media.height * (yRightRatio / viewHeight);
     const mediaLeft = media.x;
     const mediaRight = media.x + media.width;
-    // Inset past the rounded bezel clip so the outer tip overlaps the inner
-    // stroke at the frame edge (avoids the visible gap in the join).
-    const joinLeft = mediaLeft + (compact ? 10 : 14);
+    // Join termina EXATAMENTE na borda do frame, onde a linha interna começa
+    // (mesmo Y via HERO_SIGNAL_MEDIA): ponta com ponta, sem sobreposição —
+    // overlap pintava o traço duplo e a emenda aparecia como um trecho mais
+    // claro/grosso na costura. Na altura da linha (~meio do frame) o bezel
+    // arredondado não cobre a borda, então não há gap.
+    const joinLeft = mediaLeft;
 
     const curve = (
       c1x: number,

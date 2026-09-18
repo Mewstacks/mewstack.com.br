@@ -156,7 +156,10 @@ function createHeroTimeline(
 
   // Uma timeline só, scrubada no scroll natural — sem pin. Trigger na seção
   // (não no media): em viewports altos o vídeo já nasce na tela; amarrar ao
-  // media fazia a linha avançar no load. Aqui progresso 0 = topo do hero.
+  // media fazia a linha avançar no load. Aqui progresso 0 = topo do hero e
+  // NADA desenhado: a descida é o primeiro passo da timeline, então o traço
+  // só nasce com o scroll e desfaz inteiro ao voltar — nunca começa sozinho
+  // nem trava desenhado pela metade.
   const timeline = gsap.timeline({
     defaults: { ease: "none" },
     scrollTrigger: {
@@ -170,17 +173,11 @@ function createHeroTimeline(
     },
   });
 
-  // Descida desenha no load, completa antes de qualquer scroll: ao rolar, o
-  // header cobre um traço já inteiro (rolagem normal), nunca uma ponta viva.
-  const heroDraw = MOTION.signal.heroDraw;
-  const descentTween = gsap.to(outerPath, {
-    strokeDashoffset: 0,
-    delay: heroDraw.delay,
-    duration: heroDraw.duration,
-    ease: heroDraw.ease,
-  });
-
+  // Ordem estrita: descida → veil/guias → join → travessia → saída. Cada
+  // etapa só começa quando a anterior fecha, então as pontas se encontram
+  // em sequência e leem como UMA linha contínua (sem “emenda” visível).
   timeline
+    .to(outerPath, { strokeDashoffset: 0, duration: dial.descentSpan }, 0)
     .to(veil, { opacity: dial.veilOpacity, duration: dial.veilSpan }, dial.veilAt)
     .to(guides, { strokeDashoffset: 0, duration: dial.guideSpan }, dial.guideAt);
   if (joinPath) {
@@ -236,7 +233,6 @@ function createHeroTimeline(
     window.cancelAnimationFrame(seekFrame);
     video.removeEventListener("loadedmetadata", onMetadata);
     video.pause();
-    descentTween.kill();
     timeline.scrollTrigger?.kill();
     timeline.kill();
   };

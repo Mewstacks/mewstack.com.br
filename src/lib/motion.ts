@@ -30,27 +30,29 @@ export const MOTION = {
     dotTravelX: 14,
     flowSpacing: 430,
     flowOpacity: 0.48,
-    // Timeline única no scroll natural (sem pin). Pesos relativos ao progresso 0→1.
-    // A descida desenha no load (MOTION.signal.heroDraw); o scrub cobre só
-    // join/travessia/saída. Tudo acontece na PRIMEIRA metade da janela: a
-    // linha atravessa e sai do vídeo enquanto o frame passa pelo centro da
-    // viewport — quando o usuário sai do hero, a linha já saiu junto.
-    veilAt: 0.1,
+    // Timeline única no scroll natural (sem pin), scrubada ponta a ponta:
+    // descida → join → travessia → saída, tudo preso ao progresso 0→1. Nada
+    // desenha no load — scrollar pra cima desfaz o traço até sumir. A saída
+    // só começa quando a travessia fecha (exitAt = innerAt + innerSpan), e a
+    // coreografia inteira termina na primeira metade da janela: a linha sai
+    // do vídeo enquanto o frame ainda passa pelo centro da viewport.
+    descentSpan: 0.16,
+    veilAt: 0.11,
     veilSpan: 0.07,
-    guideAt: 0.1,
+    guideAt: 0.11,
     guideSpan: 0.1,
-    guideFadeAt: 0.5,
+    guideFadeAt: 0.44,
     guideFadeSpan: 0.06,
-    joinAt: 0.1,
-    joinSpan: 0.1,
-    innerAt: 0.2,
-    innerSpan: 0.24,
+    joinAt: 0.16,
+    joinSpan: 0.08,
+    innerAt: 0.24,
+    innerSpan: 0.2,
     flowAt: 0.48,
     flowSpan: 0.16,
-    exitAt: 0.4,
-    exitSpan: 0.2,
+    exitAt: 0.44,
+    exitSpan: 0.16,
     // Progresso a partir do qual o vídeo acompanha o scrub (após a descida).
-    mediaFrom: 0.1,
+    mediaFrom: 0.16,
     seekThreshold: 1 / 30,
   },
   wipeDuration: 0.8,
@@ -83,14 +85,6 @@ export const MOTION = {
       end: "bottom 45%",
       // Lag mínimo: tip suave sem “segurar” o scroll.
       scrub: 0.3,
-    },
-    // Descida do hero: tween LENTO no load — acompanha a leitura da dobra e
-    // termina antes de qualquer scroll, então o header nunca cobre uma ponta
-    // em movimento.
-    heroDraw: {
-      delay: 0.4,
-      duration: 3.2,
-      ease: "sine.inOut",
     },
     // Demais cenas: scrub COLADO no scroll (scrub: true, zero lag). A janela
     // abre quando a âncora entra pela borda inferior e fecha ~no centro da
