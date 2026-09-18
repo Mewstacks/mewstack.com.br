@@ -48,7 +48,7 @@ const TEAM: Member[] = [
     photo: "/brand/team-comercial.webp",
     photoSize: [720, 1279] as const,
     objectPosition: "50% 40%",
-    bio: "Faz a primeira conversa: entende a operação, transforma o problema em escopo e proposta clara e acompanha o cliente até o projeto começar.",
+    bio: "Entende a operação do cliente e transforma o problema em uma proposta clara, do primeiro contato ao início do projeto.",
     skills: ["Vendas", "Propostas", "Negociação", "Clientes"],
   },
 ];
